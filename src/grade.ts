@@ -73,3 +73,44 @@ export function typingSpeed(attempts: AnyAttempt[], recent = 3): number | null {
   const mid = Math.floor(rates.length / 2);
   return rates.length % 2 ? rates[mid] : (rates[mid - 1] + rates[mid]) / 2;
 }
+
+// Everything known about one item in one attempt, for detail views.
+export interface ItemRecord {
+  answer: string;
+  result: Bucket | "untimed";
+  acceptedMs: number | null;
+  seconds: number | null;    // time on item
+  latency: number | null;
+  typedChars: number | null;
+  wrong: number | null;
+}
+
+export function itemRecord(attempt: AnyAttempt, answer: string, cps: number): ItemRecord | null {
+  if (attempt.version !== 2) {
+    if (attempt.found.includes(answer)) {
+      return { answer, result: "untimed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null };
+    }
+    if (attempt.missed.includes(answer)) {
+      return { answer, result: "missed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null };
+    }
+    return null;
+  }
+  const idx = attempt.items.findIndex((r) => r.answer === answer);
+  if (idx < 0) return null;
+  const r = attempt.items[idx];
+  return {
+    answer,
+    result: bucketOf(attempt, idx, cps),
+    acceptedMs: r.acceptedMs ?? null,
+    seconds: itemSeconds(attempt, idx),
+    latency: itemLatency(attempt, idx, cps),
+    typedChars: r.typedChars ?? null,
+    wrong: r.wrong,
+  };
+}
+
+// Answers in the order they were shown; legacy records: found order, then missed.
+export function playOrder(attempt: AnyAttempt): string[] {
+  if (attempt.version === 2 && attempt.order) return attempt.order.map((i) => attempt.items[i].answer);
+  return [...attempt.found, ...attempt.missed];
+}

@@ -89,3 +89,7 @@ button.quiz-link.muted { color: var(--muted); }
 .card.missed .card-answer { color: var(--missed); }
 .card.missed { border-color: var(--missed); }
 .seconds { font-size: 0.8em; font-variant-numeric: tabular-nums; }
+
+.row-link { cursor: pointer; }
+.row-link:hover td { background: #f1f1f1; }
+.item-prompt { margin: 8px 0; }

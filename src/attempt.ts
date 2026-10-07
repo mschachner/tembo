@@ -29,6 +29,7 @@ export interface Attempt {
   missed: string[];
   rejected: number;      // rejected submissions in total (list mode can't attribute them to items)
   items: ItemResult[];   // file order
+  order?: number[];      // item indices in the order they were displayed
 }
 
 export interface ItemTiming {
@@ -45,6 +46,7 @@ export function makeAttempt(
   foundOrder: number[],
   timing: ItemTiming[],
   rejected: number,
+  order: number[],
 ): Attempt {
   const foundSet = new Set(foundOrder);
   const found = foundOrder.map((i) => quiz.items[i].canonical);
@@ -72,5 +74,6 @@ export function makeAttempt(
     missed,
     rejected,
     items,
+    order,
   };
 }

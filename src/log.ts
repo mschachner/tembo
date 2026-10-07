@@ -20,9 +20,16 @@ export interface AttemptV1 {
 export type AnyAttempt = Attempt | AttemptV1;
 
 // Does this record belong to the quiz? Records written before ids existed
-// are matched by path, so an id header can be added later without loss.
+// are matched by the quiz folder name their path ends in (or the file stem,
+// from before folders), which is what a quiz's id defaults to.
 export function belongsTo(a: AnyAttempt, quiz: { id: string; path: string }): boolean {
-  return "quizId" in a && a.quizId !== undefined ? a.quizId === quiz.id : a.quiz === quiz.path;
+  if ("quizId" in a && a.quizId !== undefined) return a.quizId === quiz.id;
+  return a.quiz === quiz.path || legacyId(a.quiz) === quiz.id;
+}
+
+export function legacyId(path: string): string {
+  const tail = path.split("quizzes/").pop() ?? path;
+  return tail.replace(/\/quiz\.txt$/, "").replace(/\.txt$/, "");
 }
 
 export function parseLog(text: string): AnyAttempt[] {

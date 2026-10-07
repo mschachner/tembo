@@ -1,7 +1,7 @@
 import { appendAttempt, listQuizzes, readAsset, readAttempts } from "./backend";
 import { makeAttempt, type Attempt, type ItemTiming } from "./attempt";
 import { clear, formatClock, h } from "./dom";
-import { bucketOf, DEFAULT_CPS, gradeOf, typingSpeed } from "./grade";
+import { bucketOf, DEFAULT_CPS, gradeOf, itemRecord, playOrder, typingSpeed } from "./grade";
 import { belongsTo, parseLog, type AnyAttempt } from "./log";
 import { parseQuiz, type Item, type Quiz } from "./quiz/format";
 import { findMatch, matchesItem } from "./quiz/match";
@@ -174,7 +174,7 @@ function showQuiz(quiz: Quiz): void {
     .map((a) =>
       h(
         "tr",
-        {},
+        { class: "row-link", onclick: () => showAttempt(quiz, a, () => showQuiz(quiz)) },
         h("td", {}, fmtDate(a.endedAt)),
         h("td", { class: "num" }, `${a.score}/${a.total}`),
         h("td", { class: "num" }, formatClock(a.durationSeconds)),
@@ -190,7 +190,7 @@ function showQuiz(quiz: Quiz): void {
       const med = median(st.latencies);
       return h(
         "tr",
-        { class: st.last ?? "" },
+        { class: `row-link ${st.last ?? ""}`, onclick: () => showItem(quiz, st.answer, () => showQuiz(quiz)) },
         h("td", {}, st.answer),
         h("td", { class: "num" }, String(st.seen)),
         h("td", { class: "num" }, String(st.instant)),
@@ -225,10 +225,106 @@ function showQuiz(quiz: Quiz): void {
   );
 }
 
+// ---------- attempt detail ----------
+
+const fmtSecs = (x: number | null) => (x === null ? "" : `${x.toFixed(1)}s`);
+const fmtNum = (x: number | null) => (x === null ? "" : String(x));
+
+function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): void {
+  const facts = [
+    fmtDate(attempt.endedAt),
+    `${attempt.score} / ${attempt.total}`,
+    formatClock(attempt.durationSeconds),
+    attempt.cleared ? "cleared" : "not cleared",
+    `grade ${gradeOf(attempt, cps).toFixed(2)}`,
+    attempt.version === 2 ? `${attempt.rejected} rejected` : "no timing (older record)",
+  ].join(" · ");
+
+  const th = (...names: string[]) => h("tr", {}, ...names.map((n) => h("th", {}, n)));
+  const rows = playOrder(attempt).map((answer, i) => {
+    const r = itemRecord(attempt, answer, cps);
+    if (!r) return h("tr", {}, h("td", {}, answer));
+    return h(
+      "tr",
+      { class: `row-link ${r.result}`, onclick: () => showItem(quiz, answer, () => showAttempt(quiz, attempt, back)) },
+      h("td", { class: "num" }, String(i + 1)),
+      h("td", {}, answer),
+      h("td", {}, r.result),
+      h("td", { class: "num" }, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000)),
+      h("td", { class: "num" }, fmtSecs(r.seconds)),
+      h("td", { class: "num" }, fmtSecs(r.latency)),
+      h("td", { class: "num" }, fmtNum(r.typedChars)),
+      h("td", { class: "num" }, fmtNum(r.wrong)),
+    );
+  });
+
+  show(
+    h("header", {}, h("h1", {}, attempt.title), h("div", { class: "muted small" }, facts)),
+    h("div", { class: "actions" }, h("button", { class: "quiet", onclick: back }, "Back")),
+    h("table", { class: "stats" }, th("#", "answer", "result", "at", "time", "latency", "typed", "wrong"), ...rows),
+  );
+}
+
+// ---------- item detail ----------
+
+function showItem(quiz: Quiz, answer: string, back: () => void): void {
+  const item = quiz.items.find((it) => it.canonical === answer);
+  const own = attemptsOf(quiz);
+  const records = own
+    .map((a) => ({ a, r: itemRecord(a, answer, cps) }))
+    .filter((x): x is { a: AnyAttempt; r: NonNullable<ReturnType<typeof itemRecord>> } => x.r !== null)
+    .reverse();
+
+  const counts = { instant: 0, slow: 0, missed: 0, untimed: 0 };
+  const latencies: number[] = [];
+  for (const { r } of records) {
+    counts[r.result]++;
+    if (r.latency !== null) latencies.push(r.latency);
+  }
+  const med = median(latencies);
+  const facts = [
+    `${records.length} seen`,
+    `${counts.instant} instant`,
+    `${counts.slow} slow`,
+    `${counts.missed} missed`,
+    counts.untimed ? `${counts.untimed} untimed` : null,
+    med === null ? null : `median latency ${med.toFixed(1)}s`,
+  ].filter(Boolean).join(" · ");
+
+  const th = (...names: string[]) => h("tr", {}, ...names.map((n) => h("th", {}, n)));
+  const rows = records.map(({ a, r }) =>
+    h(
+      "tr",
+      { class: `row-link ${r.result}`, onclick: () => showAttempt(quiz, a, () => showItem(quiz, answer, back)) },
+      h("td", {}, fmtDate(a.endedAt)),
+      h("td", {}, r.result),
+      h("td", { class: "num" }, fmtSecs(r.seconds)),
+      h("td", { class: "num" }, fmtSecs(r.latency)),
+      h("td", { class: "num" }, fmtNum(r.typedChars)),
+      h("td", { class: "num" }, fmtNum(r.wrong)),
+    ),
+  );
+
+  show(
+    h(
+      "header",
+      {},
+      h("h1", {}, answer),
+      h("div", { class: "muted small" }, quiz.title),
+      item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
+      item ? h("div", { class: "item-prompt" }, ...(item.prompt ? promptNode(quiz, item) : [])) : null,
+      h("div", { class: "muted small" }, facts),
+    ),
+    h("div", { class: "actions" }, h("button", { class: "quiet", onclick: back }, "Back")),
+    h("table", { class: "stats" }, th("when", "result", "time", "latency", "typed", "wrong"), ...rows),
+  );
+}
+
 // ---------- shared play state ----------
 
 interface Session {
   quiz: Quiz;
+  order: number[];
   startedAt: Date;
   foundOrder: number[];
   timing: ItemTiming[];
@@ -241,9 +337,11 @@ interface Session {
   finish: () => void;
 }
 
-function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session {
+// `order` is the display order of item indices; list mode is file order.
+function startSession(quiz: Quiz, order: number[], onFinish: (attempt: Attempt) => void): Session {
   const session: Session = {
     quiz,
+    order,
     startedAt: new Date(),
     foundOrder: [],
     timing: quiz.items.map(() => ({ wrong: 0 })),
@@ -264,7 +362,7 @@ function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session
     if (session.finished) return;
     session.finished = true;
     window.clearInterval(session.timer);
-    const attempt = makeAttempt(quiz, session.startedAt, new Date(), session.foundOrder, session.timing, session.rejected);
+    const attempt = makeAttempt(quiz, session.startedAt, new Date(), session.foundOrder, session.timing, session.rejected, session.order);
     recordAttempt(attempt);
     onFinish(attempt);
   }
@@ -325,7 +423,7 @@ function showPlay(quiz: Quiz): void {
 
 function playList(quiz: Quiz): void {
   const order = quiz.items.map((_, i) => i);
-  const session = startSession(quiz, (attempt) => showResults(quiz, attempt, order));
+  const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
   const slots = quiz.items.map(() => h("li", { class: "slot" }, " "));
   const input = answerInput();
 
@@ -355,7 +453,7 @@ function playList(quiz: Quiz): void {
 
 function playPrompt(quiz: Quiz): void {
   const order = shuffled(quiz.items.map((_, i) => i));
-  const session = startSession(quiz, (attempt) => showResults(quiz, attempt, order));
+  const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
   const inputs = new Map<number, HTMLInputElement>();
 
   function nextUnanswered(after: number): HTMLInputElement | null {
@@ -442,6 +540,7 @@ function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
       "div",
       { class: "actions" },
       quiz.kind === "calibration" ? h("button", { onclick: () => showPlay(quiz) }, "Again") : null,
+      h("button", { class: "quiet", onclick: () => showAttempt(quiz, attempt, () => showResults(quiz, attempt, order)) }, "Details"),
       h("button", { class: "quiet", onclick: () => showQuiz(quiz) }, "History"),
       h("button", { class: "quiet", onclick: showHome }, "Back"),
     ),
