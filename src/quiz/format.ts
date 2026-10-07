@@ -2,8 +2,8 @@
 //
 //   title: Countries of Africa
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
-//   time: 8:00            # mm:ss, or seconds
 //   pass: 100             # percent required to count as a clear
+//   kind: calibration     # optional; attempts measure typing speed instead of knowledge
 //   image-height: 72      # px, for image prompts (default 72)
 //   ---
 //   Algeria
@@ -16,6 +16,7 @@
 // starting with # are ignored.
 
 export type Mode = "list" | "prompt";
+export type Kind = "normal" | "calibration";
 
 export interface Prompt {
   text: string;
@@ -34,7 +35,7 @@ export interface Quiz {
   dir: string;         // directory holding quiz.txt and its images
   title: string;
   mode: Mode;
-  timeSeconds: number;
+  kind: Kind;
   passPercent: number;
   imageHeight: number;   // px, default 72
   items: Item[];
@@ -66,6 +67,10 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
   if (mode !== "list" && mode !== "prompt") {
     throw new QuizFormatError(0, `unknown mode "${header.mode}"`);
   }
+  const kind = (header.kind ?? "normal") as Kind;
+  if (kind !== "normal" && kind !== "calibration") {
+    throw new QuizFormatError(0, `unknown kind "${header.kind}"`);
+  }
 
   const items: Item[] = [];
   for (; i < lines.length; i++) {
@@ -80,7 +85,7 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     dir,
     title: header.title ?? path,
     mode,
-    timeSeconds: parseTime(header.time ?? "0"),
+    kind,
     passPercent: header.pass ? Number(header.pass) : 100,
     imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
     items,
@@ -119,9 +124,3 @@ function stripComment(line: string): string {
   return hash < 0 ? line : line.slice(0, hash);
 }
 
-export function parseTime(s: string): number {
-  const m = /^(\d+):(\d\d)$/.exec(s);
-  if (m) return Number(m[1]) * 60 + Number(m[2]);
-  if (/^\d+$/.test(s)) return Number(s);
-  throw new QuizFormatError(0, `bad time "${s}" (use mm:ss or seconds)`);
-}

@@ -1,5 +1,5 @@
 import { appendAttempt, listQuizzes, readAsset } from "./backend";
-import { makeAttempt, type Attempt } from "./attempt";
+import { makeAttempt, type Attempt, type ItemTiming } from "./attempt";
 import { clear, formatClock, h } from "./dom";
 import { parseQuiz, type Item, type Quiz } from "./quiz/format";
 import { findMatch, matchesItem } from "./quiz/match";
@@ -44,11 +44,14 @@ async function showList(): Promise<void> {
   const rows = files.map((f) => {
     try {
       const quiz = parseQuiz(f.source, f.path, f.dir);
+      const meta = [`${quiz.items.length}`, quiz.mode, quiz.kind === "calibration" ? "calibration" : null]
+        .filter(Boolean)
+        .join(" · ");
       return h(
         "li",
         {},
         h("button", { class: "quiz-link", onclick: () => showPlay(quiz) }, quiz.title),
-        h("span", { class: "muted" }, ` ${quiz.items.length} · ${formatClock(quiz.timeSeconds)} · ${quiz.mode}`),
+        h("span", { class: "muted" }, ` ${meta}`),
       );
     } catch (e) {
       return h("li", { class: "error" }, `${f.path}: ${(e as Error).message}`);
@@ -66,39 +69,40 @@ interface Session {
   quiz: Quiz;
   startedAt: Date;
   foundOrder: number[];
+  timing: ItemTiming[];
+  rejected: number;
   finished: boolean;
   timer: number;
   clock: HTMLElement;
   score: HTMLElement;
+  elapsedMs: () => number;
   finish: () => void;
 }
 
 function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session {
-  // `order` is the display order of item indices; list mode is file order.
   const session: Session = {
     quiz,
     startedAt: new Date(),
     foundOrder: [],
+    timing: quiz.items.map(() => ({ wrong: 0 })),
+    rejected: 0,
     finished: false,
     timer: 0,
-    clock: h("span", { class: "clock" }, formatClock(quiz.timeSeconds)),
+    clock: h("span", { class: "clock" }, "0:00"),
     score: h("span", { class: "score" }, `0 / ${quiz.items.length}`),
+    elapsedMs: () => Date.now() - session.startedAt.getTime(),
     finish,
   };
 
-  function tick(): void {
-    const elapsed = (Date.now() - session.startedAt.getTime()) / 1000;
-    const remaining = quiz.timeSeconds - elapsed;
-    session.clock.textContent = formatClock(remaining);
-    if (remaining <= 0) finish();
-  }
-  session.timer = window.setInterval(tick, 200);
+  session.timer = window.setInterval(() => {
+    session.clock.textContent = formatClock(session.elapsedMs() / 1000);
+  }, 200);
 
   function finish(): void {
     if (session.finished) return;
     session.finished = true;
     window.clearInterval(session.timer);
-    const attempt = makeAttempt(quiz, session.startedAt, new Date(), session.foundOrder);
+    const attempt = makeAttempt(quiz, session.startedAt, new Date(), session.foundOrder, session.timing, session.rejected);
     appendAttempt(attempt).catch((e) => console.error("could not log attempt", e));
     onFinish(attempt);
   }
@@ -106,13 +110,17 @@ function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session
   return session;
 }
 
-function markFound(session: Session, idx: number): void {
+function markFound(session: Session, idx: number, typed: string): void {
   session.foundOrder.push(idx);
+  session.timing[idx].acceptedMs = session.elapsedMs();
+  session.timing[idx].typedChars = typed.length;
   session.score.textContent = `${session.foundOrder.length} / ${session.quiz.items.length}`;
   if (session.foundOrder.length === session.quiz.items.length) session.finish();
 }
 
-function reject(input: HTMLInputElement): void {
+function reject(session: Session, input: HTMLInputElement, idx?: number): void {
+  session.rejected++;
+  if (idx !== undefined) session.timing[idx].wrong++;
   // Wrong or duplicate: leave the text, select it so typing replaces it.
   input.classList.remove("shake");
   void input.offsetWidth; // restart the animation
@@ -135,6 +143,17 @@ function playHeader(session: Session): HTMLElement {
   );
 }
 
+function answerInput(extraClass = ""): HTMLInputElement {
+  return h("input", {
+    type: "text",
+    class: `answer-input ${extraClass}`.trim(),
+    autocomplete: "off",
+    autocapitalize: "off",
+    autocorrect: "off",
+    spellcheck: "false",
+  });
+}
+
 function showPlay(quiz: Quiz): void {
   if (quiz.mode === "prompt") playPrompt(quiz);
   else playList(quiz);
@@ -146,23 +165,18 @@ function playList(quiz: Quiz): void {
   const order = quiz.items.map((_, i) => i);
   const session = startSession(quiz, (attempt) => showResults(quiz, attempt, order));
   const slots = quiz.items.map(() => h("li", { class: "slot" }, " "));
-  const input = h("input", {
-    type: "text",
-    class: "answer-input",
-    autocomplete: "off",
-    autocapitalize: "off",
-    spellcheck: "false",
-  });
+  const input = answerInput();
 
   function submit(): void {
     const idx = findMatch(input.value, quiz.items);
     if (idx >= 0 && !session.foundOrder.includes(idx)) {
       slots[idx].textContent = quiz.items[idx].canonical;
       slots[idx].classList.add("found");
+      const typed = input.value;
       input.value = "";
-      markFound(session, idx);
+      markFound(session, idx, typed);
     } else {
-      reject(input);
+      reject(session, input);
     }
   }
 
@@ -198,24 +212,22 @@ function playPrompt(quiz: Quiz): void {
       return;
     }
     if (matchesItem(input.value, quiz.items[idx])) {
+      const typed = input.value;
       input.value = quiz.items[idx].canonical;
       input.readOnly = true;
       input.classList.add("found");
       const next = nextUnanswered(idx);
-      markFound(session, idx);
+      markFound(session, idx, typed);
       next?.focus();
     } else {
-      reject(input);
+      reject(session, input, idx);
     }
   }
 
   const cards = order.map((idx) => {
-    const input = h("input", {
-      type: "text",
-      class: "answer-input card-input",
-      autocomplete: "off",
-      autocapitalize: "off",
-      spellcheck: "false",
+    const input = answerInput("card-input");
+    input.addEventListener("focus", () => {
+      if (!session.foundOrder.includes(idx)) session.timing[idx].focusedMs = session.elapsedMs();
     });
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); submit(idx); }
@@ -231,15 +243,44 @@ function playPrompt(quiz: Quiz): void {
 
 // ---------- results ----------
 
+// Seconds spent on an item: since the card was focused (prompt mode) or
+// since the previous accept (list mode). Raw for now; bucketing against
+// calibrated typing speed comes with the scheduler.
+function itemSeconds(attempt: Attempt, idx: number): number | null {
+  const r = attempt.items[idx];
+  if (!r.found || r.acceptedMs === undefined) return null;
+  let from = 0;
+  if (attempt.mode === "prompt") {
+    from = r.focusedMs ?? 0;
+  } else {
+    const pos = attempt.found.indexOf(r.answer);
+    if (pos > 0) {
+      const prev = attempt.items.find((x) => x.answer === attempt.found[pos - 1]);
+      from = prev?.acceptedMs ?? 0;
+    }
+  }
+  return (r.acceptedMs - from) / 1000;
+}
+
+function secondsLabel(s: number | null): HTMLElement | null {
+  return s === null ? null : h("span", { class: "muted seconds" }, `${s.toFixed(1)}s`);
+}
+
 function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
-  const foundSet = new Set(attempt.found);
   const rows = order.map((idx) => {
     const item = quiz.items[idx];
-    const cls = foundSet.has(item.canonical) ? "found" : "missed";
+    const r = attempt.items[idx];
+    const cls = r.found ? "found" : "missed";
+    const secs = secondsLabel(itemSeconds(attempt, idx));
     if (quiz.mode === "prompt") {
-      return h("li", { class: `card ${cls}` }, ...promptNode(quiz, item), h("div", { class: "card-answer" }, item.canonical));
+      return h(
+        "li",
+        { class: `card ${cls}` },
+        ...promptNode(quiz, item),
+        h("div", { class: "card-answer" }, item.canonical, " ", secs),
+      );
     }
-    return h("li", { class: cls }, item.canonical);
+    return h("li", { class: cls }, item.canonical, " ", secs);
   });
   show(
     h(

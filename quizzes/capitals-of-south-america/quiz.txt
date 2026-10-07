@@ -1,6 +1,5 @@
 title: Capitals of South America
 mode: prompt
-time: 3:00
 pass: 100
 ---
 Argentina :: Buenos Aires

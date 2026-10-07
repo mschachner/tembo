@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseQuiz, parseTime, QuizFormatError } from "./format";
+import { parseQuiz, QuizFormatError } from "./format";
 
 describe("parseQuiz", () => {
   it("parses a list-mode quiz with aliases and comments", () => {
     const q = parseQuiz(`title: T
 mode: list
-time: 1:30
 pass: 90
 ---
 # a comment
@@ -16,7 +15,7 @@ Gamma|G
 `);
     expect(q.title).toBe("T");
     expect(q.mode).toBe("list");
-    expect(q.timeSeconds).toBe(90);
+    expect(q.kind).toBe("normal");
     expect(q.passPercent).toBe(90);
     expect(q.items.map((i) => i.canonical)).toEqual(["Alpha", "Beta", "Gamma"]);
     expect(q.items[1].aliases).toEqual(["B", "Bee"]);
@@ -47,22 +46,16 @@ Capital of France :: Paris
     expect(q.title).toBe("quizzes/x.txt");
   });
 
+  it("accepts kind: calibration and rejects other kinds", () => {
+    expect(parseQuiz(`kind: calibration\nmode: prompt\n---\nabc :: abc\n`).kind).toBe("calibration");
+    expect(() => parseQuiz(`kind: weird\n---\nX\n`)).toThrow(/unknown kind/);
+  });
+
   it("rejects prompt-mode lines without ::", () => {
     expect(() => parseQuiz(`mode: prompt\n---\nno separator\n`)).toThrow(QuizFormatError);
   });
 
   it("rejects an empty quiz", () => {
     expect(() => parseQuiz(`title: empty\n---\n`)).toThrow(/no items/);
-  });
-});
-
-describe("parseTime", () => {
-  it("accepts mm:ss and seconds", () => {
-    expect(parseTime("8:00")).toBe(480);
-    expect(parseTime("0:05")).toBe(5);
-    expect(parseTime("75")).toBe(75);
-  });
-  it("rejects garbage", () => {
-    expect(() => parseTime("eight")).toThrow();
   });
 });

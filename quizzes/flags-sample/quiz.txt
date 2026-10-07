@@ -1,6 +1,5 @@
 title: Flags (sample)
 mode: prompt
-time: 2:00
 pass: 100
 image-height: 80
 ---

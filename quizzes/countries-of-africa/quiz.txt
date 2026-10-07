@@ -1,6 +1,5 @@
 title: Countries of Africa
 mode: list
-time: 8:00
 pass: 100
 ---
 Algeria
