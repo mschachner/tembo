@@ -1,0 +1,59 @@
+title: Countries of Africa
+mode: list
+time: 8:00
+pass: 100
+---
+Algeria
+Angola
+Benin
+Botswana
+Burkina Faso
+Burundi
+Cabo Verde | Cape Verde
+Cameroon
+Central African Republic | CAR
+Chad
+Comoros
+Democratic Republic of the Congo | DR Congo | DRC | Congo-Kinshasa | Democratic Republic of Congo
+Republic of the Congo | Congo | Congo-Brazzaville | Republic of Congo
+Côte d'Ivoire | Ivory Coast
+Djibouti
+Egypt
+Equatorial Guinea
+Eritrea
+Eswatini | Swaziland
+Ethiopia
+Gabon
+Gambia | The Gambia
+Ghana
+Guinea
+Guinea-Bissau
+Kenya
+Lesotho
+Liberia
+Libya
+Madagascar
+Malawi
+Mali
+Mauritania
+Mauritius
+Morocco
+Mozambique
+Namibia
+Niger
+Nigeria
+Rwanda
+São Tomé and Príncipe | Sao Tome | Sao Tome and Principe
+Senegal
+Seychelles
+Sierra Leone
+Somalia
+South Africa
+South Sudan
+Sudan
+Tanzania
+Togo
+Tunisia
+Uganda
+Zambia
+Zimbabwe

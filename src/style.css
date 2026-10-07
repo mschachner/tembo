@@ -1,0 +1,55 @@
+/* Deliberately plain. Visual design is decided later, together. */
+:root {
+  --fg: #222;
+  --muted: #888;
+  --bg: #fafafa;
+  --line: #e4e4e4;
+  --found: #2e7d32;
+  --missed: #c62828;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  color: var(--fg);
+  background: var(--bg);
+}
+body { margin: 0; }
+#app { max-width: 720px; margin: 0 auto; padding: 24px; }
+
+h1 { font-size: 1.4rem; font-weight: 600; margin: 0 0 12px; }
+header { margin-bottom: 16px; }
+.status { display: flex; gap: 16px; align-items: baseline; }
+.clock { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.error { color: var(--missed); }
+.cleared { color: var(--found); }
+
+button {
+  font: inherit; padding: 6px 12px; border: 1px solid var(--line);
+  border-radius: 6px; background: white; cursor: pointer;
+}
+button.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+button.quiz-link { border: none; background: none; padding: 0; text-decoration: underline; }
+.quiz-list { list-style: none; padding: 0; }
+.quiz-list li { padding: 6px 0; }
+
+.answer-input {
+  font: inherit; font-size: 1.1rem; width: 100%; box-sizing: border-box;
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px;
+  margin-bottom: 16px;
+}
+.answer-input:focus { outline: 2px solid #999; outline-offset: 1px; }
+.shake { animation: shake 0.25s; }
+@keyframes shake {
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.slots {
+  columns: 3; column-gap: 24px; padding-left: 1.5em; margin: 0;
+}
+.slot, .slots li { padding: 2px 0; break-inside: avoid; }
+.slot { color: transparent; border-bottom: 1px solid var(--line); }
+.slot.found { color: var(--fg); border-bottom-color: transparent; }
+.slots li.found { color: var(--fg); }
+.slots li.missed { color: var(--missed); }
+
+.actions { margin-top: 16px; display: flex; gap: 8px; }
