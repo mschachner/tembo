@@ -173,9 +173,3 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .tembo-mark svg { display: block; }
 .empty-title { font-size: 1.15em; color: var(--fg-2); }
 .empty .actions { margin-top: var(--u); }
-.elephants { display: flex; flex-wrap: wrap; gap: var(--u); }
-.elephant-choice { padding: 6px; width: 72px; height: 56px; display: inline-flex; align-items: center; justify-content: center; color: var(--fg-2); }
-.elephant-choice svg { width: 100%; height: 100%; }
-.elephant-choice.active { border-color: var(--accent); color: var(--accent); }
-.credit { font-size: 0.8em; color: var(--fg-3); margin: 2px 0 0 212px; }
-.credit a { color: inherit; }

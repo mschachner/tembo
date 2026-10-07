@@ -4,7 +4,6 @@ import { h } from "../dom";
 import { nav } from "../nav";
 import { sounds } from "../sound";
 import { THEME_VARS, type VarSpec } from "../theme";
-import { ELEPHANTS, elephantInfo, elephantSvg } from "../elephants";
 
 function rerender(): void {
   // Banner and status line read the theme too, so redraw the whole tab.
@@ -25,28 +24,6 @@ function control(spec: VarSpec): HTMLElement {
   let readout: HTMLElement | null = null;
 
   switch (spec.kind) {
-    case "elephant": {
-      const choices = ELEPHANTS.map((e) =>
-        h("button", {
-          class: `elephant-choice ${e.id === String(value) ? "active" : ""}`,
-          title: `${e.species} — ${e.contributor}`,
-          onclick: () => { setOverride(spec.key, e.id); rerender(); },
-        }, elephantSvg(e.id)),
-      );
-      const info = elephantInfo(String(value));
-      return h("div", {},
-        h("div", { class: "control" }, h("label", {}, spec.label), h("div", { class: "elephants" }, ...choices),
-          overridden ? h("button", { class: "quiet tiny", onclick: () => { delete app.settings.overrides[spec.key]; persistSettings(); rerender(); } }, "reset") : null),
-        h("div", { class: "credit" }, `${info.species} · ${info.contributor} · CC0 · `,
-          h("a", { href: info.source, target: "_blank" }, "PhyloPic")));
-    }
-    case "toggle": {
-      const el = h("input", { type: "checkbox" });
-      el.checked = Boolean(Number(value));
-      el.addEventListener("change", () => { setOverride(spec.key, el.checked ? 1 : 0); rerender(); });
-      input = el;
-      break;
-    }
     case "color": {
       const el = h("input", { type: "color", value: String(value) });
       el.addEventListener("input", () => setOverride(spec.key, el.value));
@@ -121,7 +98,7 @@ export function settingsView(): Node {
     h("section", {}, h("h2", {}, "Preset"), h("div", { class: "presets" }, ...presetButtons)),
     h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
     h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
-    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["elephant", "elephantFlip", "bannerImage", "bannerHeight", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
+    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerImage", "bannerHeight", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
     h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
     h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
