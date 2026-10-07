@@ -1,0 +1,17 @@
+title: Flags (sample)
+mode: prompt
+time: 2:00
+pass: 100
+---
+![flag](flags/fr.svg) :: France
+![flag](flags/it.svg) :: Italy
+![flag](flags/de.svg) :: Germany
+![flag](flags/jp.svg) :: Japan
+![flag](flags/pl.svg) :: Poland
+![flag](flags/ua.svg) :: Ukraine
+![flag](flags/nl.svg) :: Netherlands
+![flag](flags/at.svg) :: Austria
+![flag](flags/ng.svg) :: Nigeria
+![flag](flags/ie.svg) :: Ireland
+![flag](flags/be.svg) :: Belgium
+![flag](flags/id.svg) :: Indonesia

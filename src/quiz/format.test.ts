@@ -35,8 +35,9 @@ Capital of France :: Paris
   });
 
   it("defaults: list mode, pass 100, title from path", () => {
-    const q = parseQuiz(`---\nX\n`, "quizzes/x.txt");
+    const q = parseQuiz(`---\nX\n`, "quizzes/x.txt", "quizzes");
     expect(q.mode).toBe("list");
+    expect(q.dir).toBe("quizzes");
     expect(q.passPercent).toBe(100);
     expect(q.title).toBe("quizzes/x.txt");
   });

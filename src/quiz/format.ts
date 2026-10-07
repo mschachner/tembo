@@ -28,6 +28,7 @@ export interface Item {
 
 export interface Quiz {
   path: string;
+  dir: string;         // directory holding quiz.txt and its images
   title: string;
   mode: Mode;
   timeSeconds: number;
@@ -43,7 +44,7 @@ export class QuizFormatError extends Error {
 
 const IMAGE_PROMPT = /^!\[([^\]]*)\]\(([^)]+)\)$/;
 
-export function parseQuiz(source: string, path = ""): Quiz {
+export function parseQuiz(source: string, path = "", dir = ""): Quiz {
   const lines = source.split(/\r?\n/);
   const header: Record<string, string> = {};
   let i = 0;
@@ -72,6 +73,7 @@ export function parseQuiz(source: string, path = ""): Quiz {
 
   return {
     path,
+    dir,
     title: header.title ?? path,
     mode,
     timeSeconds: parseTime(header.time ?? "0"),

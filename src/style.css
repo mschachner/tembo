@@ -53,3 +53,23 @@ button.quiz-link { border: none; background: none; padding: 0; text-decoration: 
 .slots li.missed { color: var(--missed); }
 
 .actions { margin-top: 16px; display: flex; gap: 8px; }
+
+/* ---- prompt mode ---- */
+.prompt-grid {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px;
+}
+.card {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: white;
+}
+.prompt-text { font-weight: 500; }
+.prompt-image {
+  width: 100%; height: 72px; object-fit: contain; border-radius: 3px; background: #eee;
+}
+.card-input { margin: 0; padding: 6px 8px; font-size: 1rem; }
+.card-input.found { color: var(--found); border-color: transparent; background: transparent; }
+.card-answer { font-weight: 500; }
+.card.found .card-answer { color: var(--found); }
+.card.missed .card-answer { color: var(--missed); }
+.card.missed { border-color: var(--missed); }
