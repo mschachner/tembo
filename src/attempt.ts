@@ -14,7 +14,8 @@ export interface ItemResult {
 
 export interface Attempt {
   version: 2;
-  quiz: string;          // path of the quiz file
+  quiz: string;          // path of the quiz file (kept for continuity with older records)
+  quizId?: string;       // stable key; absent on records written before ids existed
   title: string;
   mode: Quiz["mode"];
   kind: Quiz["kind"];
@@ -57,6 +58,7 @@ export function makeAttempt(
   return {
     version: 2,
     quiz: quiz.path,
+    quizId: quiz.id,
     title: quiz.title,
     mode: quiz.mode,
     kind: quiz.kind,

@@ -2,11 +2,12 @@ import { appendAttempt, listQuizzes, readAsset, readAttempts } from "./backend";
 import { makeAttempt, type Attempt, type ItemTiming } from "./attempt";
 import { clear, formatClock, h } from "./dom";
 import { bucketOf, DEFAULT_CPS, gradeOf, typingSpeed } from "./grade";
-import { parseLog, type AnyAttempt } from "./log";
+import { belongsTo, parseLog, type AnyAttempt } from "./log";
 import { parseQuiz, type Item, type Quiz } from "./quiz/format";
 import { findMatch, matchesItem } from "./quiz/match";
 import { daysBetween, isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
 import { shuffled } from "./shuffle";
+import { itemStats, median, trouble } from "./stats";
 
 // ---------- app state: the attempt log, loaded once and appended to ----------
 
@@ -18,9 +19,19 @@ async function loadLog(): Promise<void> {
   cps = typingSpeed(attempts) ?? DEFAULT_CPS;
 }
 
+function attemptsOf(quiz: Quiz): AnyAttempt[] {
+  return attempts.filter((a) => belongsTo(a, quiz));
+}
+
 function stateOf(quiz: Quiz): QuizState {
-  const own = attempts.filter((a) => a.quiz === quiz.path);
+  const own = attemptsOf(quiz);
   return own.length ? replay(own, (a) => gradeOf(a, cps)) : NEW_STATE;
+}
+
+function playable(quiz: Quiz, state: QuizState, today: string): boolean {
+  if (quiz.kind === "calibration") return true;
+  if (quiz.retired) return false;
+  return isDue(state, today);
 }
 
 function recordAttempt(attempt: Attempt): void {
@@ -31,9 +42,9 @@ function recordAttempt(attempt: Attempt): void {
 
 const app = document.getElementById("app")!;
 
-function show(...nodes: Node[]): void {
+function show(...nodes: (Node | null)[]): void {
   clear(app);
-  app.append(...nodes);
+  app.append(...nodes.filter((n): n is Node => n !== null));
 }
 
 // ---------- images ----------
@@ -75,12 +86,15 @@ function dueLabel(state: QuizState, today: string): string {
   return n === 1 ? "tomorrow" : `in ${n}d`;
 }
 
-function entryRow(e: Entry, today: string, playable: boolean): HTMLElement {
+function entryRow(e: Entry, today: string, canPlay: boolean): HTMLElement {
   const meta = [`${e.quiz.items.length}`, e.quiz.mode, dueLabel(e.state, today)].filter(Boolean).join(" · ");
-  const title = playable
-    ? h("button", { class: "quiz-link", onclick: () => showPlay(e.quiz) }, e.quiz.title)
-    : h("span", { class: "quiz-title" }, e.quiz.title);
-  return h("li", {}, title, h("span", { class: "muted" }, ` ${meta}`));
+  return h(
+    "li",
+    {},
+    h("button", { class: `quiz-link ${canPlay ? "" : "muted"}`, onclick: () => showQuiz(e.quiz) }, e.quiz.title),
+    h("span", { class: "muted" }, ` ${meta}`),
+    canPlay ? h("button", { class: "quiet play", onclick: () => showPlay(e.quiz) }, "Play") : null,
+  );
 }
 
 function section(name: string, rows: HTMLElement[]): HTMLElement | null {
@@ -129,6 +143,85 @@ async function showHome(): Promise<void> {
   show(
     h("header", {}, h("h1", {}, "Quizzes"), h("div", { class: "muted small" }, `typing ${cps.toFixed(1)} chars/s`)),
     ...(sections.length ? sections : [h("p", { class: "muted" }, "quizzes/ is empty")]),
+  );
+}
+
+// ---------- quiz page: status and history ----------
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return `${localDate(d)} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function showQuiz(quiz: Quiz): void {
+  const today = localDate(new Date());
+  const state = stateOf(quiz);
+  const own = attemptsOf(quiz);
+  const canPlay = playable(quiz, state, today);
+
+  const facts = [
+    `${quiz.items.length} items`,
+    quiz.mode,
+    quiz.kind === "calibration" ? "calibration" : quiz.retired ? "retired" : state.status,
+    state.intervalDays ? `interval ${state.intervalDays.toFixed(1)}d` : null,
+    state.dueDate ? `due ${state.dueDate} (${dueLabel(state, today)})` : null,
+    `${own.length} attempts`,
+  ].filter(Boolean).join(" · ");
+
+  const history = own
+    .slice()
+    .reverse()
+    .map((a) =>
+      h(
+        "tr",
+        {},
+        h("td", {}, fmtDate(a.endedAt)),
+        h("td", { class: "num" }, `${a.score}/${a.total}`),
+        h("td", { class: "num" }, formatClock(a.durationSeconds)),
+        h("td", { class: "num" }, gradeOf(a, cps).toFixed(2)),
+        h("td", {}, a.cleared ? "cleared" : ""),
+      ),
+    );
+
+  const stats = itemStats(quiz, own, cps)
+    .map((st) => ({ st, t: trouble(st) }))
+    .sort((a, b) => b.t - a.t || a.st.answer.localeCompare(b.st.answer))
+    .map(({ st }) => {
+      const med = median(st.latencies);
+      return h(
+        "tr",
+        { class: st.last ?? "" },
+        h("td", {}, st.answer),
+        h("td", { class: "num" }, String(st.seen)),
+        h("td", { class: "num" }, String(st.instant)),
+        h("td", { class: "num" }, String(st.slow)),
+        h("td", { class: "num" }, String(st.missed)),
+        h("td", { class: "num" }, med === null ? "" : `${med.toFixed(1)}s`),
+        h("td", {}, st.last ?? ""),
+      );
+    });
+
+  const th = (...names: string[]) => h("tr", {}, ...names.map((n) => h("th", {}, n)));
+
+  show(
+    h(
+      "header",
+      {},
+      h("h1", {}, quiz.title),
+      h("div", { class: "muted small" }, facts),
+    ),
+    h(
+      "div",
+      { class: "actions" },
+      canPlay ? h("button", { onclick: () => showPlay(quiz) }, "Play") : null,
+      h("button", { class: "quiet", onclick: showHome }, "Back"),
+    ),
+    own.length
+      ? h("section", {}, h("h2", {}, "Items"), h("table", { class: "stats" }, th("answer", "seen", "instant", "slow", "missed", "median latency", "last"), ...stats))
+      : null,
+    own.length
+      ? h("section", {}, h("h2", {}, "Attempts"), h("table", { class: "stats" }, th("when", "score", "time", "grade", ""), ...history))
+      : null,
   );
 }
 
@@ -349,6 +442,7 @@ function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
       "div",
       { class: "actions" },
       quiz.kind === "calibration" ? h("button", { onclick: () => showPlay(quiz) }, "Again") : null,
+      h("button", { class: "quiet", onclick: () => showQuiz(quiz) }, "History"),
       h("button", { class: "quiet", onclick: showHome }, "Back"),
     ),
   );

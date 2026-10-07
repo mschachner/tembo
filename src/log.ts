@@ -19,6 +19,12 @@ export interface AttemptV1 {
 
 export type AnyAttempt = Attempt | AttemptV1;
 
+// Does this record belong to the quiz? Records written before ids existed
+// are matched by path, so an id header can be added later without loss.
+export function belongsTo(a: AnyAttempt, quiz: { id: string; path: string }): boolean {
+  return "quizId" in a && a.quizId !== undefined ? a.quizId === quiz.id : a.quiz === quiz.path;
+}
+
 export function parseLog(text: string): AnyAttempt[] {
   const out: AnyAttempt[] = [];
   for (const line of text.split("\n")) {

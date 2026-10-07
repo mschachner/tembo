@@ -30,7 +30,9 @@ fn list_quizzes() -> Result<Vec<QuizFile>, String> {
     for entry in entries {
         let dir = entry.map_err(|e| e.to_string())?.path();
         let path = dir.join("quiz.txt");
-        if !dir.is_dir() || !path.is_file() {
+        // Folders starting with "_" (drafts, scratch) are ignored.
+        let hidden = dir.file_name().and_then(|n| n.to_str()).map_or(true, |n| n.starts_with('_'));
+        if hidden || !dir.is_dir() || !path.is_file() {
             continue;
         }
         let source = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;

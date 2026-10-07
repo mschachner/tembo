@@ -34,6 +34,14 @@ button.quiet { border-color: transparent; background: transparent; color: var(--
 button.quiz-link { border: none; background: none; padding: 0; text-decoration: underline; }
 .quiz-list { list-style: none; padding: 0; }
 .quiz-list li { padding: 6px 0; }
+.quiz-list .play { margin-left: 8px; padding: 2px 8px; }
+button.quiz-link.muted { color: var(--muted); }
+.stats { border-collapse: collapse; font-size: 0.9rem; }
+.stats th, .stats td { text-align: left; padding: 3px 12px 3px 0; border-bottom: 1px solid var(--line); }
+.stats th { font-weight: 500; color: var(--muted); }
+.stats .num { text-align: right; font-variant-numeric: tabular-nums; }
+.stats tr.missed td:first-child { color: var(--missed); }
+.stats tr.slow td:first-child { color: var(--slow); }
 
 .answer-input {
   font: inherit; font-size: 1.1rem; width: 100%; box-sizing: border-box;

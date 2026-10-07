@@ -1,6 +1,7 @@
 // Quiz file format.
 //
 //   title: Countries of Africa
+//   id: africa            # optional; stable key for history (default: the folder name)
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   pass: 100             # percent required to count as a clear
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
@@ -34,6 +35,7 @@ export interface Item {
 export interface Quiz {
   path: string;
   dir: string;         // directory holding quiz.txt and its images
+  id: string;          // stable key for the attempt log
   title: string;
   mode: Mode;
   kind: Kind;
@@ -85,6 +87,7 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
   return {
     path,
     dir,
+    id: header.id ?? dir.split("/").filter(Boolean).pop() ?? path,
     title: header.title ?? path,
     mode,
     kind,
