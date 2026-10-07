@@ -21,7 +21,8 @@ function imageFor(quiz: Quiz, item: Item): HTMLImageElement | null {
   if (!rel) return null;
   const key = `${quiz.dir}\u0000${rel}`;
   if (!imageCache.has(key)) imageCache.set(key, readAsset(quiz.dir, rel));
-  const img = h("img", { class: "prompt-image", alt: item.prompt?.text ?? "" });
+  const height = item.prompt?.imageHeight ?? quiz.imageHeight;
+  const img = h("img", { class: "prompt-image", alt: item.prompt?.text ?? "", style: `height: ${height}px` });
   imageCache.get(key)!.then(
     (url) => { img.src = url; },
     (e) => { img.replaceWith(h("span", { class: "error" }, String(e))); },
@@ -73,6 +74,7 @@ interface Session {
 }
 
 function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session {
+  // `order` is the display order of item indices; list mode is file order.
   const session: Session = {
     quiz,
     startedAt: new Date(),
@@ -141,7 +143,8 @@ function showPlay(quiz: Quiz): void {
 // ---------- list mode: one box, type any answer ----------
 
 function playList(quiz: Quiz): void {
-  const session = startSession(quiz, (attempt) => showResults(quiz, attempt));
+  const order = quiz.items.map((_, i) => i);
+  const session = startSession(quiz, (attempt) => showResults(quiz, attempt, order));
   const slots = quiz.items.map(() => h("li", { class: "slot" }, " "));
   const input = h("input", {
     type: "text",
@@ -175,8 +178,8 @@ function playList(quiz: Quiz): void {
 // ---------- prompt mode: a grid of prompts, each with its own blank ----------
 
 function playPrompt(quiz: Quiz): void {
-  const session = startSession(quiz, (attempt) => showResults(quiz, attempt));
   const order = shuffled(quiz.items.map((_, i) => i));
+  const session = startSession(quiz, (attempt) => showResults(quiz, attempt, order));
   const inputs = new Map<number, HTMLInputElement>();
 
   function nextUnanswered(after: number): HTMLInputElement | null {
@@ -228,9 +231,10 @@ function playPrompt(quiz: Quiz): void {
 
 // ---------- results ----------
 
-function showResults(quiz: Quiz, attempt: Attempt): void {
+function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
   const foundSet = new Set(attempt.found);
-  const rows = quiz.items.map((item) => {
+  const rows = order.map((idx) => {
+    const item = quiz.items[idx];
     const cls = foundSet.has(item.canonical) ? "found" : "missed";
     if (quiz.mode === "prompt") {
       return h("li", { class: `card ${cls}` }, ...promptNode(quiz, item), h("div", { class: "card-answer" }, item.canonical));

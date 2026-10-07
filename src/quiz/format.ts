@@ -4,12 +4,14 @@
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   time: 8:00            # mm:ss, or seconds
 //   pass: 100             # percent required to count as a clear
+//   image-height: 72      # px, for image prompts (default 72)
 //   ---
 //   Algeria
 //   Côte d'Ivoire | Ivory Coast        # canonical answer, then aliases
 //
 // In prompt mode each line is  prompt :: answer | alias | alias
 // A prompt may be an image:    ![France](flags/fr.svg) :: France
+// with an optional height:     ![France](flags/fr.svg){height=120} :: France
 // Image paths are relative to the quiz file. Blank lines and lines
 // starting with # are ignored.
 
@@ -18,6 +20,7 @@ export type Mode = "list" | "prompt";
 export interface Prompt {
   text: string;
   image?: string;
+  imageHeight?: number;  // px; overrides the quiz's image-height
 }
 
 export interface Item {
@@ -33,6 +36,7 @@ export interface Quiz {
   mode: Mode;
   timeSeconds: number;
   passPercent: number;
+  imageHeight: number;   // px, default 72
   items: Item[];
 }
 
@@ -42,7 +46,7 @@ export class QuizFormatError extends Error {
   }
 }
 
-const IMAGE_PROMPT = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+const IMAGE_PROMPT = /^!\[([^\]]*)\]\(([^)]+)\)(?:\{height=(\d+)\})?$/;
 
 export function parseQuiz(source: string, path = "", dir = ""): Quiz {
   const lines = source.split(/\r?\n/);
@@ -78,6 +82,7 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     mode,
     timeSeconds: parseTime(header.time ?? "0"),
     passPercent: header.pass ? Number(header.pass) : 100,
+    imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
     items,
   };
 }
@@ -99,7 +104,12 @@ function parseItem(line: string, mode: Mode, lineNo: number): Item {
   const item: Item = { canonical: parts[0], aliases: parts.slice(1) };
   if (promptText !== undefined) {
     const m = IMAGE_PROMPT.exec(promptText);
-    item.prompt = m ? { text: m[1], image: m[2] } : { text: promptText };
+    if (m) {
+      item.prompt = { text: m[1], image: m[2] };
+      if (m[3]) item.prompt.imageHeight = Number(m[3]);
+    } else {
+      item.prompt = { text: promptText };
+    }
   }
   return item;
 }
