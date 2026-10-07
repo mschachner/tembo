@@ -3,6 +3,7 @@
 import { activeTheme, app, asset, dueCount } from "./app";
 import { bannerImage, defaultBanner } from "./banner";
 import { clear, h } from "./dom";
+import { applyEdge } from "./edge";
 import { nav, type Tab } from "./nav";
 import { localDate } from "./schedule";
 
@@ -16,17 +17,19 @@ const TABS: { id: Tab; label: string }[] = [
 function bannerNode(): HTMLElement {
   const theme = activeTheme();
   const wrap = h("div", { class: "banner", "data-tauri-drag-region": "" });
+  const art = h("div", { class: "banner-art" });
   const path = String(theme.bannerImage ?? "");
   if (path) {
     const img = bannerImage("");
-    asset(app.root, path).then((url) => { img.src = url; }, () => wrap.prepend(defaultBanner()));
-    wrap.append(img);
+    asset(app.root, path).then((url) => { img.src = url; }, () => img.replaceWith(defaultBanner()));
+    art.append(img);
   } else {
-    wrap.append(defaultBanner());
+    art.append(defaultBanner());
   }
+  applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), Number(theme.bannerHeight));
+  wrap.append(art);
   const due = dueCount();
-  const today = new Date();
-  const dateLabel = today.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
   wrap.append(
     h(
       "div",
@@ -36,6 +39,11 @@ function bannerNode(): HTMLElement {
     ),
   );
   return wrap;
+}
+
+// Redraw just the banner (for live edge and image changes in Settings).
+export function refreshBanner(): void {
+  document.querySelector(".banner")?.replaceWith(bannerNode());
 }
 
 function statusLine(): HTMLElement {

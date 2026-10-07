@@ -21,5 +21,7 @@
   "fontMono": "Atkinson Hyperlegible Mono",
   "bannerImage": "",
   "bannerHeight": 240,
-  "bannerY": 50
+  "bannerY": 50,
+  "bannerEdge": "dither",
+  "bannerEdgeSize": 35
 }

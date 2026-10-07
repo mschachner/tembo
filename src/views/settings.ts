@@ -2,6 +2,7 @@ import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings } from 
 import { writeTheme } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
+import { refreshBanner } from "../shell";
 import { sounds } from "../sound";
 import { THEME_VARS, type VarSpec } from "../theme";
 
@@ -10,10 +11,13 @@ function rerender(): void {
   nav.home("settings");
 }
 
+const BANNER_KEYS = new Set(["bannerEdge", "bannerEdgeSize", "bannerHeight", "bannerImage"]);
+
 function setOverride(key: string, value: string | number): void {
   app.settings.overrides[key] = value;
   applyActiveTheme();
   persistSettings();
+  if (BANNER_KEYS.has(key)) refreshBanner();
 }
 
 function control(spec: VarSpec): HTMLElement {
@@ -24,6 +28,19 @@ function control(spec: VarSpec): HTMLElement {
   let readout: HTMLElement | null = null;
 
   switch (spec.kind) {
+    case "choice": {
+      const buttons = (spec.options ?? []).map((opt) =>
+        h("button", {
+          class: `preset small ${opt === String(value) ? "active" : ""}`,
+          onclick: () => {
+            setOverride(spec.key, opt);
+            buttons.forEach((b) => b.classList.toggle("active", b.textContent === opt));
+          },
+        }, opt),
+      );
+      input = h("div", { class: "presets" }, ...buttons);
+      break;
+    }
     case "color": {
       const el = h("input", { type: "color", value: String(value) });
       el.addEventListener("input", () => setOverride(spec.key, el.value));
@@ -46,7 +63,7 @@ function control(spec: VarSpec): HTMLElement {
     }
     default: {
       const el = h("input", { type: "text", value: String(value), class: "text" });
-      el.addEventListener("change", () => { setOverride(spec.key, el.value); if (spec.kind === "image") rerender(); });
+      el.addEventListener("change", () => setOverride(spec.key, el.value));
       input = el;
     }
   }
@@ -99,7 +116,7 @@ export function settingsView(): Node {
     h("section", {}, h("h2", {}, "Preset"), h("div", { class: "presets" }, ...presetButtons)),
     h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
     h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
-    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
+    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerEdge", "bannerEdgeSize", "bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
     h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
     h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
