@@ -20,5 +20,6 @@
   "font": "Atkinson Hyperlegible Next",
   "fontMono": "Atkinson Hyperlegible Mono",
   "bannerImage": "",
-  "bannerHeight": 240
+  "bannerHeight": 240,
+  "bannerY": 50
 }

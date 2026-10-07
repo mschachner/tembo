@@ -4,6 +4,7 @@
 const quizSources = import.meta.glob(["../quizzes/*/quiz.txt", "!../quizzes/_*/**"], { query: "?raw", import: "default" });
 const draftSources = import.meta.glob("../quizzes/_drafts/*/quiz.txt", { query: "?raw", import: "default" });
 const quizImages = import.meta.glob("../quizzes/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
+const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { query: "?url", import: "default" });
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
 
 let attempts = (import.meta.env.VITE_MOCK_ATTEMPTS as string | undefined) ?? "";
@@ -35,8 +36,9 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
     case "new_draft":
       return "/mock/quizzes/_drafts/untitled/quiz.txt" as T;
     case "read_asset": {
-      const key = `${String(args.dir).replace(/^\/mock\//, "../")}/${args.rel}`;
-      const load = quizImages[key];
+      const dir = String(args.dir);
+      const key = dir === "/mock" ? `../${args.rel}` : `${dir.replace(/^\/mock\//, "../")}/${args.rel}`;
+      const load = quizImages[key] ?? bannerImages[key];
       if (!load) throw new Error(`${args.rel}: not found`);
       return (await load()) as T;
     }

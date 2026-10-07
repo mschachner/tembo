@@ -31,14 +31,15 @@ function control(spec: VarSpec): HTMLElement {
       break;
     }
     case "px":
+    case "pct":
     case "scale": {
       const el = h("input", { type: "range", min: spec.min, max: spec.max, step: spec.step, value: String(value) });
-      readout = h("span", { class: "mono small" }, spec.kind === "px" ? `${value}px` : String(value));
+      const unit = spec.kind === "px" ? "px" : spec.kind === "pct" ? "%" : "";
+      readout = h("span", { class: "mono small" }, `${value}${unit}`);
       el.addEventListener("input", () => {
         const v = Number(el.value);
-        readout!.textContent = spec.kind === "px" ? `${v}px` : String(v);
+        readout!.textContent = `${v}${unit}`;
         setOverride(spec.key, v);
-        if (spec.key === "bannerHeight") document.documentElement.style.setProperty("--banner-height", `${v}px`);
       });
       input = el;
       break;
@@ -98,7 +99,7 @@ export function settingsView(): Node {
     h("section", {}, h("h2", {}, "Preset"), h("div", { class: "presets" }, ...presetButtons)),
     h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
     h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
-    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerImage", "bannerHeight", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
+    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
     h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
     h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),

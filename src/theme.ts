@@ -2,7 +2,7 @@
 // assigning each; presets live in themes/*.json, the active preset and any
 // overrides in data/settings.json.
 
-export type VarKind = "color" | "px" | "scale" | "text" | "image";
+export type VarKind = "color" | "px" | "pct" | "scale" | "text" | "image";
 
 export interface VarSpec {
   key: string;
@@ -37,6 +37,7 @@ export const THEME_VARS: VarSpec[] = [
   { key: "fontMono", css: "--font-mono", kind: "text", label: "Font, mono" },
   { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path from repo root)" },
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
+  { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
 ];
 
 export type Theme = Record<string, string | number>;
@@ -46,12 +47,13 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240,
+  bannerImage: "", bannerHeight: 240, bannerY: 50,
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {
   switch (spec.kind) {
     case "px": return `${value}px`;
+    case "pct": return `${value}%`;
     case "scale": return String(value);
     case "text": return `"${value}", system-ui, sans-serif`;
     case "image": return "none"; // the banner element handles the image itself
