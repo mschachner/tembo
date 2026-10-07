@@ -1,4 +1,4 @@
-# quizapp (placeholder name)
+# Tembo
 
     npm install
     npm run tauri dev     # desktop app

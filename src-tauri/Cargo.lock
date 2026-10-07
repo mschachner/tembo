@@ -2356,7 +2356,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "quizapp"
+name = "tembo"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",

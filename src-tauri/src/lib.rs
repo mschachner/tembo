@@ -5,10 +5,10 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 /// Repository root: quizzes live in `<root>/quizzes/<name>/quiz.txt`,
-/// attempts in `<root>/data`. Override with QUIZAPP_ROOT; defaults to the
+/// attempts in `<root>/data`. Override with TEMBO_ROOT; defaults to the
 /// directory containing `src-tauri`, which is right for `tauri dev`.
 fn root() -> PathBuf {
-    if let Ok(p) = std::env::var("QUIZAPP_ROOT") {
+    if let Ok(p) = std::env::var("TEMBO_ROOT") {
         return PathBuf::from(p);
     }
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..")
