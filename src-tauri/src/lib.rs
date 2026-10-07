@@ -72,6 +72,65 @@ fn mime_for(path: &Path) -> &'static str {
     }
 }
 
+#[tauri::command]
+fn root_dir() -> String {
+    root().to_string_lossy().into_owned()
+}
+
+#[derive(Serialize)]
+struct ThemeFile {
+    name: String,
+    json: String,
+}
+
+/// Theme presets: `<root>/themes/*.json`, sorted by file name.
+#[tauri::command]
+fn list_themes() -> Result<Vec<ThemeFile>, String> {
+    let dir = root().join("themes");
+    let mut out = Vec::new();
+    if !dir.exists() {
+        return Ok(out);
+    }
+    for entry in fs::read_dir(&dir).map_err(|e| format!("{}: {e}", dir.display()))? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path.extension().and_then(|s| s.to_str()) != Some("json") {
+            continue;
+        }
+        let name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let json = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        out.push(ThemeFile { name, json });
+    }
+    out.sort_by(|a, b| a.name.cmp(&b.name));
+    Ok(out)
+}
+
+#[tauri::command]
+fn write_theme(name: String, json: String) -> Result<(), String> {
+    if name.is_empty() || name.contains('/') || name.contains("..") {
+        return Err(format!("bad theme name: {name}"));
+    }
+    let dir = root().join("themes");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    fs::write(dir.join(format!("{name}.json")), json).map_err(|e| e.to_string())
+}
+
+/// `<root>/data/settings.json`; empty string if absent.
+#[tauri::command]
+fn read_settings() -> Result<String, String> {
+    let path = root().join("data").join("settings.json");
+    if !path.exists() {
+        return Ok(String::new());
+    }
+    fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+#[tauri::command]
+fn write_settings(json: String) -> Result<(), String> {
+    let dir = root().join("data");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    fs::write(dir.join("settings.json"), json).map_err(|e| e.to_string())
+}
+
 /// Whole attempt log; empty string if there is none yet.
 #[tauri::command]
 fn read_attempts() -> Result<String, String> {
@@ -97,7 +156,10 @@ fn append_attempt(line: String) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![list_quizzes, read_asset, read_attempts, append_attempt])
+        .invoke_handler(tauri::generate_handler![
+            list_quizzes, read_asset, read_attempts, append_attempt,
+            root_dir, list_themes, write_theme, read_settings, write_settings
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

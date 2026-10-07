@@ -13,10 +13,12 @@
     "windows": [
       {
         "title": "Tembo",
-        "width": 900,
-        "height": 700,
+        "width": 1100,
+        "height": 760,
         "minWidth": 600,
-        "minHeight": 400
+        "minHeight": 400,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {

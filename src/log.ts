@@ -27,6 +27,10 @@ export function belongsTo(a: AnyAttempt, quiz: { id: string; path: string }): bo
   return a.quiz === quiz.path || legacyId(a.quiz) === quiz.id;
 }
 
+export function isCalibration(a: AnyAttempt): boolean {
+  return a.version === 2 && a.kind === "calibration";
+}
+
 export function legacyId(path: string): string {
   const tail = path.split("quizzes/").pop() ?? path;
   return tail.replace(/\/quiz\.txt$/, "").replace(/\.txt$/, "");

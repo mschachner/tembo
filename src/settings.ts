@@ -1,0 +1,40 @@
+import { readSettings, writeSettings } from "./backend";
+import type { Theme } from "./theme";
+
+export interface Settings {
+  preset: string;            // name of the theme preset in themes/
+  overrides: Theme;          // per-variable overrides on top of the preset
+  sound: { enabled: boolean; volume: number };
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  preset: "october",
+  overrides: {},
+  sound: { enabled: true, volume: 0.5 },
+};
+
+export async function loadSettings(): Promise<Settings> {
+  const text = await readSettings();
+  if (!text.trim()) return structuredClone(DEFAULT_SETTINGS);
+  try {
+    const raw = JSON.parse(text) as Partial<Settings>;
+    return {
+      preset: raw.preset ?? DEFAULT_SETTINGS.preset,
+      overrides: raw.overrides ?? {},
+      sound: { ...DEFAULT_SETTINGS.sound, ...(raw.sound ?? {}) },
+    };
+  } catch (e) {
+    console.warn("bad settings.json, using defaults", e);
+    return structuredClone(DEFAULT_SETTINGS);
+  }
+}
+
+let pending: number | null = null;
+export function saveSettings(s: Settings): void {
+  // Coalesce rapid slider changes into one write.
+  if (pending !== null) window.clearTimeout(pending);
+  pending = window.setTimeout(() => {
+    pending = null;
+    writeSettings(JSON.stringify(s, null, 2)).catch((e) => console.error("could not save settings", e));
+  }, 300);
+}

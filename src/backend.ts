@@ -1,4 +1,14 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+
+// Outside Tauri (plain `vite` in a browser) a mock backend serves the
+// repo's quizzes and themes read-only, so screens can be previewed.
+const inTauri = "__TAURI_INTERNALS__" in window;
+
+async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  if (inTauri) return tauriInvoke<T>(cmd, args);
+  const { mockInvoke } = await import("./mock");
+  return mockInvoke<T>(cmd, args);
+}
 
 export interface QuizFile {
   dir: string;
@@ -23,4 +33,29 @@ export function readAttempts(): Promise<string> {
 // One JSON line appended to data/attempts.jsonl.
 export function appendAttempt(record: unknown): Promise<void> {
   return invoke("append_attempt", { line: JSON.stringify(record) });
+}
+
+export function rootDir(): Promise<string> {
+  return invoke<string>("root_dir");
+}
+
+export interface ThemeFile {
+  name: string;
+  json: string;
+}
+
+export function listThemes(): Promise<ThemeFile[]> {
+  return invoke<ThemeFile[]>("list_themes");
+}
+
+export function writeTheme(name: string, json: string): Promise<void> {
+  return invoke("write_theme", { name, json });
+}
+
+export function readSettings(): Promise<string> {
+  return invoke<string>("read_settings");
+}
+
+export function writeSettings(json: string): Promise<void> {
+  return invoke("write_settings", { json });
 }
