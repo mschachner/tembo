@@ -23,5 +23,6 @@
   "fontMono": "Atkinson Hyperlegible Mono",
   "bannerHeight": 260,
   "bannerEdge": "rule",
-  "bannerEdgeSize": 10
+  "bannerEdgeSize": 10,
+  "bannerEdgePos": 100
 }

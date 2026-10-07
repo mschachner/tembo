@@ -23,5 +23,6 @@
   "bannerHeight": 240,
   "bannerY": 50,
   "bannerEdge": "dither",
-  "bannerEdgeSize": 35
+  "bannerEdgeSize": 35,
+  "bannerEdgePos": 68
 }

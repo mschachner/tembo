@@ -23,5 +23,6 @@
   "bannerHeight": 240,
   "bannerY": 50,
   "bannerEdge": "wave",
-  "bannerEdgeSize": 22
+  "bannerEdgeSize": 22,
+  "bannerEdgePos": 100
 }

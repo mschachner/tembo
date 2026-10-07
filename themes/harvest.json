@@ -23,5 +23,6 @@
   "bannerHeight": 240,
   "bannerY": 50,
   "bannerEdge": "hills",
-  "bannerEdgeSize": 40
+  "bannerEdgeSize": 40,
+  "bannerEdgePos": 100
 }

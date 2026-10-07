@@ -43,6 +43,7 @@ export const THEME_VARS: VarSpec[] = [
   { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
   { key: "bannerEdge", css: "", kind: "choice", label: "Banner edge", options: EDGES },
   { key: "bannerEdgeSize", css: "", kind: "pct", label: "Banner edge size", min: 2, max: 100, step: 1 },
+  { key: "bannerEdgePos", css: "", kind: "pct", label: "Banner edge position", min: 30, max: 100, step: 1 },
 ];
 
 export type Theme = Record<string, string | number>;
@@ -52,7 +53,7 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdge: "fade", bannerEdgeSize: 45,
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdge: "fade", bannerEdgeSize: 45, bannerEdgePos: 100,
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {

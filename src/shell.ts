@@ -26,10 +26,17 @@ function bannerNode(): HTMLElement {
   } else {
     art.append(defaultBanner());
   }
-  applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), Number(theme.bannerHeight));
+  // The art occupies the top `pos`% of the banner; below it is page color.
+  // Images keep the full banner's size and are cut off, not squashed.
+  const pos = Math.max(30, Math.min(100, Number(theme.bannerEdgePos ?? 100)));
+  art.style.height = `${pos}%`;
+  art.style.setProperty("--art-scale", String(100 / pos));
+  const artHeight = (Number(theme.bannerHeight) * pos) / 100;
+  applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), artHeight);
   wrap.append(art);
   const due = dueCount();
-  const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  const now = new Date();
+  const dateLabel = `${now.toLocaleDateString("en-GB", { weekday: "long" })} ${now.getDate()} ${now.toLocaleDateString("en-GB", { month: "long" })}`;
   wrap.append(
     h(
       "div",

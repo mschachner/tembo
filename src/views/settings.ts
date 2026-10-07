@@ -11,7 +11,7 @@ function rerender(): void {
   nav.home("settings");
 }
 
-const BANNER_KEYS = new Set(["bannerEdge", "bannerEdgeSize", "bannerHeight", "bannerImage"]);
+const BANNER_KEYS = new Set(["bannerEdge", "bannerEdgeSize", "bannerEdgePos", "bannerHeight", "bannerImage"]);
 
 function setOverride(key: string, value: string | number): void {
   app.settings.overrides[key] = value;
@@ -116,7 +116,7 @@ export function settingsView(): Node {
     h("section", {}, h("h2", {}, "Preset"), h("div", { class: "presets" }, ...presetButtons)),
     h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
     h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
-    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerEdge", "bannerEdgeSize", "bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
+    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerEdge", "bannerEdgeSize", "bannerEdgePos", "bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
     h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
     h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
