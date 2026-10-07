@@ -4,6 +4,7 @@
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   pass: 100             # percent required to count as a clear
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
+//   retired: true         # optional; drop the quiz from the schedule
 //   image-height: 72      # px, for image prompts (default 72)
 //   ---
 //   Algeria
@@ -36,6 +37,7 @@ export interface Quiz {
   title: string;
   mode: Mode;
   kind: Kind;
+  retired: boolean;
   passPercent: number;
   imageHeight: number;   // px, default 72
   items: Item[];
@@ -86,6 +88,7 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     title: header.title ?? path,
     mode,
     kind,
+    retired: (header.retired ?? "false").toLowerCase() === "true",
     passPercent: header.pass ? Number(header.pass) : 100,
     imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
     items,

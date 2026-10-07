@@ -6,6 +6,7 @@
   --line: #e4e4e4;
   --found: #2e7d32;
   --missed: #c62828;
+  --slow: #b26a00;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 16px;
   color: var(--fg);
@@ -15,6 +16,9 @@ body { margin: 0; }
 #app { max-width: 720px; margin: 0 auto; padding: 24px; }
 
 h1 { font-size: 1.4rem; font-weight: 600; margin: 0 0 12px; }
+h2 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 20px 0 4px; }
+.small { font-size: 0.85rem; }
+.quiz-title { color: var(--muted); }
 header { margin-bottom: 16px; }
 .status { display: flex; gap: 16px; align-items: baseline; }
 .clock { font-variant-numeric: tabular-nums; }
@@ -49,7 +53,8 @@ button.quiz-link { border: none; background: none; padding: 0; text-decoration: 
 .slot, .slots li { padding: 2px 0; break-inside: avoid; }
 .slot { color: transparent; border-bottom: 1px solid var(--line); }
 .slot.found { color: var(--fg); border-bottom-color: transparent; }
-.slots li.found { color: var(--fg); }
+.slots li.found, .slots li.instant { color: var(--fg); }
+.slots li.slow { color: var(--slow); }
 .slots li.missed { color: var(--missed); }
 
 .actions { margin-top: 16px; display: flex; gap: 8px; }
@@ -71,7 +76,8 @@ button.quiz-link { border: none; background: none; padding: 0; text-decoration: 
 .card-input { margin: 0; padding: 6px 8px; font-size: 1rem; }
 .card-input.found { color: var(--found); border-color: transparent; background: transparent; }
 .card-answer { font-weight: 500; }
-.card.found .card-answer { color: var(--found); }
+.card.found .card-answer, .card.instant .card-answer { color: var(--found); }
+.card.slow .card-answer { color: var(--slow); }
 .card.missed .card-answer { color: var(--missed); }
 .card.missed { border-color: var(--missed); }
 .seconds { font-size: 0.8em; font-variant-numeric: tabular-nums; }

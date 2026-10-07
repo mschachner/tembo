@@ -1,9 +1,33 @@
-import { appendAttempt, listQuizzes, readAsset } from "./backend";
+import { appendAttempt, listQuizzes, readAsset, readAttempts } from "./backend";
 import { makeAttempt, type Attempt, type ItemTiming } from "./attempt";
 import { clear, formatClock, h } from "./dom";
+import { bucketOf, DEFAULT_CPS, gradeOf, typingSpeed } from "./grade";
+import { parseLog, type AnyAttempt } from "./log";
 import { parseQuiz, type Item, type Quiz } from "./quiz/format";
 import { findMatch, matchesItem } from "./quiz/match";
+import { daysBetween, isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
 import { shuffled } from "./shuffle";
+
+// ---------- app state: the attempt log, loaded once and appended to ----------
+
+let attempts: AnyAttempt[] = [];
+let cps = DEFAULT_CPS;
+
+async function loadLog(): Promise<void> {
+  attempts = parseLog(await readAttempts());
+  cps = typingSpeed(attempts) ?? DEFAULT_CPS;
+}
+
+function stateOf(quiz: Quiz): QuizState {
+  const own = attempts.filter((a) => a.quiz === quiz.path);
+  return own.length ? replay(own, (a) => gradeOf(a, cps)) : NEW_STATE;
+}
+
+function recordAttempt(attempt: Attempt): void {
+  attempts.push(attempt);
+  if (attempt.kind === "calibration") cps = typingSpeed(attempts) ?? DEFAULT_CPS;
+  appendAttempt(attempt).catch((e) => console.error("could not log attempt", e));
+}
 
 const app = document.getElementById("app")!;
 
@@ -37,29 +61,74 @@ function promptNode(quiz: Quiz, item: Item): Node[] {
   return img ? [img] : [h("div", { class: "prompt-text" }, text)];
 }
 
-// ---------- quiz list ----------
+// ---------- home screen ----------
 
-async function showList(): Promise<void> {
+interface Entry {
+  quiz: Quiz;
+  state: QuizState;
+}
+
+function dueLabel(state: QuizState, today: string): string {
+  if (state.dueDate === null) return "";
+  const n = daysBetween(today, state.dueDate);
+  if (n <= 0) return n === 0 ? "due today" : `${-n}d overdue`;
+  return n === 1 ? "tomorrow" : `in ${n}d`;
+}
+
+function entryRow(e: Entry, today: string, playable: boolean): HTMLElement {
+  const meta = [`${e.quiz.items.length}`, e.quiz.mode, dueLabel(e.state, today)].filter(Boolean).join(" · ");
+  const title = playable
+    ? h("button", { class: "quiz-link", onclick: () => showPlay(e.quiz) }, e.quiz.title)
+    : h("span", { class: "quiz-title" }, e.quiz.title);
+  return h("li", {}, title, h("span", { class: "muted" }, ` ${meta}`));
+}
+
+function section(name: string, rows: HTMLElement[]): HTMLElement | null {
+  if (rows.length === 0) return null;
+  return h("section", {}, h("h2", {}, name), h("ul", { class: "quiz-list" }, ...rows));
+}
+
+async function showHome(): Promise<void> {
   const files = await listQuizzes();
-  const rows = files.map((f) => {
+  const today = localDate(new Date());
+  const entries: Entry[] = [];
+  const errors: HTMLElement[] = [];
+  for (const f of files) {
     try {
       const quiz = parseQuiz(f.source, f.path, f.dir);
-      const meta = [`${quiz.items.length}`, quiz.mode, quiz.kind === "calibration" ? "calibration" : null]
-        .filter(Boolean)
-        .join(" · ");
-      return h(
-        "li",
-        {},
-        h("button", { class: "quiz-link", onclick: () => showPlay(quiz) }, quiz.title),
-        h("span", { class: "muted" }, ` ${meta}`),
-      );
+      entries.push({ quiz, state: stateOf(quiz) });
     } catch (e) {
-      return h("li", { class: "error" }, `${f.path}: ${(e as Error).message}`);
+      errors.push(h("li", { class: "error" }, `${f.path}: ${(e as Error).message}`));
     }
-  });
+  }
+
+  const normal = entries.filter((e) => e.quiz.kind === "normal" && !e.quiz.retired);
+  const due = normal
+    .filter((e) => e.state.status !== "new" && isDue(e.state, today))
+    .sort((a, b) => a.state.dueDate!.localeCompare(b.state.dueDate!));
+  const fresh = normal.filter((e) => e.state.status === "new");
+  const upcoming = normal
+    .filter((e) => e.state.status === "learning" && !isDue(e.state, today))
+    .sort((a, b) => a.state.dueDate!.localeCompare(b.state.dueDate!));
+  const mastered = normal
+    .filter((e) => e.state.status === "mastered" && !isDue(e.state, today))
+    .sort((a, b) => a.state.dueDate!.localeCompare(b.state.dueDate!));
+  const retired = entries.filter((e) => e.quiz.kind === "normal" && e.quiz.retired);
+  const calibration = entries.filter((e) => e.quiz.kind === "calibration");
+
+  const sections = [
+    section("Due", due.map((e) => entryRow(e, today, true))),
+    section("New", fresh.map((e) => entryRow(e, today, true))),
+    section("Upcoming", upcoming.map((e) => entryRow(e, today, false))),
+    section("Mastered", mastered.map((e) => entryRow(e, today, false))),
+    section("Retired", retired.map((e) => entryRow(e, today, false))),
+    section("Calibration", calibration.map((e) => entryRow(e, today, true))),
+    errors.length ? section("Errors", errors) : null,
+  ].filter((x): x is HTMLElement => x !== null);
+
   show(
-    h("header", {}, h("h1", {}, "Quizzes")),
-    files.length ? h("ul", { class: "quiz-list" }, ...rows) : h("p", { class: "muted" }, "quizzes/ is empty"),
+    h("header", {}, h("h1", {}, "Quizzes"), h("div", { class: "muted small" }, `typing ${cps.toFixed(1)} chars/s`)),
+    ...(sections.length ? sections : [h("p", { class: "muted" }, "quizzes/ is empty")]),
   );
 }
 
@@ -103,7 +172,7 @@ function startSession(quiz: Quiz, onFinish: (attempt: Attempt) => void): Session
     session.finished = true;
     window.clearInterval(session.timer);
     const attempt = makeAttempt(quiz, session.startedAt, new Date(), session.foundOrder, session.timing, session.rejected);
-    appendAttempt(attempt).catch((e) => console.error("could not log attempt", e));
+    recordAttempt(attempt);
     onFinish(attempt);
   }
 
@@ -243,66 +312,48 @@ function playPrompt(quiz: Quiz): void {
 
 // ---------- results ----------
 
-// Seconds spent on an item: since the card was focused (prompt mode) or
-// since the previous accept (list mode). Raw for now; bucketing against
-// calibrated typing speed comes with the scheduler.
-function itemSeconds(attempt: Attempt, idx: number): number | null {
-  const r = attempt.items[idx];
-  if (!r.found || r.acceptedMs === undefined) return null;
-  let from = 0;
-  if (attempt.mode === "prompt") {
-    from = r.focusedMs ?? 0;
-  } else {
-    const pos = attempt.found.indexOf(r.answer);
-    if (pos > 0) {
-      const prev = attempt.items.find((x) => x.answer === attempt.found[pos - 1]);
-      from = prev?.acceptedMs ?? 0;
-    }
-  }
-  return (r.acceptedMs - from) / 1000;
-}
-
-function secondsLabel(s: number | null): HTMLElement | null {
-  return s === null ? null : h("span", { class: "muted seconds" }, `${s.toFixed(1)}s`);
-}
-
 function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
   const rows = order.map((idx) => {
     const item = quiz.items[idx];
-    const r = attempt.items[idx];
-    const cls = r.found ? "found" : "missed";
-    const secs = secondsLabel(itemSeconds(attempt, idx));
+    const bucket = bucketOf(attempt, idx, cps);
+    const secs = attempt.items[idx].found && attempt.items[idx].acceptedMs !== undefined
+      ? h("span", { class: "muted seconds" }, bucket)
+      : null;
     if (quiz.mode === "prompt") {
       return h(
         "li",
-        { class: `card ${cls}` },
+        { class: `card ${bucket}` },
         ...promptNode(quiz, item),
         h("div", { class: "card-answer" }, item.canonical, " ", secs),
       );
     }
-    return h("li", { class: cls }, item.canonical, " ", secs);
+    return h("li", { class: bucket }, item.canonical, " ", secs);
   });
+
+  const state = stateOf(quiz);
+  const today = localDate(new Date());
+  const status: Node[] = [
+    h("span", { class: "score" }, `${attempt.score} / ${attempt.total}`),
+    h("span", { class: "muted" }, formatClock(attempt.durationSeconds)),
+  ];
+  if (quiz.kind === "normal") {
+    status.push(h("span", { class: attempt.cleared ? "cleared" : "muted" }, attempt.cleared ? "cleared" : "not cleared"));
+    status.push(h("span", { class: "muted" }, `grade ${gradeOf(attempt, cps).toFixed(2)}`));
+    status.push(h("span", { class: "muted" }, `next ${dueLabel(state, today)}`));
+  }
+
   show(
-    h(
-      "header",
-      {},
-      h("h1", {}, quiz.title),
-      h(
-        "div",
-        { class: "status" },
-        h("span", { class: "score" }, `${attempt.score} / ${attempt.total}`),
-        h("span", { class: "muted" }, formatClock(attempt.durationSeconds)),
-        h("span", { class: attempt.cleared ? "cleared" : "muted" }, attempt.cleared ? "cleared" : "not cleared"),
-      ),
-    ),
+    h("header", {}, h("h1", {}, quiz.title), h("div", { class: "status" }, ...status)),
     quiz.mode === "prompt" ? h("ol", { class: "prompt-grid" }, ...rows) : h("ol", { class: "slots" }, ...rows),
     h(
       "div",
       { class: "actions" },
-      h("button", { onclick: () => showPlay(quiz) }, "Again"),
-      h("button", { class: "quiet", onclick: showList }, "Back"),
+      quiz.kind === "calibration" ? h("button", { onclick: () => showPlay(quiz) }, "Again") : null,
+      h("button", { class: "quiet", onclick: showHome }, "Back"),
     ),
   );
 }
 
-showList().catch((e) => show(h("p", { class: "error" }, String(e))));
+loadLog()
+  .then(showHome)
+  .catch((e) => show(h("p", { class: "error" }, String(e))));

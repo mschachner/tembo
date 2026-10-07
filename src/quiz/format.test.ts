@@ -16,6 +16,7 @@ Gamma|G
     expect(q.title).toBe("T");
     expect(q.mode).toBe("list");
     expect(q.kind).toBe("normal");
+    expect(q.retired).toBe(false);
     expect(q.passPercent).toBe(90);
     expect(q.items.map((i) => i.canonical)).toEqual(["Alpha", "Beta", "Gamma"]);
     expect(q.items[1].aliases).toEqual(["B", "Bee"]);
@@ -49,6 +50,7 @@ Capital of France :: Paris
   it("accepts kind: calibration and rejects other kinds", () => {
     expect(parseQuiz(`kind: calibration\nmode: prompt\n---\nabc :: abc\n`).kind).toBe("calibration");
     expect(() => parseQuiz(`kind: weird\n---\nX\n`)).toThrow(/unknown kind/);
+    expect(parseQuiz(`retired: true\n---\nX\n`).retired).toBe(true);
   });
 
   it("rejects prompt-mode lines without ::", () => {

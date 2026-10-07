@@ -70,6 +70,16 @@ fn mime_for(path: &Path) -> &'static str {
     }
 }
 
+/// Whole attempt log; empty string if there is none yet.
+#[tauri::command]
+fn read_attempts() -> Result<String, String> {
+    let path = root().join("data").join("attempts.jsonl");
+    if !path.exists() {
+        return Ok(String::new());
+    }
+    fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
+}
+
 #[tauri::command]
 fn append_attempt(line: String) -> Result<(), String> {
     let dir = root().join("data");
@@ -85,7 +95,7 @@ fn append_attempt(line: String) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![list_quizzes, read_asset, append_attempt])
+        .invoke_handler(tauri::generate_handler![list_quizzes, read_asset, read_attempts, append_attempt])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
