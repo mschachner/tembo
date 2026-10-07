@@ -22,11 +22,12 @@ struct QuizFile {
     source: String,
 }
 
-#[tauri::command]
-fn list_quizzes() -> Result<Vec<QuizFile>, String> {
-    let quizzes = root().join("quizzes");
-    let entries = fs::read_dir(&quizzes).map_err(|e| format!("{}: {e}", quizzes.display()))?;
+fn list_in(quizzes: &Path) -> Result<Vec<QuizFile>, String> {
     let mut out = Vec::new();
+    if !quizzes.exists() {
+        return Ok(out);
+    }
+    let entries = fs::read_dir(quizzes).map_err(|e| format!("{}: {e}", quizzes.display()))?;
     for entry in entries {
         let dir = entry.map_err(|e| e.to_string())?.path();
         let path = dir.join("quiz.txt");
@@ -44,6 +45,68 @@ fn list_quizzes() -> Result<Vec<QuizFile>, String> {
     }
     out.sort_by(|a, b| a.path.cmp(&b.path));
     Ok(out)
+}
+
+#[tauri::command]
+fn list_quizzes() -> Result<Vec<QuizFile>, String> {
+    list_in(&root().join("quizzes"))
+}
+
+#[tauri::command]
+fn list_drafts() -> Result<Vec<QuizFile>, String> {
+    list_in(&root().join("quizzes").join("_drafts"))
+}
+
+fn plain_name(name: &str) -> Result<(), String> {
+    if name.is_empty() || name.starts_with('_') || name.starts_with('.') || name.contains('/') || name.contains("..") {
+        return Err(format!("bad quiz folder name: {name}"));
+    }
+    Ok(())
+}
+
+/// Move `quizzes/_drafts/<name>` to `quizzes/<name>`.
+#[tauri::command]
+fn approve_draft(name: String) -> Result<(), String> {
+    plain_name(&name)?;
+    let from = root().join("quizzes").join("_drafts").join(&name);
+    let to = root().join("quizzes").join(&name);
+    if to.exists() {
+        return Err(format!("quizzes/{name} already exists"));
+    }
+    fs::rename(&from, &to).map_err(|e| format!("{}: {e}", from.display()))
+}
+
+/// Create `quizzes/_drafts/untitled[-n]/quiz.txt` from a template and
+/// return the file's path.
+#[tauri::command]
+fn new_draft() -> Result<String, String> {
+    let drafts = root().join("quizzes").join("_drafts");
+    fs::create_dir_all(&drafts).map_err(|e| e.to_string())?;
+    let mut n = 1;
+    let dir = loop {
+        let name = if n == 1 { "untitled".to_string() } else { format!("untitled-{n}") };
+        let d = drafts.join(name);
+        if !d.exists() {
+            break d;
+        }
+        n += 1;
+    };
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let file = dir.join("quiz.txt");
+    fs::write(&file, "title: \nmode: list\npass: 100\n---\n").map_err(|e| e.to_string())?;
+    Ok(file.to_string_lossy().into_owned())
+}
+
+/// Open a file or folder inside the repo with the default macOS app.
+#[tauri::command]
+fn open_path(path: String) -> Result<(), String> {
+    let root = fs::canonicalize(root()).map_err(|e| e.to_string())?;
+    let target = fs::canonicalize(&path).map_err(|e| format!("{path}: {e}"))?;
+    if !target.starts_with(&root) {
+        return Err(format!("{path}: outside the repo"));
+    }
+    std::process::Command::new("open").arg(&target).spawn().map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 /// Read an image from inside a quiz directory and return it as a data URL.
@@ -158,7 +221,8 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             list_quizzes, read_asset, read_attempts, append_attempt,
-            root_dir, list_themes, write_theme, read_settings, write_settings
+            root_dir, list_themes, write_theme, read_settings, write_settings,
+            list_drafts, approve_draft, new_draft, open_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

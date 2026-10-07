@@ -1,4 +1,6 @@
 import { app, entries, loadQuizzes, type Entry } from "../app";
+import { approveDraft, listDrafts, newDraft, openPath, type QuizFile } from "../backend";
+import { parseQuiz } from "../quiz/format";
 import { tembo } from "../banner";
 import { h } from "../dom";
 import { median } from "../stats";
@@ -27,6 +29,55 @@ function section(name: string, rows: Node[]): HTMLElement | null {
   return h("section", {}, h("h2", {}, name), h("ul", { class: "quiz-list" }, ...rows));
 }
 
+// ---------- authoring: new quiz, drafts awaiting approval ----------
+
+let drafts: QuizFile[] = [];
+
+function folderName(dir: string): string {
+  return dir.split("/").filter(Boolean).pop() ?? dir;
+}
+
+function authoringActions(tab: Tab): HTMLElement {
+  return h(
+    "div",
+    { class: "actions" },
+    h("button", { onclick: async () => { const file = await newDraft(); await openPath(file); nav.home(tab); } }, "New quiz"),
+    h("button", { class: "quiet", onclick: () => openPath(`${app.root}/quizzes`) }, "Open quizzes folder"),
+  );
+}
+
+function draftsSection(tab: Tab): HTMLElement | null {
+  const rows = drafts.map((d) => {
+    const name = folderName(d.dir);
+    let summary: string;
+    let ok = true;
+    try {
+      const q = parseQuiz(d.source, d.path, d.dir);
+      summary = `${q.title || "(untitled)"} · ${q.items.length} · ${q.mode}`;
+    } catch (e) {
+      summary = (e as Error).message;
+      ok = false;
+    }
+    return h(
+      "li",
+      { class: "entry" },
+      h("span", { class: "mono small" }, name),
+      h("span", { class: `meta ${ok ? "muted" : "error"}` }, summary),
+      h("button", { class: "quiet", onclick: () => openPath(d.path) }, "Edit"),
+      ok ? h("button", { class: "play", onclick: async () => {
+        try { await approveDraft(name); nav.home(tab); } catch (e) { alertLine(String(e)); }
+      } }, "Approve") : null,
+    );
+  });
+  return section("Drafts", rows);
+}
+
+function alertLine(msg: string): void {
+  // Non-blocking error line at the top of the page (no browser dialogs).
+  const page = document.querySelector(".page");
+  page?.prepend(h("p", { class: "error" }, msg));
+}
+
 function groups(today: string) {
   const all = entries();
   const normal = all.filter((e) => e.quiz.kind === "normal" && !e.quiz.retired);
@@ -48,7 +99,15 @@ function todayView(today: string): Node {
   const parts: (HTMLElement | null)[] = [];
   if (nothingLeft) {
     parts.push(
-      h("div", { class: "empty" }, tembo(96), h("div", { class: "empty-slot" } /* copy slot: nothing due */)),
+      h(
+        "div",
+        { class: "empty" },
+        tembo(120),
+        h("div", { class: "empty-title" }, "No quizzes left today"),
+        h("div", { class: "empty-slot" } /* copy slot: Mark's own words for the empty state */),
+        authoringActions("today"),
+      ),
+      draftsSection("today"),
       todays.length
         ? h(
             "section",
@@ -77,6 +136,8 @@ function todayView(today: string): Node {
 function libraryView(today: string): Node {
   const g = groups(today);
   const sections = [
+    authoringActions("library"),
+    draftsSection("library"),
     section("Due", g.due.map((e) => entryRow(e, today, true))),
     section("New", g.fresh.map((e) => entryRow(e, today, true))),
     section("Upcoming", g.upcoming.map((e) => entryRow(e, today, false))),
@@ -135,6 +196,7 @@ function statsView(): Node {
 
 export async function showHome(tab: Tab = "today"): Promise<void> {
   await loadQuizzes();
+  drafts = await listDrafts();
   const today = localDate(new Date());
   const content =
     tab === "today" ? todayView(today)

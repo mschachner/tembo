@@ -2,7 +2,7 @@
 // assigning each; presets live in themes/*.json, the active preset and any
 // overrides in data/settings.json.
 
-export type VarKind = "color" | "px" | "scale" | "text" | "image";
+export type VarKind = "color" | "px" | "scale" | "text" | "image" | "elephant" | "toggle";
 
 export interface VarSpec {
   key: string;
@@ -36,6 +36,8 @@ export const THEME_VARS: VarSpec[] = [
   { key: "font", css: "--font", kind: "text", label: "Font" },
   { key: "fontMono", css: "--font-mono", kind: "text", label: "Font, mono" },
   { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path from repo root)" },
+  { key: "elephant", css: "", kind: "elephant", label: "Elephant" },
+  { key: "elephantFlip", css: "", kind: "toggle", label: "Flip elephant" },
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
 ];
 
@@ -46,7 +48,7 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240,
+  bannerImage: "", bannerHeight: 240, elephant: "0489d246", elephantFlip: 0,
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {
@@ -62,6 +64,7 @@ export function cssValue(spec: VarSpec, value: string | number): string {
 export function applyTheme(theme: Theme): void {
   const root = document.documentElement.style;
   for (const spec of THEME_VARS) {
+    if (!spec.css) continue; // non-CSS settings (elephant choice, flip)
     const v = theme[spec.key] ?? FALLBACK_THEME[spec.key];
     root.setProperty(spec.css, cssValue(spec, v));
   }

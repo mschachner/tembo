@@ -59,3 +59,20 @@ export function readSettings(): Promise<string> {
 export function writeSettings(json: string): Promise<void> {
   return invoke("write_settings", { json });
 }
+
+export function listDrafts(): Promise<QuizFile[]> {
+  return invoke<QuizFile[]>("list_drafts");
+}
+
+export function approveDraft(name: string): Promise<void> {
+  return invoke("approve_draft", { name });
+}
+
+// Creates a draft from a template; returns the path of its quiz.txt.
+export function newDraft(): Promise<string> {
+  return invoke<string>("new_draft");
+}
+
+export function openPath(path: string): Promise<void> {
+  return invoke("open_path", { path });
+}

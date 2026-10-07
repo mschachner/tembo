@@ -1,0 +1,92 @@
+[
+  {
+    "id": "0489d246",
+    "uuid": "0489d246-d871-494d-987f-7c735a9a8bc0",
+    "species": "Loxodonta cyclotis",
+    "contributor": "Evan Hockridge",
+    "facing": "left",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/0489d246-d871-494d-987f-7c735a9a8bc0"
+  },
+  {
+    "id": "2a070808",
+    "uuid": "2a070808-0874-409d-81c0-d0c1995e54bb",
+    "species": "Loxodonta africana",
+    "contributor": "Margot Michaud",
+    "facing": "right",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/2a070808-0874-409d-81c0-d0c1995e54bb"
+  },
+  {
+    "id": "47a8b95c",
+    "uuid": "47a8b95c-4981-4873-a87a-c51e99f34f63",
+    "species": "Loxodonta",
+    "contributor": "Jody Taylor",
+    "facing": "right",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/47a8b95c-4981-4873-a87a-c51e99f34f63"
+  },
+  {
+    "id": "62398ac0",
+    "uuid": "62398ac0-f0c3-48f8-8455-53512a05fbc4",
+    "species": "Loxodonta africana africana",
+    "contributor": "Steven Traver",
+    "facing": "left",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/62398ac0-f0c3-48f8-8455-53512a05fbc4"
+  },
+  {
+    "id": "6e47a104",
+    "uuid": "6e47a104-e62a-4901-81f7-fca2ecacdb0e",
+    "species": "Elephas maximus",
+    "contributor": "Jody Taylor",
+    "facing": "right",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/6e47a104-e62a-4901-81f7-fca2ecacdb0e"
+  },
+  {
+    "id": "73eca225",
+    "uuid": "73eca225-efca-4943-9724-25aa292ca4c3",
+    "species": "Elephas maximus",
+    "contributor": "Jody Taylor",
+    "facing": "left",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/73eca225-efca-4943-9724-25aa292ca4c3"
+  },
+  {
+    "id": "910d853a",
+    "uuid": "910d853a-1a15-4953-a1d3-b81208994d35",
+    "species": "Loxodonta africana",
+    "contributor": "Chuanxin Yu",
+    "facing": "left",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/910d853a-1a15-4953-a1d3-b81208994d35"
+  },
+  {
+    "id": "91e44407",
+    "uuid": "91e44407-08f2-4b96-b8a6-ab4ce6d4d38d",
+    "species": "Elephas maximus",
+    "contributor": "Kai Caspar",
+    "facing": "right",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/91e44407-08f2-4b96-b8a6-ab4ce6d4d38d"
+  },
+  {
+    "id": "db278f3b",
+    "uuid": "db278f3b-d8c1-47e9-afce-0478980f5875",
+    "species": "Elephas maximus",
+    "contributor": "Andy Wilson",
+    "facing": "left",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/db278f3b-d8c1-47e9-afce-0478980f5875"
+  },
+  {
+    "id": "51c89c19",
+    "uuid": "51c89c19-6ef1-4d8e-8de6-2a4b6e8f66c8",
+    "species": "Loxodonta africana",
+    "contributor": "Guillaume Dera",
+    "facing": "front",
+    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://www.phylopic.org/images/51c89c19-6ef1-4d8e-8de6-2a4b6e8f66c8"
+  }
+]
