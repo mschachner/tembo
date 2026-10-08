@@ -1,6 +1,6 @@
 // The boundary between banner art and page. Two amounts, both 0–100:
-//   smoothing — height of the transition zone as a percent of the art
-//               (0 = hard cut, 100 = the whole art fades out);
+//   smoothing — height of the transition zone as a percent of the banner
+//               height, so moving the edge doesn't change it (0 = hard cut);
 //   dithering — how much of that transition is rendered as an ordered
 //               (Bayer) dot pattern instead of a continuous fade.
 // The mask is a narrow canvas tiled horizontally.
@@ -8,9 +8,9 @@
 const CELL = 3;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
-export function edgeMask(heightPx: number, smoothing: number, dithering: number): string {
+export function edgeMask(heightPx: number, zonePx: number, dithering: number): string {
   const H = Math.max(1, Math.round(heightPx));
-  const zone = (Math.max(0, Math.min(100, smoothing)) / 100) * H;
+  const zone = Math.max(0, Math.min(H, zonePx));
   const d = Math.max(0, Math.min(100, dithering)) / 100;
   const canvas = document.createElement("canvas");
   canvas.width = CELL * 4;
@@ -35,8 +35,8 @@ export function edgeMask(heightPx: number, smoothing: number, dithering: number)
   return `url("${canvas.toDataURL()}")`;
 }
 
-export function applyEdge(art: HTMLElement, smoothing: number, dithering: number, heightPx: number): void {
-  const img = edgeMask(heightPx, smoothing, dithering);
+export function applyEdge(art: HTMLElement, zonePx: number, dithering: number, heightPx: number): void {
+  const img = edgeMask(heightPx, zonePx, dithering);
   const size = `${CELL * 4}px ${Math.round(heightPx)}px`;
   const st = art.style as CSSStyleDeclaration & { webkitMaskImage?: string; webkitMaskSize?: string; webkitMaskRepeat?: string };
   st.maskImage = img; st.webkitMaskImage = img;

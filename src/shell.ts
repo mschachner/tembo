@@ -67,7 +67,8 @@ function backdropNode(): HTMLElement {
   if (previous) art.append(previous);
   art.append(el);
   if (!path) art.style.background = "var(--banner-hills)";
-  applyEdge(art, Number(theme.edgeSmooth), Number(theme.edgeDither), artH);
+  const zonePx = (bannerH * Number(theme.edgeSmooth)) / 100;
+  applyEdge(art, zonePx, Number(theme.edgeDither), artH);
   return h("div", { class: "backdrop" }, art);
 }
 
