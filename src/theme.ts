@@ -73,13 +73,24 @@ export const FALLBACK_THEME: Theme = {
   bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "plates", contrast: "fixed",
 };
 
+const GENERIC_FAMILIES = new Set([
+  "ui-rounded", "ui-serif", "ui-sans-serif", "ui-monospace", "system-ui",
+  "serif", "sans-serif", "monospace", "cursive", "fantasy",
+]);
+
 export function cssValue(spec: VarSpec, value: string | number): string {
   switch (spec.kind) {
     case "px": return `${value}px`;
     case "pct": return `${value}%`;
     case "em": return `${value}em`;
     case "scale": return String(value);
-    case "text": return spec.key === "fontMono" ? `"${value}", ui-monospace, monospace` : `"${value}", system-ui, sans-serif`;
+    case "text": {
+      // Generic families (ui-rounded = SF Pro Rounded, ui-serif = New York on
+      // macOS) only work unquoted.
+      const v = String(value).trim();
+      const name = GENERIC_FAMILIES.has(v) ? v : `"${v}"`;
+      return spec.key === "fontMono" ? `${name}, ui-monospace, monospace` : `${name}, system-ui, sans-serif`;
+    }
     case "image": return "none"; // the banner element handles the image itself
     default: return String(value);
   }
