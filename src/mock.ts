@@ -8,8 +8,10 @@ const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { quer
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
 
 let attempts = (import.meta.env.VITE_MOCK_ATTEMPTS as string | undefined) ?? "";
-let settings = "";
+let settings = localStorage.getItem("mock-settings") ?? "";
 const deletedThemes = new Set<string>();
+// Shared between preview windows through localStorage, like files on disk.
+const savedThemesNow = () => new Map<string, string>(JSON.parse(localStorage.getItem("mock-themes") ?? "[]"));
 
 export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   switch (cmd) {
@@ -49,22 +51,30 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       attempts += `${args.line}\n`;
       return undefined as T;
     case "list_themes": {
+      const savedThemes = savedThemesNow();
       const out = [];
       for (const [file, load] of Object.entries(themeSources)) {
         const name = file.replace(/^.*\//, "").replace(/\.json$/, "");
-        if (!deletedThemes.has(name)) out.push({ name, json: (await load()) as string });
+        if (!deletedThemes.has(name) && !savedThemes.has(name)) out.push({ name, json: (await load()) as string });
       }
+      for (const [name, json] of savedThemes) out.push({ name, json });
+      out.sort((a, b) => a.name.localeCompare(b.name));
       return out as T;
     }
-    case "write_theme":
+    case "write_theme": {
+      const savedThemes = savedThemesNow();
+      savedThemes.set(String(args.name), String(args.json));
+      localStorage.setItem("mock-themes", JSON.stringify([...savedThemes]));
       return undefined as T;
+    }
     case "delete_theme":
       deletedThemes.add(String(args.name));
       return undefined as T;
     case "read_settings":
-      return settings as T;
+      return (localStorage.getItem("mock-settings") ?? settings) as T;
     case "write_settings":
       settings = String(args.json);
+      localStorage.setItem("mock-settings", settings);
       return undefined as T;
     default:
       throw new Error(`mock: unknown command ${cmd}`);

@@ -100,7 +100,6 @@ export function parseTheme(json: string): Theme {
   const raw = JSON.parse(json) as Record<string, unknown>;
   const out: Theme = {};
   for (const spec of THEME_VARS) {
-    if (!spec.css) continue; // read directly by the code that uses it
     const v = raw[spec.key];
     if (typeof v === "string" || typeof v === "number") out[spec.key] = v;
   }
