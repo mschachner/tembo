@@ -124,6 +124,7 @@ export function settingsView(): Node {
   return h(
     "div",
     { class: "settings" },
+    h("h1", { class: "settings-title" }, "Settings"),
     h(
       "section",
       {},
@@ -131,8 +132,7 @@ export function settingsView(): Node {
       h("div", { class: "presets" }, ...presetButtons),
       h("div", { class: "save-preset" }, nameInput, saveButton),
     ),
-    group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
-    group("Results", ...groupsOf(["instant", "slow", "missed"])),
+    group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
     group("Type and shape", ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),

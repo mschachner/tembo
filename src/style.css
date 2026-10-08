@@ -266,4 +266,9 @@ details.group[open] > summary { margin-bottom: calc(var(--u) * 0.75); }
 details.group > summary:hover { color: var(--fg); }
 .settings > section:has(> details.group) { padding-top: calc(var(--u) * 0.4); padding-bottom: calc(var(--u) * 0.4); }
 .settings > section + section:has(> details.group) { margin-top: calc(var(--u) * 0.25); }
-.settings > section:first-child + section { margin-top: calc(var(--u) * 1.5); }
+.settings > section:nth-child(2) + section { margin-top: calc(var(--u) * 1.5); }
+/* The heading is not a block of content: no plate, flush with the column. */
+.page > div > h1.settings-title {
+  background: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  padding: 0; margin: 0 0 calc(var(--u) * 1.5);
+}
