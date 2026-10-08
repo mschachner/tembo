@@ -143,7 +143,11 @@ function playList(quiz: Quiz): void {
 }
 
 function playPrompt(quiz: Quiz): void {
-  const order = shuffled(quiz.items.map((_, i) => i));
+  // Prompts come in file order while you're learning a quiz, and shuffled
+  // once it's proficient (the calibration quiz is always shuffled).
+  const inOrder = quiz.items.map((_, i) => i);
+  const shuffle = quiz.kind === "calibration" || stateOf(quiz).status === "proficient";
+  const order = shuffle ? shuffled(inOrder) : inOrder;
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
   const inputs = new Map<number, HTMLTextAreaElement>();
 
