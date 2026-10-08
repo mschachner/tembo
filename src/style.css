@@ -198,12 +198,14 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
   display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: calc(var(--u) * 1.5);
 }
 .card {
-  display: flex; flex-direction: column; justify-content: flex-end; gap: calc(var(--u) * 0.75);
+  display: flex; flex-direction: column; justify-content: flex-start; gap: calc(var(--u) * 0.75);
   padding: calc(var(--u) * 1.25); border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2);
 }
 .prompt-text { font-weight: 500; }
 .prompt-image { display: block; max-width: 100%; width: auto; margin: 0 auto; object-fit: contain; border-radius: calc(var(--radius) / 2); }
-.card-input { margin: 0; padding: calc(var(--u) * 0.75) var(--u); font-size: 1em; }
+/* During play the input sits at the card's bottom so inputs line up across
+   a row; any extra height goes between the clue and the input. */
+.card-input { margin: auto 0 0; padding: calc(var(--u) * 0.75) var(--u); font-size: 1em; }
 .card-input.found { color: var(--instant); border-color: transparent; background: transparent; }
 .card-answer { font-weight: 500; }
 .card.instant .card-answer { color: var(--instant); }
