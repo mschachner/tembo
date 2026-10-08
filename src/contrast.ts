@@ -9,8 +9,11 @@ import { edgeOpacity } from "./edge";
 const SAMPLE_W = 96;
 const SELECTOR = [
   ".banner-text", ".tab", ".entry", ".stats tr", ".page h1", ".page h2", ".page p",
-  ".control", ".actions", ".empty-title", ".page .small", ".card", ".slots li", ".presets",
+  ".control", ".actions", ".empty-title", ".empty .tembo-mark", ".page .small", ".card", ".slots li", ".presets",
 ].join(", ");
+// Below this contrast ratio the text also gets a thin halo in the opposite
+// color, which is what keeps it legible across the edge's mid-tones.
+const HALO_BELOW = 4.5;
 
 let samples: { ctx: CanvasRenderingContext2D; w: number; h: number; src: string } | null = null;
 let adapted: HTMLElement[] = [];
@@ -29,10 +32,7 @@ function contrast(a: number, b: number): number {
 
 function reset(): void {
   for (const el of adapted) {
-    el.style.removeProperty("color");
-    el.style.removeProperty("--fg");
-    el.style.removeProperty("--fg-2");
-    el.style.removeProperty("--fg-3");
+    for (const prop of ["color", "--fg", "--fg-2", "--fg-3", "text-shadow", "--halo"]) el.style.removeProperty(prop);
   }
   adapted = [];
 }
@@ -112,14 +112,21 @@ export function updateContrast(): void {
     sum += belowRows * bgL; n += belowRows;
     if (!n) continue;
     const behind = plate * bgL + (1 - plate) * (sum / n);
-    if (contrast(bgL, behind) > contrast(fgL, behind) + 0.5) {
-      const c = String(theme.bg);
-      el.style.color = c;
-      el.style.setProperty("--fg", c);
-      el.style.setProperty("--fg-2", `color-mix(in srgb, ${c} 82%, transparent)`);
-      el.style.setProperty("--fg-3", `color-mix(in srgb, ${c} 62%, transparent)`);
-      adapted.push(el);
+    const cBg = contrast(bgL, behind), cFg = contrast(fgL, behind);
+    const flip = cBg > cFg;
+    const c = String(flip ? theme.bg : theme.fg);
+    const opposite = String(flip ? theme.fg : theme.bg);
+    // Over art, every element gets its text set explicitly: the chosen
+    // color, with the muted levels only slightly softened.
+    el.style.color = c;
+    el.style.setProperty("--fg", c);
+    el.style.setProperty("--fg-2", `color-mix(in srgb, ${c} 92%, transparent)`);
+    el.style.setProperty("--fg-3", `color-mix(in srgb, ${c} 80%, transparent)`);
+    if (Math.max(cBg, cFg) < HALO_BELOW) {
+      el.style.setProperty("--halo", opposite);
+      el.style.textShadow = `0 0 1px ${opposite}, 0 0 3px ${opposite}, 0 0 6px color-mix(in srgb, ${opposite} 60%, transparent)`;
     }
+    adapted.push(el);
   }
 }
 
