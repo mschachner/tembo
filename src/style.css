@@ -221,7 +221,7 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .control input.text { flex: 1; padding: calc(var(--u) * 0.5) var(--u); }
 
 .tembo-mark { display: inline-flex; color: inherit; }
-.tembo-mark svg { display: block; filter: drop-shadow(0 0 1px var(--halo, transparent)) drop-shadow(0 0 3px var(--halo, transparent)); }
+.tembo-mark svg { display: block; filter: drop-shadow(0 1px 2px var(--halo, transparent)); }
 .empty-title { font-size: 1.15em; color: var(--fg-2); }
 .empty .actions { margin-top: var(--u); }
 .preset.small { padding: 3px 10px; font-size: 0.9em; }

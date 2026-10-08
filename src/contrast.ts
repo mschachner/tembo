@@ -11,9 +11,10 @@ const SELECTOR = [
   ".banner-text", ".tab", ".entry", ".stats tr", ".page h1", ".page h2", ".page p",
   ".control", ".actions", ".empty-title", ".empty .tembo-mark", ".page .small", ".card", ".slots li", ".presets",
 ].join(", ");
-// Below this contrast ratio the text also gets a thin halo in the opposite
-// color, which is what keeps it legible across the edge's mid-tones.
-const HALO_BELOW = 4.5;
+// Target contrast ratio. Below it, the theme colors give way to stronger
+// versions pushed toward black or white; light text that still falls short
+// gets a soft dark shadow. Dark text never gets a halo.
+const TARGET = 4.5;
 
 let samples: { ctx: CanvasRenderingContext2D; w: number; h: number; src: string } | null = null;
 let adapted: HTMLElement[] = [];
@@ -67,6 +68,32 @@ function sampleArt(art: HTMLElement, bannerH: number, bannerY: number): boolean 
   return true;
 }
 
+function mix(hex: string, toward: [number, number, number], t: number): string {
+  const [r, g, b] = parseHex(hex);
+  const m = (a: number, z: number) => Math.round(a + (z - a) * t);
+  return `#${[m(r, toward[0]), m(g, toward[1]), m(b, toward[2])].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+}
+
+// Prefer whichever theme text color contrasts better; if neither reaches
+// the target, step that color toward its extreme until it does (or until
+// it is fully black or white).
+function pickColor(behind: number, fg: string, bg: string): { color: string; ratio: number; light: boolean } {
+  const fgL = lum(...parseHex(fg)), bgL = lum(...parseHex(bg));
+  const cFg = contrast(fgL, behind), cBg = contrast(bgL, behind);
+  let base = cFg >= cBg ? fg : bg;
+  let ratio = Math.max(cFg, cBg);
+  const light = lum(...parseHex(base)) > behind;
+  if (ratio < TARGET) {
+    const extreme: [number, number, number] = light ? [255, 255, 255] : [0, 0, 0];
+    for (const t of [0.25, 0.5, 0.75, 1]) {
+      const c = mix(base, extreme, t);
+      ratio = contrast(lum(...parseHex(c)), behind);
+      if (ratio >= TARGET || t === 1) { base = c; break; }
+    }
+  }
+  return { color: base, ratio, light };
+}
+
 export function updateContrast(): void {
   reset();
   const theme = activeTheme();
@@ -83,7 +110,6 @@ export function updateContrast(): void {
 
   const bg = parseHex(String(theme.bg));
   const bgL = lum(...bg);
-  const fgL = lum(...parseHex(String(theme.fg)));
   const plate = String(theme.surfaces) === "none" ? 0 : Number(theme.plate) / 100;
   const smoothPx = (bannerH * Number(theme.edgeSmooth)) / 100;
   const ditherPx = (bannerH * Number(theme.edgeDither)) / 100;
@@ -112,19 +138,16 @@ export function updateContrast(): void {
     sum += belowRows * bgL; n += belowRows;
     if (!n) continue;
     const behind = plate * bgL + (1 - plate) * (sum / n);
-    const cBg = contrast(bgL, behind), cFg = contrast(fgL, behind);
-    const flip = cBg > cFg;
-    const c = String(flip ? theme.bg : theme.fg);
-    const opposite = String(flip ? theme.fg : theme.bg);
+    const choice = pickColor(behind, String(theme.fg), String(theme.bg));
     // Over art, every element gets its text set explicitly: the chosen
     // color, with the muted levels only slightly softened.
-    el.style.color = c;
-    el.style.setProperty("--fg", c);
-    el.style.setProperty("--fg-2", `color-mix(in srgb, ${c} 92%, transparent)`);
-    el.style.setProperty("--fg-3", `color-mix(in srgb, ${c} 80%, transparent)`);
-    if (Math.max(cBg, cFg) < HALO_BELOW) {
-      el.style.setProperty("--halo", opposite);
-      el.style.textShadow = `0 0 1px ${opposite}, 0 0 3px ${opposite}, 0 0 6px color-mix(in srgb, ${opposite} 60%, transparent)`;
+    el.style.color = choice.color;
+    el.style.setProperty("--fg", choice.color);
+    el.style.setProperty("--fg-2", `color-mix(in srgb, ${choice.color} 92%, transparent)`);
+    el.style.setProperty("--fg-3", `color-mix(in srgb, ${choice.color} 80%, transparent)`);
+    if (choice.light && choice.ratio < TARGET) {
+      el.style.setProperty("--halo", "rgba(0, 0, 0, 0.45)");
+      el.style.textShadow = "0 1px 2px rgba(0, 0, 0, 0.45), 0 0 6px rgba(0, 0, 0, 0.25)";
     }
     adapted.push(el);
   }
