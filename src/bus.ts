@@ -49,6 +49,13 @@ export function bindSettingsShortcut(fallback: () => void): void {
 }
 
 // Open (or focus) the settings window; `fallback` runs if it can't open.
+/** The current page background as [r, g, b], read from the rendered body. */
+function themeBackground(): [number, number, number] | undefined {
+  const m = getComputedStyle(document.body).backgroundColor.match(/\d+(\.\d+)?/g);
+  if (!m || m.length < 3) return undefined;
+  return [0, 1, 2].map((i) => Math.round(Number(m[i]))) as [number, number, number];
+}
+
 export async function openSettingsWindow(fallback: () => void): Promise<void> {
   if (!inTauri) {
     if (popup && !popup.closed) { popup.focus(); return; }
@@ -72,6 +79,9 @@ export async function openSettingsWindow(fallback: () => void): Promise<void> {
     titleBarStyle: "overlay",
     hiddenTitle: true,
     visible: false,   // shown by the window itself once it has drawn (no white flash)
+    // Paint the window in the theme's background from the start, so any frame
+    // drawn before the page loads isn't the webview's default white.
+    backgroundColor: themeBackground(),
   });
   void win.once("tauri://error", (e) => { console.error("settings window", e); fallback(); });
 }
