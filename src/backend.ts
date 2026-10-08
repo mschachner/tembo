@@ -52,6 +52,10 @@ export function writeTheme(name: string, json: string): Promise<void> {
   return invoke("write_theme", { name, json });
 }
 
+export function deleteTheme(name: string): Promise<void> {
+  return invoke("delete_theme", { name });
+}
+
 export function readSettings(): Promise<string> {
   return invoke<string>("read_settings");
 }

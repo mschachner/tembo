@@ -1,5 +1,5 @@
 import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings } from "../app";
-import { writeTheme } from "../backend";
+import { deleteTheme, writeTheme } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
 import { refreshBanner } from "../shell";
@@ -49,9 +49,10 @@ function control(spec: VarSpec): HTMLElement {
     }
     case "px":
     case "pct":
+    case "em":
     case "scale": {
       const el = h("input", { type: "range", min: spec.min, max: spec.max, step: spec.step, value: String(value) });
-      const unit = spec.kind === "px" ? "px" : spec.kind === "pct" ? "%" : "";
+      const unit = spec.kind === "px" ? "px" : spec.kind === "pct" ? "%" : spec.kind === "em" ? "em" : "";
       readout = h("span", { class: "mono small" }, `${value}${unit}`);
       el.addEventListener("input", () => {
         const v = Number(el.value);
@@ -62,7 +63,8 @@ function control(spec: VarSpec): HTMLElement {
       break;
     }
     default: {
-      const el = h("input", { type: "text", value: String(value), class: "text" });
+      const el = h("input", { type: "text", value: String(value), class: "text",
+        placeholder: spec.kind === "text" && spec.key !== "font" ? "same as body font" : "" });
       el.addEventListener("change", () => setOverride(spec.key, el.value));
       input = el;
     }
@@ -77,19 +79,43 @@ function control(spec: VarSpec): HTMLElement {
 const openGroups = new Set<string>();
 
 export function settingsView(): Node {
-  const presetButtons = [...app.presets.keys()].map((name) =>
-    h(
-      "button",
-      { class: `preset ${name === app.settings.preset ? "active" : ""}`, onclick: () => {
+  const presetButtons = [...app.presets.keys()].map((name) => {
+    const del = h("button", { class: "preset-delete", title: `Delete ${name}`, "aria-label": `Delete ${name}` }, "×");
+    // Two clicks to delete: the first arms the button for three seconds.
+    let armed = 0;
+    del.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!armed) {
+        del.classList.add("armed"); del.textContent = "delete";
+        armed = window.setTimeout(() => { armed = 0; del.classList.remove("armed"); del.textContent = "×"; }, 3000);
+        return;
+      }
+      window.clearTimeout(armed);
+      if (app.presets.size <= 1) return; // keep at least one
+      await deleteTheme(name);
+      await loadThemes();
+      if (app.settings.preset === name) {
+        app.settings.preset = [...app.presets.keys()][0];
+        app.settings.overrides = {};
+        applyActiveTheme();
+      }
+      persistSettings();
+      void publish({ kind: "themes" });
+      rerender();
+    });
+    return h(
+      "span",
+      { class: `preset-chip ${name === app.settings.preset ? "active" : ""}` },
+      h("button", { class: "preset", onclick: () => {
         app.settings.preset = name;
         app.settings.overrides = {};
         applyActiveTheme();
         persistSettings();
         rerender();
-      } },
-      name,
-    ),
-  );
+      } }, name),
+      app.presets.size > 1 ? del : null,
+    );
+  });
 
   const nameInput = h("input", { type: "text", class: "text", placeholder: "preset name" });
   const saveButton = h("button", { onclick: async () => {
@@ -135,7 +161,8 @@ export function settingsView(): Node {
     group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
-    group("Type and shape", ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
+    group("Fonts", ...groupsOf(["font", "fontSize", "fontMono", "monoScale", "titleFont", "titleSize", "titleWeight", "titleTracking", "headingFont", "headingSize", "labelSize"])),
+    group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
     group("Sound",
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
       h("div", { class: "control" }, h("label", {}, "Volume"), volume),

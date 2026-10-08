@@ -177,6 +177,15 @@ fn write_theme(name: String, json: String) -> Result<(), String> {
     fs::write(dir.join(format!("{name}.json")), json).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn delete_theme(name: String) -> Result<(), String> {
+    if name.is_empty() || name.contains('/') || name.contains("..") {
+        return Err(format!("bad theme name: {name}"));
+    }
+    let path = root().join("themes").join(format!("{name}.json"));
+    fs::remove_file(&path).map_err(|e| format!("{}: {e}", path.display()))
+}
+
 /// `<root>/data/settings.json`; empty string if absent.
 #[tauri::command]
 fn read_settings() -> Result<String, String> {
@@ -221,7 +230,7 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             list_quizzes, read_asset, read_attempts, append_attempt,
-            root_dir, list_themes, write_theme, read_settings, write_settings,
+            root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
             list_drafts, approve_draft, new_draft, open_path
         ])
         .run(tauri::generate_context!())

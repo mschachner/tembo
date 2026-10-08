@@ -9,6 +9,7 @@ const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", impor
 
 let attempts = (import.meta.env.VITE_MOCK_ATTEMPTS as string | undefined) ?? "";
 let settings = "";
+const deletedThemes = new Set<string>();
 
 export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   switch (cmd) {
@@ -50,11 +51,15 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
     case "list_themes": {
       const out = [];
       for (const [file, load] of Object.entries(themeSources)) {
-        out.push({ name: file.replace(/^.*\//, "").replace(/\.json$/, ""), json: (await load()) as string });
+        const name = file.replace(/^.*\//, "").replace(/\.json$/, "");
+        if (!deletedThemes.has(name)) out.push({ name, json: (await load()) as string });
       }
       return out as T;
     }
     case "write_theme":
+      return undefined as T;
+    case "delete_theme":
+      deletedThemes.add(String(args.name));
       return undefined as T;
     case "read_settings":
       return settings as T;
