@@ -24,6 +24,6 @@
   "tabs": "pill",
   "edgeSmooth": 30,
   "edgeDither": 8,
-  "surfaces": "plates",
-  "contrast": "fixed"
+  "surfaces": "none",
+  "contrast": "auto"
 }

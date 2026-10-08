@@ -77,7 +77,7 @@ export const FALLBACK_THEME: Theme = {
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
   monoScale: 1, titleFont: "", titleSize: 35, titleWeight: 700, titleTracking: -0.01, headingFont: "", headingSize: 24,
   labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "plates", contrast: "fixed",
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "none", contrast: "auto",
 };
 
 const GENERIC_FAMILIES = new Set([

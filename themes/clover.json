@@ -24,6 +24,6 @@
   "plateBlur": 10,
   "tabs": "pill",
   "bannerEdgePos": 100,
-  "surfaces": "plates",
-  "contrast": "fixed"
+  "surfaces": "none",
+  "contrast": "auto"
 }
