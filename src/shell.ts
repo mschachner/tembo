@@ -70,10 +70,24 @@ function backdropNode(): HTMLElement {
   return h("div", { class: "backdrop" }, art);
 }
 
-function bannerNode(): HTMLElement {
+let currentTab: Tab = "today";
+
+function tabsNode(tab: Tab): HTMLElement {
+  return h(
+    "nav",
+    { class: "tabs" },
+    ...TABS.map((t) =>
+      h("button", { class: `tab ${t.id === tab ? "active" : ""}`, onclick: () => nav.home(t.id) }, t.label),
+    ),
+  );
+}
+
+// Banner: title plate, and in the "card" tab style the tabs sit inside it.
+function bannerNode(tab: Tab): HTMLElement {
   const due = dueCount();
   const now = new Date();
   const dateLabel = `${now.toLocaleDateString("en-GB", { weekday: "long" })} ${now.getDate()} ${now.toLocaleDateString("en-GB", { month: "long" })}`;
+  const style = String(activeTheme().tabs ?? "pill");
   return h(
     "div",
     { class: "banner", "data-tauri-drag-region": "" },
@@ -82,14 +96,23 @@ function bannerNode(): HTMLElement {
       { class: "banner-text" },
       h("div", { class: "banner-title" }, "Tembo"),
       h("div", { class: "banner-sub" }, `${dateLabel} · ${due} due`),
+      style === "card" ? tabsNode(tab) : null,
     ),
   );
+}
+
+// Tab bar below the banner; empty in the "card" style.
+function tabBarNode(tab: Tab): HTMLElement {
+  const style = String(activeTheme().tabs ?? "pill");
+  document.getElementById("app")!.dataset.tabs = style;
+  return h("div", { class: "tabs-wrap" }, style === "card" ? null : tabsNode(tab));
 }
 
 // Redraw the banner and its art (for live changes in Settings).
 export function refreshBanner(): void {
   document.querySelector(".backdrop")?.replaceWith(backdropNode());
-  document.querySelector(".banner")?.replaceWith(bannerNode());
+  document.querySelector(".banner")?.replaceWith(bannerNode(currentTab));
+  document.querySelector(".tabs-wrap")?.replaceWith(tabBarNode(currentTab));
 }
 
 function statusLine(): HTMLElement {
@@ -105,21 +128,10 @@ function statusLine(): HTMLElement {
 }
 
 export function renderHome(tab: Tab, content: Node): void {
+  currentTab = tab;
   const root = document.getElementById("app")!;
   clear(root);
-  root.append(
-    backdropNode(),
-    bannerNode(),
-    h(
-      "nav",
-      { class: "tabs" },
-      ...TABS.map((t) =>
-        h("button", { class: `tab ${t.id === tab ? "active" : ""}`, onclick: () => nav.home(t.id) }, t.label),
-      ),
-    ),
-    h("main", { class: "page" }, content),
-    statusLine(),
-  );
+  root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: "page" }, content), statusLine());
 }
 
 // Screens other than the home tabs: a slim drag strip instead of the banner.

@@ -33,6 +33,7 @@ export const THEME_VARS: VarSpec[] = [
   { key: "bannerHills", css: "--banner-hills", kind: "color", label: "Banner hills" },
   { key: "bannerSun", css: "--banner-sun", kind: "color", label: "Banner sun" },
   { key: "bannerFigure", css: "--banner-figure", kind: "color", label: "Banner figure" },
+  { key: "tabs", css: "", kind: "choice", label: "Tab bar", options: ["pill", "pills", "card", "bar"] },
   { key: "plate", css: "--plate", kind: "pct", label: "Surface opacity over art", min: 0, max: 100, step: 1 },
   { key: "plateBlur", css: "--plate-blur", kind: "px", label: "Surface blur over art", min: 0, max: 30, step: 1 },
   { key: "radius", css: "--radius", kind: "px", label: "Corner radius", min: 0, max: 24, step: 1 },
@@ -55,7 +56,7 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdge: "fade", bannerEdgeSize: 45, bannerEdgePos: 100, plate: 85, plateBlur: 10,
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdge: "fade", bannerEdgeSize: 45, bannerEdgePos: 100, plate: 85, plateBlur: 10, tabs: "pill",
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {
