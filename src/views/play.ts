@@ -60,7 +60,9 @@ function markFound(session: Session, idx: number, typed: string): void {
   else sounds.accept();
 }
 
-function reject(session: Session, input: HTMLInputElement, idx?: number): void {
+type AnswerBox = HTMLInputElement | HTMLTextAreaElement;
+
+function reject(session: Session, input: AnswerBox, idx?: number): void {
   session.rejected++;
   if (idx !== undefined) session.timing[idx].wrong++;
   sounds.reject();
@@ -85,6 +87,24 @@ function answerInput(extraClass = ""): HTMLInputElement {
     type: "text", class: `answer-input ${extraClass}`.trim(),
     autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: "false",
   });
+}
+
+// Prompt cards use a one-row textarea that wraps and grows with its
+// contents, so long answers stay fully visible while typing.
+function cardInput(): HTMLTextAreaElement {
+  const el = h("textarea", {
+    class: "answer-input card-input", rows: "1",
+    autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: "false",
+  });
+  const fit = () => {
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + (el.offsetHeight - el.clientHeight)}px`;
+  };
+  el.addEventListener("input", () => {
+    if (el.value.includes("\n")) el.value = el.value.replace(/\n/g, " ");
+    fit();
+  });
+  return el;
 }
 
 export function showPlay(quiz: Quiz): void {
@@ -122,9 +142,9 @@ function playList(quiz: Quiz): void {
 function playPrompt(quiz: Quiz): void {
   const order = shuffled(quiz.items.map((_, i) => i));
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
-  const inputs = new Map<number, HTMLInputElement>();
+  const inputs = new Map<number, HTMLTextAreaElement>();
 
-  function nextUnanswered(after: number): HTMLInputElement | null {
+  function nextUnanswered(after: number): HTMLTextAreaElement | null {
     const pos = order.indexOf(after);
     for (let k = 1; k <= order.length; k++) {
       const idx = order[(pos + k) % order.length];
@@ -138,9 +158,8 @@ function playPrompt(quiz: Quiz): void {
     if (input.value.trim() === "") { nextUnanswered(idx)?.focus(); return; }
     if (matchesItem(input.value, quiz.items[idx])) {
       const typed = input.value;
-      input.value = quiz.items[idx].canonical;
-      input.readOnly = true;
-      input.classList.add("found");
+      // Swap the box for the answer as text, which wraps freely.
+      input.replaceWith(h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical));
       const next = nextUnanswered(idx);
       markFound(session, idx, typed);
       next?.focus();
@@ -150,7 +169,7 @@ function playPrompt(quiz: Quiz): void {
   }
 
   const cards = order.map((idx) => {
-    const input = answerInput("card-input");
+    const input = cardInput();
     input.addEventListener("focus", () => {
       if (!session.foundOrder.includes(idx)) session.timing[idx].focusedMs = session.elapsedMs();
     });

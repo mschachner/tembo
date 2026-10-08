@@ -130,11 +130,12 @@ button.quiet { border-color: transparent; background: transparent; color: var(--
 button.quiet:hover { background: var(--bg-3); color: var(--fg); }
 button.tiny { padding: 2px 8px; font-size: 0.85em; }
 button.back { margin: 0 0 calc(var(--u) * 1.5) calc(var(--u) * -1.5); }
-input[type="text"] {
+input[type="text"], textarea {
   font: inherit; color: var(--fixed-fg); background: var(--bg-2);
   border: 1px solid var(--line); border-radius: var(--radius);
 }
-input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[type="text"]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+textarea.card-input { resize: none; overflow: hidden; line-height: 1.35; display: block; width: 100%; }
 input[type="range"] { accent-color: var(--accent); width: 180px; }
 input[type="color"] { width: 44px; height: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); padding: 2px; }
 input[type="checkbox"] { accent-color: var(--accent); }
@@ -206,7 +207,7 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 /* During play the input sits at the card's bottom so inputs line up across
    a row; any extra height goes between the clue and the input. */
 .card-input { margin: auto 0 0; padding: calc(var(--u) * 0.75) var(--u); font-size: 1em; }
-.card-input.found { color: var(--instant); border-color: transparent; background: transparent; }
+.card-answer.accepted { margin-top: auto; color: var(--instant); padding: calc(var(--u) * 0.75) 0; }
 .card-answer { font-weight: 500; }
 .card.instant .card-answer { color: var(--instant); }
 .card.slow .card-answer { color: var(--slow); }
