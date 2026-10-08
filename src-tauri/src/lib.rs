@@ -1,3 +1,5 @@
+mod sync;
+
 use base64::Engine;
 use tauri::Manager;
 use serde::Serialize;
@@ -234,7 +236,13 @@ fn read_attempts() -> Result<String, String> {
 /// Move the attempt log aside as `attempts.backup-<unix seconds>.jsonl`, so
 /// clearing history can be undone by renaming it back.
 #[tauri::command]
-fn clear_attempts() -> Result<String, String> {
+fn clear_attempts(app: tauri::AppHandle) -> Result<String, String> {
+    let backup = move_log_aside()?;
+    sync::push_attempts(app, root(), "Clear attempt history".into());
+    Ok(backup)
+}
+
+fn move_log_aside() -> Result<String, String> {
     let dir = root().join("data");
     let log = dir.join("attempts.jsonl");
     if !log.exists() {
@@ -250,7 +258,28 @@ fn clear_attempts() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn append_attempt(line: String) -> Result<(), String> {
+fn append_attempt(app: tauri::AppHandle, line: String) -> Result<(), String> {
+    write_attempt(&line)?;
+    let title = serde_json::from_str::<serde_json::Value>(&line)
+        .ok()
+        .and_then(|v| v.get("title")?.as_str().map(str::to_owned))
+        .unwrap_or_else(|| "quiz".into());
+    sync::push_attempts(app, root(), format!("Record attempt: {title}"));
+    Ok(())
+}
+
+/// Pull from the remote in the background (no-op without one).
+#[tauri::command]
+fn sync_now(app: tauri::AppHandle) {
+    sync::pull(app, root());
+}
+
+#[tauri::command]
+fn sync_status() -> sync::SyncStatus {
+    sync::status(&root())
+}
+
+fn write_attempt(line: &str) -> Result<(), String> {
     let dir = root().join("data");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let mut file = fs::OpenOptions::new()
@@ -306,9 +335,12 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_quizzes, read_asset, read_attempts, append_attempt,
             root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
-            list_drafts, approve_draft, new_draft, open_path, clear_attempts
+            list_drafts, approve_draft, new_draft, open_path, clear_attempts,
+            sync_now, sync_status
         ])
         .setup(|app| {
+            // Bring in anything new from the remote (quizzes written in the cloud).
+            sync::pull(app.handle().clone(), root());
             // Paint the window in the theme's background before the page has
             // drawn, instead of the webview's default white.
             if let Some(w) = app.get_webview_window("main") {

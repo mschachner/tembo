@@ -1,5 +1,6 @@
-import { adoptSettings, app, applyActiveTheme, loadAll, loadThemes, reloadHistory } from "./app";
+import { adoptSettings, app, applyActiveTheme, loadAll, loadQuizzes, loadThemes, reloadHistory } from "./app";
 import { bindSettingsShortcut, showWhenReady, subscribe } from "./bus";
+import { syncNow } from "./backend";
 import { h } from "./dom";
 import { nav } from "./nav";
 import { onHome, refreshBanner, refreshStatus, renderSettingsWindow } from "./shell";
@@ -41,6 +42,13 @@ if (isSettingsWindow) {
     .then(async () => {
       await showHome("today");
       void showWhenReady();
+      // Check the remote whenever the window comes back to the front, at most every five minutes.
+      let lastSync = Date.now();
+      window.addEventListener("focus", () => {
+        if (Date.now() - lastSync < 5 * 60_000) return;
+        lastSync = Date.now();
+        void syncNow();
+      });
       return subscribe(async (msg) => {
         if (msg.kind === "settings") {
           adoptSettings(msg.settings);
@@ -54,6 +62,12 @@ if (isSettingsWindow) {
         } else if (msg.kind === "history") {
           await reloadHistory();
           nav.home(onHome() ?? "today");
+        } else if (msg.kind === "synced") {
+          // New quizzes or history from the remote. Don't interrupt a quiz in progress.
+          await loadQuizzes();
+          await reloadHistory();
+          const tab = onHome();
+          if (tab) nav.home(tab);
         } else if (msg.kind === "play") {
           const quiz = app.quizzes.find((q) => q.id === msg.quizId);
           if (quiz) nav.play(quiz);

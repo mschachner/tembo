@@ -1,5 +1,5 @@
 import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings, reloadHistory } from "../app";
-import { clearAttempts, deleteTheme, openPath, writeTheme } from "../backend";
+import { clearAttempts, deleteTheme, openPath, syncNow, syncStatus, writeTheme } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
 import { refreshBanner } from "../shell";
@@ -114,6 +114,31 @@ function control(spec: VarSpec, labelText = spec.label): HTMLElement {
 }
 
 const openGroups = new Set<string>();
+
+// Sync with the GitHub remote: where, when it last worked, and the last error.
+function syncRows(): HTMLElement {
+  const where = h("span", { class: "mono small" });
+  const when = h("span", { class: "muted small" });
+  const error = h("p", { class: "small sync-error" });
+  const refresh = async () => {
+    const s = await syncStatus();
+    where.textContent = s.remote ? s.remote.replace(/^(https:\/\/|git@)/, "").replace(/\.git$/, "").replace(":", "/") : "no remote";
+    when.textContent = s.last_ok
+      ? `last synced ${new Date(s.last_ok * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}`
+      : "";
+    error.textContent = s.error ?? "";
+    error.hidden = !s.error;
+  };
+  const now = h("button", { class: "quiet tiny", onclick: async () => {
+    await syncNow();
+    window.setTimeout(() => void refresh(), 2500);
+  } }, "Sync now");
+  void refresh();
+  return h("div", {},
+    h("div", { class: "control" }, h("label", {}, "Remote"), where, now),
+    h("div", { class: "control" }, h("label", {}, "Status"), when),
+    error);
+}
 
 // A collapsible group; which ones are open survives redraws.
 function group(name: string, ...children: (Node | null)[]): HTMLElement;
@@ -333,6 +358,7 @@ function appSections(): Node[] {
           ? new Date(calib.endedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
           : "not calibrated"),
         calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "Calibrate") : null)),
+    group("Sync", syncRows()),
     group("Files",
       h("div", { class: "control", title: app.root }, h("label", {}, "Open folder"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/quizzes`) }, "quizzes"),

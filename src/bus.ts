@@ -6,7 +6,8 @@ export type Message =
   | { kind: "settings"; settings: Settings }   // live settings from the settings window
   | { kind: "themes" }                         // a preset was saved or deleted; reload the list
   | { kind: "history" }                        // the attempt log changed on disk; reload it
-  | { kind: "play"; quizId: string };          // play a quiz in the main window
+  | { kind: "play"; quizId: string }           // play a quiz in the main window
+  | { kind: "synced" };                        // a pull from the remote changed files; reload
 
 const inTauri = "__TAURI_INTERNALS__" in window;
 const channel = inTauri ? null : new BroadcastChannel("tembo");

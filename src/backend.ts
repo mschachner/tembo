@@ -87,3 +87,18 @@ export function openPath(path: string): Promise<void> {
 export function clearAttempts(): Promise<string> {
   return invoke<string>("clear_attempts");
 }
+
+export interface SyncStatus {
+  remote: string | null;     // origin URL; null when sync isn't set up
+  last_ok: number | null;    // unix seconds of the last successful sync
+  error: string | null;
+}
+
+// Pull from the remote in the background; a "synced" message follows if anything changed.
+export function syncNow(): Promise<void> {
+  return invoke("sync_now");
+}
+
+export function syncStatus(): Promise<SyncStatus> {
+  return invoke<SyncStatus>("sync_status");
+}

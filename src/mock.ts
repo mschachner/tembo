@@ -19,6 +19,10 @@ const savedThemesNow = () => new Map<string, string>([
 
 export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   switch (cmd) {
+    case "sync_now":
+      return undefined as T;
+    case "sync_status":
+      return { remote: null, last_ok: null, error: null } as T;
     case "root_dir":
       return "/mock" as T;
     case "list_quizzes": {
