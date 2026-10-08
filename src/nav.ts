@@ -3,7 +3,7 @@
 import type { AnyAttempt } from "./log";
 import type { Quiz } from "./quiz/format";
 
-export type Tab = "today" | "library" | "stats" | "settings";
+export type Tab = "today" | "library" | "watering-hole" | "stats" | "settings";
 
 export const nav = {
   home: (_tab?: Tab): void => {},

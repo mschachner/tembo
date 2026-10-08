@@ -1,5 +1,5 @@
 // Application state: quizzes, the attempt log, calibration, settings, theme.
-import { listQuizzes, listThemes, readAsset, readAttempts, rootDir, type ThemeFile } from "./backend";
+import { listQuizzes, listThemes, readAsset, readAttempts, readLibrary, rootDir, writeLibrary, type ThemeFile } from "./backend";
 import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
 import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
@@ -25,7 +25,8 @@ export const app = {
   settings: null as unknown as Settings,
   presets: new Map<string, Theme>(),
   customPresets: new Set<string>(),
-  quizzes: [] as Quiz[],
+  quizzes: [] as Quiz[],      // every quiz in the Watering Hole
+  library: [] as string[],    // ids of the ones imported, in import order
   quizErrors: [] as string[],
 };
 
@@ -66,6 +67,7 @@ export async function loadThemes(): Promise<void> {
 }
 
 export async function loadQuizzes(): Promise<void> {
+  app.library = (await readLibrary()).split(/\r?\n/).map((s) => s.trim()).filter((s) => s !== "" && !s.startsWith("#"));
   app.quizzes = [];
   app.quizErrors = [];
   for (const f of await listQuizzes()) {
@@ -122,13 +124,32 @@ export function stateOf(quiz: Quiz): QuizState {
   return own.length ? replay(own, (a) => gradeOf(a, app.cps)) : NEW_STATE;
 }
 
+// Your quizzes: the ones imported from the Watering Hole, plus the typing
+// calibration, which everyone has.
+export function inLibrary(quiz: Quiz): boolean {
+  return quiz.kind === "calibration" || app.library.includes(quiz.id);
+}
+
 export function entries(): Entry[] {
-  return app.quizzes.map((quiz) => ({ quiz, state: stateOf(quiz) }));
+  return app.quizzes.filter(inLibrary).map((quiz) => ({ quiz, state: stateOf(quiz) }));
+}
+
+// Importing and removing only change data/library.txt; history is kept by
+// quiz id, so a quiz removed and imported again picks up where it left off.
+export async function importQuiz(quiz: Quiz): Promise<void> {
+  if (inLibrary(quiz)) return;
+  app.library = [...app.library, quiz.id];
+  await writeLibrary(app.library, `Import quiz: ${quiz.title}`);
+}
+
+export async function removeQuiz(quiz: Quiz): Promise<void> {
+  app.library = app.library.filter((id) => id !== quiz.id);
+  await writeLibrary(app.library, `Remove quiz: ${quiz.title}`);
 }
 
 export function playable(quiz: Quiz, state: QuizState, today = localDate(new Date())): boolean {
   if (quiz.kind === "calibration") return true;
-  if (quiz.retired) return false;
+  if (quiz.retired || !inLibrary(quiz)) return false;
   return isDue(state, today);
 }
 

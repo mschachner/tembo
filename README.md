@@ -6,9 +6,12 @@
     npm test              # unit tests
     npm run check         # validate every quiz file
 
-Quizzes: one folder each under `quizzes/`, containing `quiz.txt` (format documented at the
-top of `src/quiz/format.ts`) plus any images it references.
-Drafts awaiting approval go in `quizzes/_drafts/` (ignored by the app).
+The Watering Hole: every quiz, one folder each under `watering-hole/`, containing
+`quiz.txt` (format documented at the top of `src/quiz/format.ts`) plus any images
+it references. Folders starting with `_` are ignored; `_backlog.md` is the daily
+quiz task's queue.
+Library: `data/library.txt`, the ids of the quizzes imported from the Watering
+Hole, one per line. The typing calibration quiz is always included.
 Attempt log: `data/attempts.jsonl`, one JSON object per line.
 
 App icon: masters are in `art/icons/` (cream is installed). To switch,

@@ -1,13 +1,14 @@
-// Validate every quiz under quizzes/ without launching the app:
+// Validate every quiz in the Watering Hole without launching the app:
 //   npm run check
 // Reports format errors, missing image files, duplicate ids, and answers
-// or aliases that collide within a quiz after normalization.
+// or aliases that collide within a quiz after normalization, and imported
+// ids (data/library.txt) that match no quiz.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parseQuiz } from "../src/quiz/format";
 import { normalize } from "../src/quiz/match";
 
-const root = join(import.meta.dirname, "..", "quizzes");
+const root = join(import.meta.dirname, "..", "watering-hole");
 let problems = 0;
 const ids = new Map<string, string>();
 
@@ -49,6 +50,13 @@ for (const name of readdirSync(root).sort()) {
     }
   });
   console.log(`${name}: ok (${quiz.items.length} items, ${quiz.mode}${quiz.kind === "calibration" ? ", calibration" : ""})`);
+}
+
+const libraryPath = join(import.meta.dirname, "..", "data", "library.txt");
+if (existsSync(libraryPath)) {
+  for (const id of readFileSync(libraryPath, "utf8").split(/\r?\n/).map((s) => s.trim())) {
+    if (id && !id.startsWith("#") && !ids.has(id)) report("data/library.txt", `imported id "${id}" matches no quiz`);
+  }
 }
 
 console.log(problems ? `${problems} problem(s)` : "all quizzes ok");

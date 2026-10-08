@@ -7,8 +7,9 @@ use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-/// Repository root: quizzes live in `<root>/quizzes/<name>/quiz.txt`,
-/// attempts in `<root>/data`. Override with TEMBO_ROOT; defaults to the
+/// Repository root: the Watering Hole (every quiz) is
+/// `<root>/watering-hole/<name>/quiz.txt`; the attempt log and the list of
+/// imported quizzes are in `<root>/data`. Override with TEMBO_ROOT; defaults to the
 /// directory containing `src-tauri`, which is right for `tauri dev`.
 fn root() -> PathBuf {
     if let Ok(p) = std::env::var("TEMBO_ROOT") {
@@ -34,7 +35,7 @@ fn list_in(quizzes: &Path) -> Result<Vec<QuizFile>, String> {
     for entry in entries {
         let dir = entry.map_err(|e| e.to_string())?.path();
         let path = dir.join("quiz.txt");
-        // Folders starting with "_" (drafts, scratch) are ignored.
+        // Folders starting with "_" (scratch) are ignored.
         let hidden = dir.file_name().and_then(|n| n.to_str()).map_or(true, |n| n.starts_with('_'));
         if hidden || !dir.is_dir() || !path.is_file() {
             continue;
@@ -52,52 +53,35 @@ fn list_in(quizzes: &Path) -> Result<Vec<QuizFile>, String> {
 
 #[tauri::command]
 fn list_quizzes() -> Result<Vec<QuizFile>, String> {
-    list_in(&root().join("quizzes"))
+    list_in(&root().join("watering-hole"))
 }
 
+/// Ids of the quizzes imported from the Watering Hole, one per line
+/// (data/library.txt; empty string if absent).
 #[tauri::command]
-fn list_drafts() -> Result<Vec<QuizFile>, String> {
-    list_in(&root().join("quizzes").join("_drafts"))
-}
-
-fn plain_name(name: &str) -> Result<(), String> {
-    if name.is_empty() || name.starts_with('_') || name.starts_with('.') || name.contains('/') || name.contains("..") {
-        return Err(format!("bad quiz folder name: {name}"));
+fn read_library() -> Result<String, String> {
+    let path = root().join("data").join("library.txt");
+    if !path.exists() {
+        return Ok(String::new());
     }
-    Ok(())
+    fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Move `quizzes/_drafts/<name>` to `quizzes/<name>`.
+/// Replace the list of imported quiz ids, then commit and push it.
 #[tauri::command]
-fn approve_draft(name: String) -> Result<(), String> {
-    plain_name(&name)?;
-    let from = root().join("quizzes").join("_drafts").join(&name);
-    let to = root().join("quizzes").join(&name);
-    if to.exists() {
-        return Err(format!("quizzes/{name} already exists"));
+fn write_library(app: tauri::AppHandle, ids: Vec<String>, message: String) -> Result<(), String> {
+    if let Some(bad) = ids.iter().find(|id| id.trim().is_empty() || id.contains('\n')) {
+        return Err(format!("bad quiz id: {bad:?}"));
     }
-    fs::rename(&from, &to).map_err(|e| format!("{}: {e}", from.display()))
-}
-
-/// Create `quizzes/_drafts/untitled[-n]/quiz.txt` from a template and
-/// return the file's path.
-#[tauri::command]
-fn new_draft() -> Result<String, String> {
-    let drafts = root().join("quizzes").join("_drafts");
-    fs::create_dir_all(&drafts).map_err(|e| e.to_string())?;
-    let mut n = 1;
-    let dir = loop {
-        let name = if n == 1 { "untitled".to_string() } else { format!("untitled-{n}") };
-        let d = drafts.join(name);
-        if !d.exists() {
-            break d;
-        }
-        n += 1;
-    };
+    let dir = root().join("data");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    let file = dir.join("quiz.txt");
-    fs::write(&file, "title: \nmode: list\npass: 100\n---\n").map_err(|e| e.to_string())?;
-    Ok(file.to_string_lossy().into_owned())
+    let mut text = ids.join("\n");
+    if !text.is_empty() {
+        text.push('\n');
+    }
+    fs::write(dir.join("library.txt"), text).map_err(|e| e.to_string())?;
+    sync::push_file(app, root(), "data/library.txt", message);
+    Ok(())
 }
 
 /// Open a file or folder inside the repo with the default macOS app.
@@ -238,7 +222,7 @@ fn read_attempts() -> Result<String, String> {
 #[tauri::command]
 fn clear_attempts(app: tauri::AppHandle) -> Result<String, String> {
     let backup = move_log_aside()?;
-    sync::push_attempts(app, root(), "Clear attempt history".into());
+    sync::push_file(app, root(), "data/attempts.jsonl", "Clear attempt history".into());
     Ok(backup)
 }
 
@@ -264,7 +248,7 @@ fn append_attempt(app: tauri::AppHandle, line: String) -> Result<(), String> {
         .ok()
         .and_then(|v| v.get("title")?.as_str().map(str::to_owned))
         .unwrap_or_else(|| "quiz".into());
-    sync::push_attempts(app, root(), format!("Record attempt: {title}"));
+    sync::push_file(app, root(), "data/attempts.jsonl", format!("Record attempt: {title}"));
     Ok(())
 }
 
@@ -360,7 +344,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_quizzes, read_asset, read_attempts, append_attempt,
             root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
-            list_drafts, approve_draft, new_draft, open_path, clear_attempts,
+            read_library, write_library, open_path, clear_attempts,
             sync_now, sync_status, set_dock_icon
         ])
         .setup(|app| {

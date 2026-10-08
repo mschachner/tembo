@@ -1,9 +1,9 @@
 // Dev-only stand-in for the Rust commands, used when the page runs in a
 // browser rather than in Tauri. Quizzes and themes come from the repo via
 // Vite globs; attempts and settings live in memory for the session.
-const quizSources = import.meta.glob(["../quizzes/*/quiz.txt", "!../quizzes/_*/**"], { query: "?raw", import: "default" });
-const draftSources = import.meta.glob("../quizzes/_drafts/*/quiz.txt", { query: "?raw", import: "default" });
-const quizImages = import.meta.glob("../quizzes/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
+const quizSources = import.meta.glob(["../watering-hole/*/quiz.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
+const quizImages = import.meta.glob("../watering-hole/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
+const librarySource = Object.values(import.meta.glob("../data/library.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>)[0] ?? "";
 const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { query: "?url", import: "default" });
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
 const customSources = import.meta.glob("../themes/custom/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
@@ -33,19 +33,13 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       }
       return out.sort((a, b) => a.path.localeCompare(b.path)) as T;
     }
-    case "list_drafts": {
-      const out = [];
-      for (const [file, load] of Object.entries(draftSources)) {
-        const dir = file.replace(/\/quiz\.txt$/, "").replace(/^\.\.\//, "/mock/");
-        out.push({ dir, path: `${dir}/quiz.txt`, source: (await load()) as string });
-      }
-      return out as T;
-    }
-    case "approve_draft":
     case "open_path":
       return undefined as T;
-    case "new_draft":
-      return "/mock/quizzes/_drafts/untitled/quiz.txt" as T;
+    case "read_library":
+      return (localStorage.getItem("mock-library") ?? librarySource) as T;
+    case "write_library":
+      localStorage.setItem("mock-library", (args.ids as string[]).map((id) => `${id}\n`).join(""));
+      return undefined as T;
     case "read_asset": {
       const dir = String(args.dir);
       const key = dir === "/mock" ? `../${args.rel}` : `${dir.replace(/^\/mock\//, "../")}/${args.rel}`;

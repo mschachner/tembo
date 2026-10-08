@@ -4,7 +4,8 @@
 //! - `pull`: fetch, and if the remote is ahead, rebase local commits onto it
 //!   (uncommitted edits are stashed and restored). A rebase that would
 //!   conflict is aborted and reported; nothing is left half-done.
-//! - `push_attempts`: commit data/attempts.jsonl alone, pull, push.
+//! - `push_file`: commit one data file (the attempt log, the library list)
+//!   alone, pull, push.
 //!
 //! Everything runs on a background thread, one git operation at a time, and
 //! does nothing when the repo has no remote. Failures are recorded for the
@@ -101,14 +102,13 @@ pub fn pull(app: AppHandle, root: PathBuf) {
     });
 }
 
-/// Commit the attempt log and push it, in the background.
-pub fn push_attempts(app: AppHandle, root: PathBuf, message: String) {
+/// Commit one file and push it, in the background.
+pub fn push_file(app: AppHandle, root: PathBuf, path: &'static str, message: String) {
     std::thread::spawn(move || {
         let _guard = GIT.lock().unwrap();
         if remote(&root).is_none() { return; }
         let result = (|| -> Result<bool, String> {
-            let path = "data/attempts.jsonl";
-            // Nothing to commit if the log matches HEAD.
+            // Nothing to commit if the file matches HEAD.
             let dirty = !git(&root, &["status", "--porcelain", "--", path])?.is_empty();
             if dirty {
                 let _ = git(&root, &["add", "--all", "--", path]);

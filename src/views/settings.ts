@@ -372,7 +372,7 @@ function appSections(): Node[] {
     group("Sync", syncRows()),
     group("Files",
       h("div", { class: "control", title: app.root }, h("label", {}, "Open folder"),
-        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/quizzes`) }, "quizzes"),
+        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/watering-hole`) }, "watering hole"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/data`) }, "data"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/themes`) }, "themes"))),
     group({ name: "Danger zone", class: "danger-zone" },

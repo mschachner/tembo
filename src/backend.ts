@@ -65,17 +65,14 @@ export function writeSettings(json: string): Promise<void> {
   return invoke("write_settings", { json });
 }
 
-export function listDrafts(): Promise<QuizFile[]> {
-  return invoke<QuizFile[]>("list_drafts");
+// Ids of the quizzes imported from the Watering Hole (data/library.txt).
+export function readLibrary(): Promise<string> {
+  return invoke<string>("read_library");
 }
 
-export function approveDraft(name: string): Promise<void> {
-  return invoke("approve_draft", { name });
-}
-
-// Creates a draft from a template; returns the path of its quiz.txt.
-export function newDraft(): Promise<string> {
-  return invoke<string>("new_draft");
+// Replace the imported ids; the change is committed with `message` and pushed.
+export function writeLibrary(ids: string[], message: string): Promise<void> {
+  return invoke("write_library", { ids, message });
 }
 
 export function openPath(path: string): Promise<void> {

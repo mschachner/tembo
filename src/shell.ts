@@ -13,6 +13,7 @@ import { localDate } from "./schedule";
 const TABS: { id: Tab; label: string }[] = [
   { id: "today", label: "Today" },
   { id: "library", label: "Library" },
+  { id: "watering-hole", label: "Watering Hole" },
   { id: "stats", label: "Stats" },
 ];
 

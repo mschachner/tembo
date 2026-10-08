@@ -1,6 +1,5 @@
-import { app, entries, loadQuizzes, type Entry } from "../app";
-import { approveDraft, listDrafts, newDraft, openPath, type QuizFile } from "../backend";
-import { parseQuiz } from "../quiz/format";
+import { app, entries, importQuiz, inLibrary, loadQuizzes, removeQuiz, stateOf, type Entry } from "../app";
+import type { Quiz } from "../quiz/format";
 import { tembo } from "../banner";
 import { h } from "../dom";
 import { median } from "../stats";
@@ -27,49 +26,6 @@ function entryRow(e: Entry, today: string, canPlay: boolean): HTMLElement {
 function section(name: string, rows: Node[]): HTMLElement | null {
   if (rows.length === 0) return null;
   return h("section", {}, h("h2", {}, name), h("ul", { class: "quiz-list" }, ...rows));
-}
-
-// ---------- authoring: new quiz, drafts awaiting approval ----------
-
-let drafts: QuizFile[] = [];
-
-function folderName(dir: string): string {
-  return dir.split("/").filter(Boolean).pop() ?? dir;
-}
-
-function authoringActions(tab: Tab): HTMLElement {
-  return h(
-    "div",
-    { class: "actions" },
-    h("button", { onclick: async () => { const file = await newDraft(); await openPath(file); nav.home(tab); } }, "New quiz"),
-    h("button", { class: "quiet", onclick: () => openPath(`${app.root}/quizzes`) }, "Open quizzes folder"),
-  );
-}
-
-function draftsSection(tab: Tab): HTMLElement | null {
-  const rows = drafts.map((d) => {
-    const name = folderName(d.dir);
-    let summary: string;
-    let ok = true;
-    try {
-      const q = parseQuiz(d.source, d.path, d.dir);
-      summary = `${q.title || "(untitled)"} · ${q.items.length} · ${q.mode}`;
-    } catch (e) {
-      summary = (e as Error).message;
-      ok = false;
-    }
-    return h(
-      "li",
-      { class: "entry" },
-      h("span", { class: "mono small" }, name),
-      h("span", { class: `meta ${ok ? "muted" : "error"}` }, summary),
-      h("button", { class: "quiet", onclick: () => openPath(d.path) }, "Edit"),
-      ok ? h("button", { class: "play", onclick: async () => {
-        try { await approveDraft(name); nav.home(tab); } catch (e) { alertLine(String(e)); }
-      } }, "Approve") : null,
-    );
-  });
-  return section("Drafts", rows);
 }
 
 function alertLine(msg: string): void {
@@ -105,9 +61,7 @@ function todayView(today: string): Node {
         tembo(120),
         h("div", { class: "empty-title" }, "No quizzes left today"),
         h("div", { class: "empty-slot" } /* copy slot: Mark's own words for the empty state */),
-        authoringActions("today"),
       ),
-      draftsSection("today"),
       todays.length
         ? h(
             "section",
@@ -136,8 +90,6 @@ function todayView(today: string): Node {
 function libraryView(today: string): Node {
   const g = groups(today);
   const sections = [
-    authoringActions("library"),
-    draftsSection("library"),
     section("Due", g.due.map((e) => entryRow(e, today, true))),
     section("New", g.fresh.map((e) => entryRow(e, today, true))),
     section("Upcoming", g.upcoming.map((e) => entryRow(e, today, false))),
@@ -147,6 +99,37 @@ function libraryView(today: string): Node {
     app.quizErrors.length ? section("Errors", app.quizErrors.map((m) => h("li", { class: "error" }, m))) : null,
   ];
   return h("div", {}, ...sections);
+}
+
+// Every quiz in the collection, with import and remove. Removing keeps the
+// quiz's history; importing it again resumes its schedule.
+function wateringHoleView(): Node {
+  const byTitle = (a: Quiz, b: Quiz) => a.title.localeCompare(b.title, undefined, { numeric: true });
+  const shown = app.quizzes.filter((q) => q.kind === "normal" && !q.retired).sort(byTitle);
+  const act = (fn: () => Promise<void>) => async (e: Event) => {
+    (e.currentTarget as HTMLButtonElement).disabled = true;
+    try { await fn(); } catch (err) { alertLine(String(err)); }
+    nav.home("watering-hole");
+  };
+  const row = (q: Quiz) => {
+    const mine = inLibrary(q);
+    const meta = [`${q.items.length}`, q.mode, ...(q.columns.length ? [q.columns.join(", ").toLowerCase()] : [])].join(" · ");
+    return h(
+      "li",
+      { class: "entry" },
+      h("button", { class: "quiz-link", onclick: () => nav.quiz(q) }, q.title),
+      h("span", { class: "muted meta" }, meta),
+      mine && stateOf(q).status === "proficient" ? h("span", { class: "stamp", title: "proficient" }, tembo(22)) : null,
+      mine
+        ? h("button", { class: "quiet", onclick: act(() => removeQuiz(q)) }, "Remove")
+        : h("button", { class: "play", onclick: act(() => importQuiz(q)) }, "Import"),
+    );
+  };
+  return h("div", {},
+    section("Available", shown.filter((q) => !inLibrary(q)).map(row)),
+    section("In your library", shown.filter(inLibrary).map(row)),
+    app.quizErrors.length ? section("Errors", app.quizErrors.map((m) => h("li", { class: "error" }, m))) : null,
+  );
 }
 
 function statsView(): Node {
@@ -196,11 +179,11 @@ function statsView(): Node {
 
 export async function showHome(tab: Tab = "today"): Promise<void> {
   await loadQuizzes();
-  drafts = await listDrafts();
   const today = localDate(new Date());
   const content =
     tab === "today" ? todayView(today)
     : tab === "library" ? libraryView(today)
+    : tab === "watering-hole" ? wateringHoleView()
     : tab === "stats" ? statsView()
     : settingsView(); // reachable only if the settings window can't open
   renderHome(tab, content);
