@@ -62,8 +62,7 @@ body {
 }
 .tab:hover { color: var(--fg); background: var(--bg-3); }
 .tab.active { color: var(--fixed-fg); background: var(--bg-3); }
-.tab.action:hover { background: none; color: var(--fg); }
-.tab.action:active { background: var(--bg-3); }
+
 
 /* pill: one plate around the group */
 [data-tabs="pill"] .tabs { padding: 2px; border-radius: var(--radius); }
@@ -235,3 +234,16 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 /* ---- settings window ---- */
 .settings-window { max-width: none; padding-top: calc(var(--u) * 1); }
 .settings-window .control label { width: 170px; }
+
+/* ---- settings gear: top-right corner, level with the traffic lights ---- */
+#app > .settings-gear {
+  position: fixed; top: 6px; right: 10px; z-index: 10;
+  width: 30px; height: 30px; padding: 0; border: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--fg-2);
+  background: color-mix(in srgb, var(--bg) var(--plate), transparent);
+  backdrop-filter: blur(var(--plate-blur)); -webkit-backdrop-filter: blur(var(--plate-blur));
+  transition: color 0.15s, transform 0.3s;
+}
+#app > .settings-gear:hover { color: var(--fg); background: color-mix(in srgb, var(--bg) var(--plate), transparent); transform: rotate(30deg); }
+#app > .settings-gear svg { display: block; filter: drop-shadow(0 1px 2px var(--halo, transparent)); }

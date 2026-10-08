@@ -8,7 +8,7 @@ import { edgeOpacity } from "./edge";
 
 const SAMPLE_W = 96;
 const SELECTOR = [
-  ".banner-text", ".tab", ".entry", ".stats tr", ".page h1", ".page h2", ".page p",
+  ".banner-text", ".tab", ".settings-gear", ".entry", ".stats tr", ".page h1", ".page h2", ".page p",
   ".control", ".actions", ".empty-title", ".empty .tembo-mark", ".page .small", ".card", ".slots li", ".presets",
 ].join(", ");
 // Target contrast ratio. Below it, the theme colors give way to stronger
