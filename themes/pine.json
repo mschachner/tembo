@@ -10,6 +10,8 @@
   "instant": "#8fc47a",
   "slow": "#d6ad4e",
   "missed": "#d9654f",
+  "iconBg": "#17302a",
+  "iconFg": "#6fc0a8",
   "bannerImage": "banners/pine.jpg",
   "bannerY": 50,
   "edgeSmooth": 55,

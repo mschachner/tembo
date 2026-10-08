@@ -102,3 +102,10 @@ export function syncNow(): Promise<void> {
 export function syncStatus(): Promise<SyncStatus> {
   return invoke<SyncStatus>("sync_status");
 }
+
+// Replace the Dock icon of the running app (base64 PNG). macOS only; the
+// bundle's own icon returns when the app quits.
+export async function setDockIcon(png: string): Promise<void> {
+  if (!inTauri) return;
+  await invoke("set_dock_icon", { png });
+}

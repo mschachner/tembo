@@ -6,6 +6,7 @@ import { refreshBanner } from "../shell";
 import { publish } from "../bus";
 import { sounds } from "../sound";
 import { THEME_VARS, type VarSpec } from "../theme";
+import { iconDataUrl } from "../icon";
 
 function rerender(): void {
   nav.home("settings");
@@ -18,7 +19,14 @@ function setOverride(key: string, value: string | number): void {
   applyActiveTheme();
   persistSettings();
   if (BANNER_KEYS.has(key)) refreshBanner();
+  if (key === "iconBg" || key === "iconFg") syncIconPreview();
   syncModified();
+}
+
+function syncIconPreview(): void {
+  const theme = activeTheme();
+  const img = document.querySelector<HTMLImageElement>(".icon-preview");
+  if (img) img.src = iconDataUrl(String(theme.iconBg), String(theme.iconFg));
 }
 
 // Show each control's reset link, the preset's modified marker, and the
@@ -267,6 +275,9 @@ function appearanceSections(): Node[] {
       colorCol("Text", [["fg", "Primary"], ["fg2", "Secondary"], ["fg3", "Muted"], ["labelColor", "Labels"]]),
       colorCol("Accent", [["accent", "Accent"]]),
       colorCol("Results", [["instant", "Instant"], ["slow", "Slow"], ["missed", "Missed"]]),
+      h("div", { class: "color-col" }, h("h3", {}, "App icon"),
+        control(spec("iconBg"), "Background"), control(spec("iconFg"), "Elephant"),
+        h("img", { class: "icon-preview", alt: "", src: iconDataUrl(String(activeTheme().iconBg), String(activeTheme().iconFg)) })),
     )),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),

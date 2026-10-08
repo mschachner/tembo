@@ -11,6 +11,7 @@ import { configureSound } from "./sound";
 import { applyTheme, FALLBACK_THEME, parseTheme, type Theme } from "./theme";
 import { publish, setWindowBackground } from "./bus";
 import { applyMotion } from "./motion";
+import { updateDockIcon } from "./icon";
 
 export interface Entry {
   quiz: Quiz;
@@ -85,6 +86,9 @@ export function applyActiveTheme(): void {
   const theme = activeTheme();
   applyTheme(theme);
   void setWindowBackground(String(theme.bg ?? ""));
+  // The main window owns the Dock icon; the settings window's changes reach
+  // it through adoptSettings.
+  if (location.hash !== "#settings") updateDockIcon(String(theme.iconBg), String(theme.iconFg));
   const root = document.documentElement;
   if (!root.hasAttribute("data-theme-ready")) {
     getComputedStyle(document.body).backgroundColor; // commit the first theme without a transition

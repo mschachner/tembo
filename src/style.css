@@ -377,6 +377,7 @@ button.danger { white-space: nowrap; flex: none; }
 .settings .control.color-control label { width: auto; flex: 1; white-space: nowrap; color: var(--fg-2); }
 .settings .control.color-control input[type="color"] { width: 30px; height: 22px; flex: none; }
 .settings .control.color-control .control-reset { padding: 0 4px; }
+.settings .icon-preview { display: block; width: 72px; height: 72px; margin: calc(var(--u) * 0.5) 0 0 -6px; }
 
 /* slider readouts share one width so the sliders line up */
 .settings .control > input[type="range"] + .mono { min-width: 64px; text-align: right; }

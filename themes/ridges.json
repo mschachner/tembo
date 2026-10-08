@@ -10,6 +10,8 @@
   "instant": "#93b37a",
   "slow": "#d9ad55",
   "missed": "#d46a55",
+  "iconBg": "#22313b",
+  "iconFg": "#d9a066",
   "bannerImage": "banners/ridges.jpg",
   "bannerY": 50,
   "radius": 8,

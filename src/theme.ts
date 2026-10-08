@@ -27,6 +27,9 @@ export const THEME_VARS: VarSpec[] = [
   { key: "instant", css: "--instant", kind: "color", label: "Results: Instant" },
   { key: "slow", css: "--slow", kind: "color", label: "Results: Slow" },
   { key: "missed", css: "--missed", kind: "color", label: "Results: Missed" },
+  // The Dock icon (read by icon.ts).
+  { key: "iconBg", css: "", kind: "color", label: "App icon: background" },
+  { key: "iconFg", css: "", kind: "color", label: "App icon: elephant" },
   { key: "tabs", css: "", kind: "choice", label: "Tab bar", options: ["pill", "pills", "card", "bar"] },
   { key: "surfaces", css: "", kind: "choice", label: "Surfaces over art", options: ["plates", "none"] },
   { key: "contrast", css: "", kind: "choice", label: "Text over art", options: ["fixed", "auto"] },
@@ -73,7 +76,7 @@ export type Theme = Record<string, string | number>;
 
 export const FALLBACK_THEME: Theme = {
   bg: "#f6efe4", bg2: "#fdf9f2", bg3: "#ede3d3", fg: "#2d2218", fg2: "#5d4a3a", fg3: "#9a8672",
-  accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
+  accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a", iconBg: "#f4ead8", iconFg: "#a8482a",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
   monoScale: 1, titleFont: "Carter One", titleSize: 52, titleWeight: 400, titleTracking: -0.01, headingFont: "", headingSize: 24,
   labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,

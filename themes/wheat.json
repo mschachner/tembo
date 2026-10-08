@@ -10,6 +10,8 @@
   "instant": "#5a7a35",
   "slow": "#c08a1c",
   "missed": "#a83c24",
+  "iconBg": "#f4ead8",
+  "iconFg": "#a8482a",
   "bannerImage": "banners/wheat.jpg",
   "bannerY": 35,
   "radius": 8,
