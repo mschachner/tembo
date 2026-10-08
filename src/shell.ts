@@ -7,6 +7,7 @@ import { applyEdge } from "./edge";
 import { nav, type Tab } from "./nav";
 import { openSettingsWindow } from "./bus";
 import { scheduleContrast } from "./contrast";
+import { indexForStagger } from "./motion";
 import { localDate } from "./schedule";
 
 const TABS: { id: Tab; label: string }[] = [
@@ -163,6 +164,7 @@ export function renderSettingsWindow(content: Node): void {
     h("div", { class: "drag-strip", "data-tauri-drag-region": "" }),
     h("main", { class: "page settings-window" }, content),
   );
+  indexForStagger(document.getElementById("app")!);
 }
 
 function statusLine(): HTMLElement {
@@ -183,6 +185,7 @@ export function renderHome(tab: Tab, content: Node): void {
   clear(root);
   root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: "page" }, content), statusLine(), gearButton());
   scheduleContrast();
+  indexForStagger(document.getElementById("app")!);
 }
 
 // Screens other than the home tabs: a slim drag strip instead of the banner.
@@ -195,4 +198,5 @@ export function renderScreen(content: Node, opts: { wide?: boolean } = {}): void
     statusLine(),
     gearButton(),
   );
+  indexForStagger(document.getElementById("app")!);
 }

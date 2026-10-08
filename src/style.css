@@ -222,8 +222,7 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
   font-size: 1.15em; width: 100%; padding: calc(var(--u) * 1.25) calc(var(--u) * 1.5);
   margin-bottom: calc(var(--u) * 2);
 }
-.shake { animation: shake 0.25s; }
-@keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
 .slots { columns: var(--slot-cols); column-gap: calc(var(--u) * 3); padding-left: 1.6em; margin: 0; }
 .slots li { padding: calc(var(--u) * 0.25) 0; break-inside: avoid; }
 .slot { color: transparent; border-bottom: 1px solid var(--line); }
@@ -395,3 +394,59 @@ input, textarea,
 }
 .save-preset { flex-wrap: wrap; }
 .save-preset input { flex: 1 1 160px; }
+
+/* ================= motion =================
+   Each kind is gated on an attribute set by motion.ts; --dur scales every
+   duration. data-motion="off" stops everything. */
+:root { --dur: 1; --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: none; } }
+@keyframes bump { 0% { transform: none; } 40% { transform: scale(1.18); } 100% { transform: none; } }
+@keyframes shake { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+@keyframes stamp { 0% { transform: scale(1.8) rotate(-8deg); opacity: 0; } 55% { transform: scale(0.94) rotate(-3deg); opacity: 1; } 100% { transform: rotate(-3deg); } }
+@keyframes drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.09) translate(-1.5%, -1%); } }
+
+/* pages and tabs */
+[data-anim-pages="on"] .page > div { animation: rise-in calc(320ms * var(--dur)) var(--ease-out) both; }
+[data-anim-pages="on"] details.group[open] > :not(summary) { animation: fade-in calc(220ms * var(--dur)) ease-out both; }
+[data-anim-pages="on"] button, [data-anim-pages="on"] .tab {
+  transition: background-color calc(140ms * var(--dur)), color calc(140ms * var(--dur)), border-color calc(140ms * var(--dur)), transform calc(120ms * var(--dur));
+}
+[data-anim-pages="on"] button:active:not(:disabled) { transform: scale(0.97); }
+
+/* lists cascade */
+[data-anim-lists="on"] :is(.quiz-list > li, .stats tr, .prompt-grid > li, .slots > li, .color-col) {
+  animation: rise-in calc(300ms * var(--dur)) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 28ms * var(--dur));
+}
+
+/* answer feedback */
+[data-anim-feedback="on"] .card-answer.accepted { animation: pop calc(320ms * var(--dur)) var(--ease-back) both; }
+[data-anim-feedback="on"] .slot.found { animation: pop calc(320ms * var(--dur)) var(--ease-back) both; }
+[data-anim-feedback="on"] .score.bump { display: inline-block; animation: bump calc(260ms * var(--dur)) var(--ease-out); }
+[data-anim-feedback="on"] .shake { animation: shake calc(300ms * var(--dur)); }
+
+/* completion */
+.stamp { display: inline-block; }
+[data-anim-celebrate="on"] .stamp {
+  padding: 0 6px; border: 2px solid currentColor; border-radius: 4px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; font-size: 0.85em;
+  animation: stamp calc(480ms * var(--dur)) var(--ease-out) both; animation-delay: calc(250ms * var(--dur));
+}
+
+/* theme changes */
+[data-anim-themes="on"] :is(body, .page > div > *, .tabs, .banner-text, .status-line, input, .card, .entry, h1, h2, td, th) {
+  transition-property: background-color, color, border-color;
+  transition-duration: calc(360ms * var(--dur));
+}
+
+/* banner drift */
+[data-anim-banner="on"] .banner-img { animation: drift calc(60s * var(--dur)) ease-in-out infinite alternate; }
+
+/* everything off */
+[data-motion="off"] *, [data-motion="off"] *::before, [data-motion="off"] *::after {
+  animation: none !important; transition: none !important;
+}
+.control.motion-part.disabled { opacity: 0.45; }

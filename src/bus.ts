@@ -25,17 +25,12 @@ export async function subscribe(handler: (msg: Message) => void): Promise<void> 
 
 let popup: Window | null = null; // browser preview only
 
-// Cmd+, (Ctrl+, elsewhere): open the settings window, or close it if open.
+// Cmd+, (Ctrl+, elsewhere). In the main window it opens the settings window,
+// or brings it to the front if it's already open; in the settings window it
+// closes it.
 export async function toggleSettingsWindow(fallback: () => void): Promise<void> {
   if (location.hash === "#settings") { await closeSelf(); return; }
-  if (!inTauri) {
-    if (popup && !popup.closed) { popup.close(); popup = null; } else await openSettingsWindow(fallback);
-    return;
-  }
-  const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
-  const existing = await WebviewWindow.getByLabel("settings");
-  if (existing) await existing.close();
-  else await openSettingsWindow(fallback);
+  await openSettingsWindow(fallback);
 }
 
 async function closeSelf(): Promise<void> {
@@ -56,12 +51,18 @@ export function bindSettingsShortcut(fallback: () => void): void {
 // Open (or focus) the settings window; `fallback` runs if it can't open.
 export async function openSettingsWindow(fallback: () => void): Promise<void> {
   if (!inTauri) {
+    if (popup && !popup.closed) { popup.focus(); return; }
     popup = window.open(`${location.pathname}#settings`, "tembo-settings", "width=640,height=820");
     return;
   }
   const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
   const existing = await WebviewWindow.getByLabel("settings");
-  if (existing) { await existing.setFocus(); return; }
+  if (existing) {
+    await existing.unminimize().catch(() => {});
+    await existing.show().catch(() => {});
+    await existing.setFocus();
+    return;
+  }
   const win = new WebviewWindow("settings", {
     url: "index.html#settings",
     title: "Tembo settings",

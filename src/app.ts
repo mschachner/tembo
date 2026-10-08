@@ -10,6 +10,7 @@ import { loadSettings, saveSettings, type Settings } from "./settings";
 import { configureSound } from "./sound";
 import { applyTheme, FALLBACK_THEME, parseTheme, type Theme } from "./theme";
 import { publish } from "./bus";
+import { applyMotion } from "./motion";
 
 export interface Entry {
   quiz: Quiz;
@@ -34,6 +35,7 @@ export async function loadAll(): Promise<void> {
   applyActiveTheme();
   configureSound(app.settings.sound.enabled, app.settings.sound.volume);
   setInstantSeconds(app.settings.grading.instantSeconds);
+  applyMotion(app.settings.motion);
   await reloadHistory();
   await loadQuizzes();
 }
@@ -86,6 +88,7 @@ export function applyActiveTheme(): void {
 export function persistSettings(): void {
   saveSettings(app.settings);
   setInstantSeconds(app.settings.grading.instantSeconds);
+  applyMotion(app.settings.motion);
   configureSound(app.settings.sound.enabled, app.settings.sound.volume);
   void publish({ kind: "settings", settings: app.settings });
 }
@@ -94,6 +97,7 @@ export function persistSettings(): void {
 export function adoptSettings(settings: Settings): void {
   app.settings = settings;
   setInstantSeconds(settings.grading.instantSeconds);
+  applyMotion(settings.motion);
   applyActiveTheme();
   configureSound(settings.sound.enabled, settings.sound.volume);
 }

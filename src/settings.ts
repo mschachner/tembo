@@ -1,11 +1,13 @@
 import { readSettings, writeSettings } from "./backend";
 import type { Theme } from "./theme";
+import { DEFAULT_MOTION, type Motion } from "./motion";
 
 export interface Settings {
   preset: string;            // name of the theme preset in themes/
   overrides: Theme;          // per-variable overrides on top of the preset
   sound: { enabled: boolean; volume: number };
   grading: { instantSeconds: number };   // latency below this counts as instant
+  motion: Motion;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -13,6 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
   overrides: {},
   sound: { enabled: true, volume: 0.5 },
   grading: { instantSeconds: 1.5 },
+  motion: DEFAULT_MOTION,
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -25,6 +28,7 @@ export async function loadSettings(): Promise<Settings> {
       overrides: raw.overrides ?? {},
       sound: { ...DEFAULT_SETTINGS.sound, ...(raw.sound ?? {}) },
       grading: { ...DEFAULT_SETTINGS.grading, ...(raw.grading ?? {}) },
+      motion: { ...DEFAULT_MOTION, ...(raw.motion ?? {}) },
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);

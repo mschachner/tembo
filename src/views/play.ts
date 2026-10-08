@@ -56,6 +56,9 @@ function markFound(session: Session, idx: number, typed: string): void {
   session.timing[idx].acceptedMs = session.elapsedMs();
   session.timing[idx].typedChars = typed.length;
   session.score.textContent = `${session.foundOrder.length} / ${session.quiz.items.length}`;
+  session.score.classList.remove("bump");
+  void session.score.offsetWidth; // restart the animation
+  session.score.classList.add("bump");
   if (session.foundOrder.length === session.quiz.items.length) session.finish(false);
   else sounds.accept();
 }
@@ -202,7 +205,7 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
     h("span", { class: "muted mono" }, formatClock(attempt.durationSeconds)),
   ];
   if (quiz.kind === "normal") {
-    status.push(h("span", { class: attempt.cleared ? "cleared" : "muted" }, attempt.cleared ? "cleared" : "not cleared"));
+    status.push(h("span", { class: attempt.cleared ? "cleared stamp" : "muted" }, attempt.cleared ? "cleared" : "not cleared"));
     status.push(h("span", { class: "muted mono" }, `grade ${gradeOf(attempt, app.cps).toFixed(2)}`));
     status.push(h("span", { class: "muted" }, `next ${dueLabel(state)}`));
   }
