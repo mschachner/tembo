@@ -16,6 +16,8 @@
     "core:event:allow-unlisten",
     "core:window:allow-close",
     "core:window:allow-unminimize",
-    "core:window:allow-show"
+    "core:window:allow-show",
+    "core:window:allow-set-background-color",
+    "core:webview:allow-set-webview-background-color"
   ]
 }

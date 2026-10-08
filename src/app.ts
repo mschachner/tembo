@@ -9,7 +9,7 @@ import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule"
 import { loadSettings, saveSettings, type Settings } from "./settings";
 import { configureSound } from "./sound";
 import { applyTheme, FALLBACK_THEME, parseTheme, type Theme } from "./theme";
-import { publish } from "./bus";
+import { publish, setWindowBackground } from "./bus";
 import { applyMotion } from "./motion";
 
 export interface Entry {
@@ -82,7 +82,9 @@ export function activeTheme(): Theme {
 }
 
 export function applyActiveTheme(): void {
-  applyTheme(activeTheme());
+  const theme = activeTheme();
+  applyTheme(theme);
+  void setWindowBackground(String(theme.bg ?? ""));
 }
 
 export function persistSettings(): void {

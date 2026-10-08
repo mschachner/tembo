@@ -49,6 +49,18 @@ export function bindSettingsShortcut(fallback: () => void): void {
 }
 
 // Open (or focus) the settings window; `fallback` runs if it can't open.
+/** Keep the native window's background in step with the theme, so resizing
+ *  or reopening never shows white behind the page. */
+export async function setWindowBackground(color: string): Promise<void> {
+  if (!inTauri || !/^#[0-9a-f]{3,8}$/i.test(color.trim())) return;
+  try {
+    const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+    await getCurrentWebviewWindow().setBackgroundColor(color.trim());
+  } catch (e) {
+    console.error("could not set window background", e);
+  }
+}
+
 /** The current page background as [r, g, b], read from the rendered body. */
 function themeBackground(): [number, number, number] | undefined {
   const m = getComputedStyle(document.body).backgroundColor.match(/\d+(\.\d+)?/g);

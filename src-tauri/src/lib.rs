@@ -261,6 +261,45 @@ fn append_attempt(line: String) -> Result<(), String> {
     writeln!(file, "{line}").map_err(|e| e.to_string())
 }
 
+/// The active theme's background colour: an override in settings.json, else
+/// the preset's "bg" (custom presets first), else the built-in default.
+fn theme_background() -> (u8, u8, u8) {
+    let fallback = (0xf6, 0xef, 0xe4);
+    let read = |p: PathBuf| -> Option<serde_json::Value> {
+        serde_json::from_str(&fs::read_to_string(p).ok()?).ok()
+    };
+    let r = root();
+    let settings = read(r.join("data").join("settings.json"));
+    let preset = settings
+        .as_ref()
+        .and_then(|s| s.get("preset")?.as_str().map(str::to_owned))
+        .unwrap_or_else(|| "wheat".into());
+    let from_override = settings
+        .as_ref()
+        .and_then(|s| s.get("overrides")?.get("bg")?.as_str().map(str::to_owned));
+    let from_preset = || {
+        let file = format!("{preset}.json");
+        [r.join("themes").join("custom").join(&file), r.join("themes").join(&file)]
+            .into_iter()
+            .find_map(|p| read(p)?.get("bg")?.as_str().map(str::to_owned))
+    };
+    from_override
+        .or_else(from_preset)
+        .and_then(|hex| parse_hex(&hex))
+        .unwrap_or(fallback)
+}
+
+fn parse_hex(hex: &str) -> Option<(u8, u8, u8)> {
+    let h = hex.trim().strip_prefix('#')?;
+    let h: String = match h.len() {
+        3 => h.chars().flat_map(|c| [c, c]).collect(),
+        6 | 8 => h[..6].to_string(),
+        _ => return None,
+    };
+    let byte = |i: usize| u8::from_str_radix(&h[i..i + 2], 16).ok();
+    Some((byte(0)?, byte(2)?, byte(4)?))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -270,6 +309,12 @@ pub fn run() {
             list_drafts, approve_draft, new_draft, open_path, clear_attempts
         ])
         .setup(|app| {
+            // Paint the window in the theme's background before the page has
+            // drawn, instead of the webview's default white.
+            if let Some(w) = app.get_webview_window("main") {
+                let (r, g, b) = theme_background();
+                let _ = w.set_background_color(Some(tauri::window::Color(r, g, b, 255)));
+            }
             // Safety net: the page shows its own window once it has drawn,
             // but if that never happens the window still appears.
             let handle = app.handle().clone();
