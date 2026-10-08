@@ -325,7 +325,8 @@ details.group[open] > summary { color: var(--fg-2); }
 /* modified state: per-control reset, reset-to-preset, marker on the active preset */
 .control .control-reset { visibility: hidden; }
 .control.overridden .control-reset { visibility: visible; }
-.reset-all { display: none; }
+.reset-all, .save-current { display: none; }
+.settings.modified .save-current { display: inline-block; background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .settings.modified .reset-all { display: inline-block; color: var(--accent); border-color: var(--accent); }
 .settings.modified .preset-chip.active .preset::after {
   content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; vertical-align: middle;
@@ -356,3 +357,34 @@ button.danger { white-space: nowrap; flex: none; }
 .settings .control > input[type="range"], .settings .control > input.text { flex: 1 1 auto; min-width: 80px; }
 .settings .control { flex-wrap: wrap; }
 .settings-window .control label { width: 160px; }
+
+/* settings: subgroups and the color grid */
+.subgroup + .subgroup { margin-top: calc(var(--u) * 1.5); }
+.settings h3 {
+  margin: 0 0 calc(var(--u) * 0.5); font-size: 0.85em; font-weight: 600; color: var(--fg-2);
+}
+.color-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  gap: calc(var(--u) * 1.5) calc(var(--u) * 2);
+}
+.settings .control.color-control { gap: calc(var(--u) * 0.75); padding: 3px 0; flex-wrap: nowrap; }
+.settings .control.color-control label { width: auto; flex: 1; white-space: nowrap; color: var(--fg-2); }
+.settings .control.color-control input[type="color"] { width: 30px; height: 22px; flex: none; }
+.settings .control.color-control .control-reset { padding: 0 4px; }
+
+/* slider readouts share one width so the sliders line up */
+.settings .control > input[type="range"] + .mono { min-width: 64px; text-align: right; }
+
+/* Selection: off by default (this is an app, not a document); on for text
+   worth copying — anything typed, table cells, answers and prompts, quiz
+   and item names, facts lines, paths and messages. */
+body { -webkit-user-select: none; user-select: none; }
+img, svg { -webkit-user-drag: none; }
+input, textarea,
+.page td, .card-answer, .slots li, .prompt-text, .item-prompt,
+.page header h1, .page header .small, .page p, .error, .save-status,
+.settings .control[title] {
+  -webkit-user-select: text; user-select: text;
+}
+.save-preset { flex-wrap: wrap; }
+.save-preset input { flex: 1 1 160px; }

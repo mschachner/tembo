@@ -32,6 +32,18 @@ function syncModified(): void {
   document.querySelector(".settings")?.classList.toggle("modified", keys.size > 0);
 }
 
+// Overwrite the selected custom preset with the current look.
+async function saveCurrent(): Promise<void> {
+  const name = app.settings.preset;
+  if (!app.customPresets.has(name)) return;
+  await writeTheme(name, JSON.stringify(activeTheme(), null, 2));
+  await loadThemes();
+  app.settings.overrides = {};
+  persistSettings();
+  void publish({ kind: "themes" });
+  rerender();
+}
+
 function resetAll(): void {
   app.settings.overrides = {};
   applyActiveTheme();
@@ -39,7 +51,7 @@ function resetAll(): void {
   rerender();
 }
 
-function control(spec: VarSpec): HTMLElement {
+function control(spec: VarSpec, labelText = spec.label): HTMLElement {
   const theme = activeTheme();
   const value = theme[spec.key];
   const overridden = spec.key in app.settings.overrides;
@@ -93,7 +105,12 @@ function control(spec: VarSpec): HTMLElement {
     class: "quiet tiny control-reset",
     onclick: () => { delete app.settings.overrides[spec.key]; applyActiveTheme(); persistSettings(); rerender(); },
   }, "reset");
-  return h("div", { class: `control ${overridden ? "overridden" : ""}`, "data-key": spec.key }, h("label", {}, spec.label), input, readout, reset);
+  if (spec.kind === "color") {
+    // Compact form for the color grid: swatch, name, reset.
+    return h("div", { class: `control color-control ${overridden ? "overridden" : ""}`, "data-key": spec.key },
+      input, h("label", {}, labelText), reset);
+  }
+  return h("div", { class: `control ${overridden ? "overridden" : ""}`, "data-key": spec.key }, h("label", {}, labelText), input, readout, reset);
 }
 
 const openGroups = new Set<string>();
@@ -179,7 +196,13 @@ function appearanceSections(): Node[] {
     rerender();
   } }, "Save as preset");
 
-  const groupsOf = (keys: string[]) => keys.map((k) => THEME_VARS.find((v) => v.key === k)!).map(control);
+  const groupsOf = (keys: string[]) => keys.map((k) => control(spec(k)));
+  const spec = (k: string) => THEME_VARS.find((v) => v.key === k)!;
+  // [key, short label] pairs under a small subheading.
+  const sub = (title: string, items: [string, string][]) =>
+    h("div", { class: "subgroup" }, h("h3", {}, title), ...items.map(([k, l]) => control(spec(k), l)));
+  const colorCol = (title: string, items: [string, string][]) =>
+    h("div", { class: "color-col" }, h("h3", {}, title), ...items.map(([k, l]) => control(spec(k), l)));
 
   // A collapsible group; which ones are open survives redraws.
   const group = (name: string, ...children: Node[]) => {
@@ -201,14 +224,27 @@ function appearanceSections(): Node[] {
             h("div", { class: "presets" }, ...customs.map(presetChip)))
         : null,
       h("div", { class: "save-preset" }, nameInput, saveButton,
+        app.customPresets.has(app.settings.preset)
+          ? h("button", { class: "save-current", onclick: saveCurrent, title: "Write these changes into this preset" }, `Save to ${app.settings.preset}`)
+          : null,
         h("button", { class: "reset-all", onclick: resetAll, title: "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
       saveStatus,
     ),
-    group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
+    group("Colors", h("div", { class: "color-grid" },
+      colorCol("Backgrounds", [["bg", "Page"], ["bg2", "Surface"], ["bg3", "Raised"], ["line", "Lines"]]),
+      colorCol("Text", [["fg", "Primary"], ["fg2", "Secondary"], ["fg3", "Muted"], ["labelColor", "Labels"]]),
+      colorCol("Accent", [["accent", "Accent"]]),
+      colorCol("Results", [["instant", "Instant"], ["slow", "Slow"], ["missed", "Missed"]]),
+    )),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
-    group("Fonts", ...groupsOf(["font", "fontSize", "fontMono", "monoScale", "titleFont", "titleSize", "titleWeight", "titleTracking", "headingFont", "headingSize"])),
-    group("Section labels", ...groupsOf(["labelFont", "labelSize", "labelWeight", "labelTracking", "labelCase", "labelColor"])),
+    group("Fonts",
+      sub("Body", [["font", "Font"], ["fontSize", "Size"]]),
+      sub("Numbers", [["fontMono", "Font"], ["monoScale", "Size (× body)"]]),
+      sub("Title", [["titleFont", "Font"], ["titleSize", "Size"], ["titleWeight", "Weight"], ["titleTracking", "Letter spacing"]]),
+      sub("Headings", [["headingFont", "Font"], ["headingSize", "Size"]]),
+      sub("Section labels", [["labelFont", "Font"], ["labelSize", "Size (× body)"], ["labelWeight", "Weight"], ["labelTracking", "Letter spacing"], ["labelCase", "Case"]]),
+    ),
     group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
   ];
 }
