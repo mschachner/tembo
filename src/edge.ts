@@ -14,6 +14,19 @@
 const CELL = 3;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
+// Average opacity of the art at `fromBottom` px above its bottom edge
+// (dots in the dithering zone average out to the same curve).
+export function edgeOpacity(fromBottom: number, heightPx: number, smoothPx: number, ditherPx: number): number {
+  const H = Math.max(1, heightPx);
+  const S = Math.max(0, Math.min(H, smoothPx));
+  const D = Math.max(0, Math.min(H - S, ditherPx));
+  const zone = S + D;
+  if (fromBottom <= 0) return 0;
+  if (zone === 0 || fromBottom > zone) return 1;
+  const u = fromBottom / zone;
+  return u * u * (3 - 2 * u);
+}
+
 export function edgeMask(heightPx: number, smoothPx: number, ditherPx: number): string {
   const H = Math.max(1, Math.round(heightPx));
   const S = Math.max(0, Math.min(H, smoothPx));

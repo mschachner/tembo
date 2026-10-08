@@ -27,11 +27,9 @@ export const THEME_VARS: VarSpec[] = [
   { key: "instant", css: "--instant", kind: "color", label: "Instant" },
   { key: "slow", css: "--slow", kind: "color", label: "Slow" },
   { key: "missed", css: "--missed", kind: "color", label: "Missed" },
-  { key: "bannerSky", css: "--banner-sky", kind: "color", label: "Banner sky" },
-  { key: "bannerHills", css: "--banner-hills", kind: "color", label: "Banner hills" },
-  { key: "bannerSun", css: "--banner-sun", kind: "color", label: "Banner sun" },
-  { key: "bannerFigure", css: "--banner-figure", kind: "color", label: "Banner figure" },
   { key: "tabs", css: "", kind: "choice", label: "Tab bar", options: ["pill", "pills", "card", "bar"] },
+  { key: "surfaces", css: "", kind: "choice", label: "Surfaces over art", options: ["plates", "none"] },
+  { key: "contrast", css: "", kind: "choice", label: "Text over art", options: ["fixed", "auto"] },
   { key: "plate", css: "--plate", kind: "pct", label: "Surface opacity over art", min: 0, max: 100, step: 1 },
   { key: "plateBlur", css: "--plate-blur", kind: "px", label: "Surface blur over art", min: 0, max: 30, step: 1 },
   { key: "radius", css: "--radius", kind: "px", label: "Corner radius", min: 0, max: 24, step: 1 },
@@ -52,9 +50,8 @@ export type Theme = Record<string, string | number>;
 export const FALLBACK_THEME: Theme = {
   bg: "#f6efe4", bg2: "#fdf9f2", bg3: "#ede3d3", fg: "#2d2218", fg2: "#5d4a3a", fg3: "#9a8672",
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
-  bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill",
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "plates", contrast: "fixed",
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {

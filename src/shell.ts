@@ -6,6 +6,7 @@ import { clear, h } from "./dom";
 import { applyEdge } from "./edge";
 import { nav, type Tab } from "./nav";
 import { openSettingsWindow } from "./bus";
+import { scheduleContrast } from "./contrast";
 import { localDate } from "./schedule";
 
 const TABS: { id: Tab; label: string }[] = [
@@ -35,6 +36,7 @@ function mediaFor(path: string, bannerH: number): { el: HTMLElement | SVGSVGElem
         img.src = url;
         await img.decode().catch(() => {});
         img.classList.remove("entering");
+        scheduleContrast();
         window.setTimeout(() => { if (previous && previous !== media?.el) previous.remove(); }, 350);
       },
       () => img.replaceWith(defaultBanner()),
@@ -79,8 +81,12 @@ function tabsNode(tab: Tab): HTMLElement {
     { class: "tabs" },
     ...TABS.map((t) =>
       h("button", {
-        class: `tab ${t.id === tab ? "active" : ""}`,
-        onclick: () => (t.id === "settings" ? openSettingsWindow(() => nav.home("settings")) : nav.home(t.id)),
+        class: t.id === "settings" ? "tab action" : `tab ${t.id === tab ? "active" : ""}`,
+        onclick: (e: Event) => {
+          (e.currentTarget as HTMLButtonElement).blur();
+          if (t.id === "settings") openSettingsWindow(() => nav.home("settings"));
+          else nav.home(t.id);
+        },
       }, t.label),
     ),
   );
@@ -108,7 +114,9 @@ function bannerNode(tab: Tab): HTMLElement {
 // Tab bar below the banner; empty in the "card" style.
 function tabBarNode(tab: Tab): HTMLElement {
   const style = String(activeTheme().tabs ?? "pill");
-  document.getElementById("app")!.dataset.tabs = style;
+  const root = document.getElementById("app")!;
+  root.dataset.tabs = style;
+  root.dataset.surfaces = String(activeTheme().surfaces ?? "plates");
   return h("div", { class: "tabs-wrap" }, style === "card" ? null : tabsNode(tab));
 }
 
@@ -119,6 +127,7 @@ export function refreshBanner(): void {
   document.querySelector(".backdrop")?.replaceWith(backdropNode());
   document.querySelector(".banner")?.replaceWith(bannerNode(currentTab));
   document.querySelector(".tabs-wrap")?.replaceWith(tabBarNode(currentTab));
+  scheduleContrast();
 }
 
 export function refreshStatus(): void {
@@ -157,6 +166,7 @@ export function renderHome(tab: Tab, content: Node): void {
   const root = document.getElementById("app")!;
   clear(root);
   root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: "page" }, content), statusLine());
+  scheduleContrast();
 }
 
 // Screens other than the home tabs: a slim drag strip instead of the banner.

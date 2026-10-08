@@ -12,10 +12,6 @@
   "missed": "#a83c24",
   "bannerImage": "banners/wheat.jpg",
   "bannerY": 35,
-  "bannerSky": "#e9c9a3",
-  "bannerHills": "#a65b32",
-  "bannerSun": "#f0a24a",
-  "bannerFigure": "#3a2416",
   "radius": 8,
   "space": 1,
   "fontSize": 16,
@@ -27,5 +23,7 @@
   "plateBlur": 10,
   "tabs": "pill",
   "edgeSmooth": 30,
-  "edgeDither": 8
+  "edgeDither": 8,
+  "surfaces": "plates",
+  "contrast": "fixed"
 }

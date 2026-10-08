@@ -12,10 +12,6 @@
   "missed": "#de6648",
   "bannerImage": "banners/ember.jpg",
   "bannerY": 45,
-  "bannerSky": "#3b2a2e",
-  "bannerHills": "#6c3b22",
-  "bannerSun": "#e8a04a",
-  "bannerFigure": "#120c08",
   "radius": 8,
   "space": 1,
   "fontSize": 16,
@@ -27,5 +23,7 @@
   "plateBlur": 10,
   "tabs": "pill",
   "edgeSmooth": 45,
-  "edgeDither": 0
+  "edgeDither": 0,
+  "surfaces": "plates",
+  "contrast": "fixed"
 }

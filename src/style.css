@@ -11,6 +11,7 @@
   --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
   --banner-height: 240px; --banner-y: 50%;
   --plate: 85%; --plate-blur: 10px;
+  --fixed-fg: var(--fg);   /* text on elements with their own surface; never auto-flipped */
   --u: calc(8px * var(--space));          /* spacing unit */
   --titlebar: 28px;                        /* macOS overlay title bar */
 }
@@ -60,7 +61,9 @@ body {
   font: inherit; color: var(--fg-3); cursor: pointer; border-radius: calc(var(--radius) - 2px);
 }
 .tab:hover { color: var(--fg); background: var(--bg-3); }
-.tab.active { color: var(--fg); background: var(--bg-3); }
+.tab.active { color: var(--fixed-fg); background: var(--bg-3); }
+.tab.action:hover { background: none; color: var(--fg); }
+.tab.action:active { background: var(--bg-3); }
 
 /* pill: one plate around the group */
 [data-tabs="pill"] .tabs { padding: 2px; border-radius: var(--radius); }
@@ -83,6 +86,7 @@ body {
 }
 /* Surfaces: page-colored plates behind each block of content. Over solid
    background they are invisible; over banner art they keep text legible. */
+[data-surfaces="none"] { --plate: 0%; --plate-blur: 0px; }
 .banner-text, [data-tabs="pill"] .tabs, [data-tabs="pills"] .tab, [data-tabs="bar"] .tabs-wrap, .page > div > * {
   background: color-mix(in srgb, var(--bg) var(--plate), transparent);
   backdrop-filter: blur(var(--plate-blur)); -webkit-backdrop-filter: blur(var(--plate-blur));
@@ -116,7 +120,7 @@ header { margin-bottom: calc(var(--u) * 2); }
 
 /* ---- controls ---- */
 button {
-  font: inherit; color: var(--fg); padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5);
+  font: inherit; color: var(--fixed-fg); padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5);
   border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); cursor: pointer;
 }
 button:hover { background: var(--bg-3); }
@@ -127,7 +131,7 @@ button.quiet:hover { background: var(--bg-3); color: var(--fg); }
 button.tiny { padding: 2px 8px; font-size: 0.85em; }
 button.back { margin: 0 0 calc(var(--u) * 1.5) calc(var(--u) * -1.5); }
 input[type="text"] {
-  font: inherit; color: var(--fg); background: var(--bg-2);
+  font: inherit; color: var(--fixed-fg); background: var(--bg-2);
   border: 1px solid var(--line); border-radius: var(--radius);
 }
 input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }

@@ -12,10 +12,6 @@
   "missed": "#d46a55",
   "bannerImage": "banners/ridges.jpg",
   "bannerY": 50,
-  "bannerSky": "#3b2a2e",
-  "bannerHills": "#6c3b22",
-  "bannerSun": "#e8a04a",
-  "bannerFigure": "#120c08",
   "radius": 8,
   "space": 1,
   "fontSize": 16,
@@ -27,5 +23,7 @@
   "plateBlur": 10,
   "tabs": "pill",
   "edgeSmooth": 10,
-  "edgeDither": 25
+  "edgeDither": 25,
+  "surfaces": "plates",
+  "contrast": "fixed"
 }
