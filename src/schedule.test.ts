@@ -51,10 +51,10 @@ describe("step / replay", () => {
     expect(s2.dueDate).toBe("2026-10-23");
   });
 
-  it("reaches mastered and caps at maintenance", () => {
+  it("reaches proficient and caps at maintenance", () => {
     let s = NEW_STATE;
     for (let i = 0; i < 10; i++) s = step(s, attempt(`2026-10-${String(10 + i).padStart(2, "0")}T20:00:00`, true), 1);
-    expect(s.status).toBe("mastered");
+    expect(s.status).toBe("proficient");
     expect(s.intervalDays).toBe(90);
   });
 

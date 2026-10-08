@@ -19,7 +19,7 @@ function entryRow(e: Entry, today: string, canPlay: boolean): HTMLElement {
     { class: "entry" },
     h("button", { class: `quiz-link ${canPlay ? "" : "muted"}`, onclick: () => nav.quiz(e.quiz) }, e.quiz.title),
     h("span", { class: "muted meta" }, meta),
-    e.state.status === "mastered" ? h("span", { class: "stamp", title: "mastered" }, tembo(22)) : null,
+    e.state.status === "proficient" ? h("span", { class: "stamp", title: "proficient" }, tembo(22)) : null,
     canPlay ? h("button", { class: "play", onclick: () => nav.play(e.quiz) }, "Play") : null,
   );
 }
@@ -86,7 +86,7 @@ function groups(today: string) {
     due: normal.filter((e) => e.state.status !== "new" && isDue(e.state, today)).sort(byDue),
     fresh: normal.filter((e) => e.state.status === "new"),
     upcoming: normal.filter((e) => e.state.status === "learning" && !isDue(e.state, today)).sort(byDue),
-    mastered: normal.filter((e) => e.state.status === "mastered" && !isDue(e.state, today)).sort(byDue),
+    proficient: normal.filter((e) => e.state.status === "proficient" && !isDue(e.state, today)).sort(byDue),
     retired: all.filter((e) => e.quiz.kind === "normal" && e.quiz.retired),
     calibration: all.filter((e) => e.quiz.kind === "calibration"),
   };
@@ -129,7 +129,7 @@ function todayView(today: string): Node {
     parts.push(section("Due", g.due.map((e) => entryRow(e, today, true))));
     parts.push(section("New", g.fresh.map((e) => entryRow(e, today, true))));
   }
-  parts.push(section("Coming up", [...g.upcoming, ...g.mastered].sort((a, b) => a.state.dueDate!.localeCompare(b.state.dueDate!)).slice(0, 3).map((e) => entryRow(e, today, false))));
+  parts.push(section("Coming up", [...g.upcoming, ...g.proficient].sort((a, b) => a.state.dueDate!.localeCompare(b.state.dueDate!)).slice(0, 3).map((e) => entryRow(e, today, false))));
   return h("div", {}, ...parts);
 }
 
@@ -141,7 +141,7 @@ function libraryView(today: string): Node {
     section("Due", g.due.map((e) => entryRow(e, today, true))),
     section("New", g.fresh.map((e) => entryRow(e, today, true))),
     section("Upcoming", g.upcoming.map((e) => entryRow(e, today, false))),
-    section("Mastered", g.mastered.map((e) => entryRow(e, today, false))),
+    section("Proficient", g.proficient.map((e) => entryRow(e, today, false))),
     section("Retired", g.retired.map((e) => entryRow(e, today, false))),
     section("Calibration", g.calibration.map((e) => entryRow(e, today, true))),
     app.quizErrors.length ? section("Errors", app.quizErrors.map((m) => h("li", { class: "error" }, m))) : null,

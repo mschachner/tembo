@@ -4,10 +4,10 @@ import type { AnyAttempt } from "./log";
 // first clear and is multiplied by m(grade) on each later clear; a failed
 // attempt resets it to one day. Due dates are whole local days.
 
-export const MASTERED_DAYS = 60;
+export const PROFICIENT_DAYS = 60;
 export const MAINTENANCE_DAYS = 90;
 
-export type Status = "new" | "learning" | "mastered";
+export type Status = "new" | "learning" | "proficient";
 
 export interface QuizState {
   status: Status;
@@ -60,7 +60,7 @@ export function step(state: QuizState, attempt: AnyAttempt, grade: number): Quiz
   }
   const ended = new Date(attempt.endedAt);
   return {
-    status: interval >= MASTERED_DAYS ? "mastered" : "learning",
+    status: interval >= PROFICIENT_DAYS ? "proficient" : "learning",
     intervalDays: interval,
     dueDate: addDays(localDate(ended), Math.max(1, Math.round(interval))),
     lastAttemptAt: attempt.endedAt,
