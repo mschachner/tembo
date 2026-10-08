@@ -227,11 +227,14 @@ function appearanceSections(): Node[] {
         ? h("div", { class: "preset-row" }, h("span", { class: "preset-row-label" }, "Custom"),
             h("div", { class: "presets" }, ...customs.map(presetChip)))
         : null,
-      h("div", { class: "save-preset" }, nameInput, saveButton,
+      // Actions on the current preset (shown only when it's been changed),
+      // then saving the current look as a new preset.
+      h("div", { class: "preset-actions" },
         app.customPresets.has(app.settings.preset)
           ? h("button", { class: "save-current", onclick: saveCurrent, title: "Write these changes into this preset" }, `Save to ${app.settings.preset}`)
           : null,
         h("button", { class: "reset-all", onclick: resetAll, title: "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
+      h("div", { class: "save-preset" }, nameInput, saveButton),
       saveStatus,
     ),
     group("Colors", h("div", { class: "color-grid" },

@@ -392,8 +392,9 @@ input, textarea,
 .settings .control[title] {
   -webkit-user-select: text; user-select: text;
 }
-.save-preset { flex-wrap: wrap; }
-.save-preset input { flex: 1 1 160px; }
+.preset-actions { display: none; gap: var(--u); margin-top: calc(var(--u) * 1.25); }
+.settings.modified .preset-actions { display: flex; }
+.preset-actions button { white-space: nowrap; max-width: 50%; overflow: hidden; text-overflow: ellipsis; }
 
 /* ================= motion =================
    Each kind is gated on an attribute set by motion.ts; --dur scales every
