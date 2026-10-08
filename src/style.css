@@ -117,10 +117,18 @@ h1 {
   font-family: var(--heading-font, var(--font)); font-size: var(--heading-size);
   font-weight: 700; margin: 0 0 calc(var(--u) * 1.5); letter-spacing: -0.01em;
 }
-h2 {
-  font-size: calc(1em * var(--label-size)); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
-  color: var(--fg-3); margin: calc(var(--u) * 3) 0 calc(var(--u) * 1);
+/* Section labels: h2, table column headers, settings group titles. */
+h2, .stats th, details.group > summary {
+  font-family: var(--label-font, var(--font));
+  font-weight: var(--label-weight, 600); letter-spacing: var(--label-tracking, 0.06em);
+  color: var(--label-color, var(--fg-3));
 }
+h2, details.group > summary { font-size: calc(1em * var(--label-size)); }
+.stats th { font-size: calc(0.95em * var(--label-size)); }
+[data-label-case="upper"] :is(h2, .stats th, details.group > summary) { text-transform: uppercase; }
+[data-label-case="small caps"] :is(h2, .stats th, details.group > summary) { text-transform: none; font-variant-caps: small-caps; }
+[data-label-case="as written"] :is(h2, .stats th, details.group > summary) { text-transform: none; }
+h2 { margin: calc(var(--u) * 3) 0 calc(var(--u) * 1); }
 section:first-child h2 { margin-top: 0; }
 header { margin-bottom: calc(var(--u) * 2); }
 .status { display: flex; gap: calc(var(--u) * 2); align-items: baseline; flex-wrap: wrap; }
@@ -194,7 +202,7 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 /* ---- tables ---- */
 .stats { border-collapse: collapse; width: 100%; font-size: 0.925em; }
 .stats th, .stats td { text-align: left; padding: calc(var(--u) * 0.6 * var(--row-pad)) calc(var(--u) * 1.5) calc(var(--u) * 0.6 * var(--row-pad)) 0; border-bottom: 1px solid var(--line); }
-.stats th { font-weight: 500; color: var(--fg-3); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.04em; }
+
 .stats .num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: calc(1em * var(--mono-scale)); }
 .stats tr.missed td:first-child, .stats tr.missed td:nth-child(2) { color: var(--missed); }
 .stats tr.slow td:first-child { color: var(--slow); }
@@ -279,7 +287,6 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .save-preset input { flex: 1; padding: calc(var(--u) * 0.5) var(--u); }
 details.group > summary {
   list-style: none; cursor: pointer; user-select: none;
-  font-size: calc(1em * var(--label-size)); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-3);
   display: flex; align-items: center; gap: calc(var(--u) * 0.75); padding: calc(var(--u) * 0.25) 0;
 }
 details.group > summary::-webkit-details-marker { display: none; }
@@ -290,6 +297,7 @@ details.group > summary::before {
 details.group[open] > summary::before { transform: rotate(45deg); }
 details.group[open] > summary { margin-bottom: calc(var(--u) * 0.75); }
 details.group > summary:hover { color: var(--fg); }
+details.group[open] > summary { color: var(--fg-2); }
 .settings > section:has(> details.group) { padding-top: calc(var(--u) * 0.4); padding-bottom: calc(var(--u) * 0.4); }
 .settings > section + section:has(> details.group) { margin-top: calc(var(--u) * 0.25); }
 .settings > section:nth-child(2) + section { margin-top: calc(var(--u) * 1.5); }

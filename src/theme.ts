@@ -43,7 +43,14 @@ export const THEME_VARS: VarSpec[] = [
   { key: "titleTracking", css: "--title-tracking", kind: "em", label: "Title letter spacing", min: -0.08, max: 0.2, step: 0.005 },
   { key: "headingFont", css: "--heading-font", kind: "text", label: "Heading font" },
   { key: "headingSize", css: "--heading-size", kind: "px", label: "Heading size", min: 14, max: 48, step: 1 },
-  { key: "labelSize", css: "--label-size", kind: "scale", label: "Section label size (× body)", min: 0.6, max: 1.2, step: 0.05 },
+  // Section labels: the small all-caps headings ("Today's results", table
+  // column headers, settings group titles).
+  { key: "labelFont", css: "--label-font", kind: "text", label: "Font" },
+  { key: "labelSize", css: "--label-size", kind: "scale", label: "Size (× body)", min: 0.6, max: 1.4, step: 0.05 },
+  { key: "labelWeight", css: "--label-weight", kind: "scale", label: "Weight", min: 100, max: 900, step: 100 },
+  { key: "labelTracking", css: "--label-tracking", kind: "em", label: "Letter spacing", min: -0.04, max: 0.3, step: 0.005 },
+  { key: "labelCase", css: "", kind: "choice", label: "Case", options: ["upper", "small caps", "as written"] },
+  { key: "labelColor", css: "--label-color", kind: "color", label: "Color" },
   // Layout.
   { key: "contentWidth", css: "--content-width", kind: "px", label: "Main column width", min: 560, max: 1400, step: 10 },
   { key: "wideWidth", css: "--wide-width", kind: "px", label: "Quiz column width", min: 700, max: 1800, step: 10 },
@@ -69,7 +76,7 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
   monoScale: 1, titleFont: "", titleSize: 35, titleWeight: 700, titleTracking: -0.01, headingFont: "", headingSize: 24,
-  labelSize: 0.8, contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
+  labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
   bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "plates", contrast: "fixed",
 };
 
@@ -101,10 +108,12 @@ export function applyTheme(theme: Theme): void {
   for (const spec of THEME_VARS) {
     if (!spec.css) continue; // read directly by the code that uses it
     const v = theme[spec.key] ?? FALLBACK_THEME[spec.key];
-    // Empty font fields are left unset so the CSS falls back to the body font.
-    if (spec.kind === "text" && String(v).trim() === "") root.removeProperty(spec.css);
+    // Empty font and color fields are left unset so the CSS falls back
+    // (to the body font, or for the label color, to the muted text color).
+    if ((spec.kind === "text" || spec.kind === "color") && String(v ?? "").trim() === "") root.removeProperty(spec.css);
     else root.setProperty(spec.css, cssValue(spec, v));
   }
+  document.documentElement.dataset.labelCase = String(theme.labelCase ?? FALLBACK_THEME.labelCase);
 }
 
 export function parseTheme(json: string): Theme {

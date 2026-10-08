@@ -61,7 +61,7 @@ function control(spec: VarSpec): HTMLElement {
       break;
     }
     case "color": {
-      const el = h("input", { type: "color", value: String(value) });
+      const el = h("input", { type: "color", value: String(value || (spec.key === "labelColor" ? theme.fg3 : "#000000")) });
       el.addEventListener("input", () => setOverride(spec.key, el.value));
       input = el;
       break;
@@ -207,7 +207,8 @@ function appearanceSections(): Node[] {
     group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
-    group("Fonts", ...groupsOf(["font", "fontSize", "fontMono", "monoScale", "titleFont", "titleSize", "titleWeight", "titleTracking", "headingFont", "headingSize", "labelSize"])),
+    group("Fonts", ...groupsOf(["font", "fontSize", "fontMono", "monoScale", "titleFont", "titleSize", "titleWeight", "titleTracking", "headingFont", "headingSize"])),
+    group("Section labels", ...groupsOf(["labelFont", "labelSize", "labelWeight", "labelTracking", "labelCase", "labelColor"])),
     group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
   ];
 }
