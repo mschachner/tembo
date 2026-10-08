@@ -74,6 +74,8 @@ function control(spec: VarSpec): HTMLElement {
   return h("div", { class: "control" }, h("label", {}, spec.label), input, readout, reset);
 }
 
+const openGroups = new Set<string>();
+
 export function settingsView(): Node {
   const presetButtons = [...app.presets.keys()].map((name) =>
     h(
@@ -111,22 +113,35 @@ export function settingsView(): Node {
 
   const groupsOf = (keys: string[]) => keys.map((k) => THEME_VARS.find((v) => v.key === k)!).map(control);
 
+  // A collapsible group; which ones are open survives redraws.
+  const group = (name: string, ...children: Node[]) => {
+    const d = h("details", { class: "group" }, h("summary", {}, name), ...children);
+    d.open = openGroups.has(name);
+    d.addEventListener("toggle", () => { if (d.open) openGroups.add(name); else openGroups.delete(name); });
+    return h("section", {}, d);
+  };
+
   return h(
     "div",
     { class: "settings" },
-    h("section", {}, h("h2", {}, "Preset"), h("div", { class: "presets" }, ...presetButtons)),
-    h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
-    h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
-    h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
-    h("section", {}, h("h2", {}, "Surfaces"), ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
-    h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
-    h("section", {}, h("h2", {}, "Sound"),
+    h(
+      "section",
+      {},
+      h("h2", {}, "Preset"),
+      h("div", { class: "presets" }, ...presetButtons),
+      h("div", { class: "save-preset" }, nameInput, saveButton),
+    ),
+    group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
+    group("Results", ...groupsOf(["instant", "slow", "missed"])),
+    group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
+    group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
+    group("Type and shape", ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
+    group("Sound",
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
       h("div", { class: "control" }, h("label", {}, "Volume"), volume),
       h("div", { class: "control" }, h("label", {}, "Preview"),
         h("button", { class: "quiet tiny", onclick: sounds.accept }, "accept"),
         h("button", { class: "quiet tiny", onclick: sounds.reject }, "reject"),
         h("button", { class: "quiet tiny", onclick: sounds.complete }, "complete"))),
-    h("section", {}, h("h2", {}, "Save"), h("div", { class: "control" }, nameInput, saveButton)),
   );
 }

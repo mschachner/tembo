@@ -1,5 +1,5 @@
 import { adoptSettings, applyActiveTheme, loadAll, loadThemes } from "./app";
-import { subscribe } from "./bus";
+import { bindSettingsShortcut, subscribe } from "./bus";
 import { h } from "./dom";
 import { nav } from "./nav";
 import { onHome, refreshBanner, refreshStatus, renderSettingsWindow } from "./shell";
@@ -19,6 +19,7 @@ if (isSettingsWindow) {
   // Settings window: renders only the settings page; its changes are
   // written to disk and broadcast to the main window.
   nav.home = () => renderSettingsWindow(settingsView());
+  bindSettingsShortcut(() => {});
   loadAll()
     .then(() => {
       nav.home();
@@ -33,6 +34,7 @@ if (isSettingsWindow) {
   nav.play = showPlay;
   nav.attempt = showAttempt;
   nav.item = showItem;
+  bindSettingsShortcut(() => nav.home("settings"));
   loadAll()
     .then(() => {
       nav.home();

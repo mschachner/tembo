@@ -247,3 +247,23 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 }
 #app > .settings-gear:hover { color: var(--fg); background: color-mix(in srgb, var(--bg) var(--plate), transparent); transform: rotate(30deg); }
 #app > .settings-gear svg { display: block; filter: drop-shadow(0 1px 2px var(--halo, transparent)); }
+
+/* settings: preset save row, collapsible groups */
+.save-preset { display: flex; gap: var(--u); margin-top: calc(var(--u) * 1.25); }
+.save-preset input { flex: 1; padding: calc(var(--u) * 0.5) var(--u); }
+details.group > summary {
+  list-style: none; cursor: pointer; user-select: none;
+  font-size: 0.8em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-3);
+  display: flex; align-items: center; gap: calc(var(--u) * 0.75); padding: calc(var(--u) * 0.25) 0;
+}
+details.group > summary::-webkit-details-marker { display: none; }
+details.group > summary::before {
+  content: ""; width: 0.45em; height: 0.45em; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg); transition: transform 0.15s;
+}
+details.group[open] > summary::before { transform: rotate(45deg); }
+details.group[open] > summary { margin-bottom: calc(var(--u) * 0.75); }
+details.group > summary:hover { color: var(--fg); }
+.settings > section:has(> details.group) { padding-top: calc(var(--u) * 0.4); padding-bottom: calc(var(--u) * 0.4); }
+.settings > section + section:has(> details.group) { margin-top: calc(var(--u) * 0.25); }
+.settings > section:first-child + section { margin-top: calc(var(--u) * 1.5); }
