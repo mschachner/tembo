@@ -22,6 +22,7 @@ export const app = {
   cps: DEFAULT_CPS,
   settings: null as unknown as Settings,
   presets: new Map<string, Theme>(),
+  customPresets: new Set<string>(),
   quizzes: [] as Quiz[],
   quizErrors: [] as string[],
 };
@@ -45,9 +46,11 @@ export async function reloadHistory(): Promise<void> {
 export async function loadThemes(): Promise<void> {
   const files: ThemeFile[] = await listThemes();
   app.presets = new Map();
+  app.customPresets = new Set();
   for (const f of files) {
     try {
       app.presets.set(f.name, parseTheme(f.json));
+      if (f.custom) app.customPresets.add(f.name);
     } catch (e) {
       console.warn(`bad theme ${f.name}`, e);
     }

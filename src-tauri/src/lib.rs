@@ -137,52 +137,69 @@ fn mime_for(path: &Path) -> &'static str {
 
 #[tauri::command]
 fn root_dir() -> String {
-    root().to_string_lossy().into_owned()
+    let r = root();
+    fs::canonicalize(&r).unwrap_or(r).to_string_lossy().into_owned()
 }
 
 #[derive(Serialize)]
 struct ThemeFile {
     name: String,
     json: String,
+    custom: bool,
 }
 
-/// Theme presets: `<root>/themes/*.json`, sorted by file name.
-#[tauri::command]
-fn list_themes() -> Result<Vec<ThemeFile>, String> {
-    let dir = root().join("themes");
-    let mut out = Vec::new();
+fn themes_in(dir: &Path, custom: bool, out: &mut Vec<ThemeFile>) -> Result<(), String> {
     if !dir.exists() {
-        return Ok(out);
+        return Ok(());
     }
-    for entry in fs::read_dir(&dir).map_err(|e| format!("{}: {e}", dir.display()))? {
+    for entry in fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))? {
         let path = entry.map_err(|e| e.to_string())?.path();
         if path.extension().and_then(|s| s.to_str()) != Some("json") {
             continue;
         }
         let name = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
         let json = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        out.push(ThemeFile { name, json });
+        out.push(ThemeFile { name, json, custom });
     }
+    Ok(())
+}
+
+/// Default presets: `<root>/themes/*.json`; custom: `<root>/themes/custom/*.json`.
+#[tauri::command]
+fn list_themes() -> Result<Vec<ThemeFile>, String> {
+    let dir = root().join("themes");
+    let mut out = Vec::new();
+    themes_in(&dir, false, &mut out)?;
+    themes_in(&dir.join("custom"), true, &mut out)?;
     out.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(out)
 }
 
+fn theme_name_ok(name: &str) -> Result<(), String> {
+    if name.is_empty() || name.contains('/') || name.contains("..") {
+        return Err(format!("bad preset name: {name}"));
+    }
+    Ok(())
+}
+
+/// Saves a custom preset. Default presets can't be overwritten.
 #[tauri::command]
 fn write_theme(name: String, json: String) -> Result<(), String> {
-    if name.is_empty() || name.contains('/') || name.contains("..") {
-        return Err(format!("bad theme name: {name}"));
+    theme_name_ok(&name)?;
+    let themes = root().join("themes");
+    if themes.join(format!("{name}.json")).exists() {
+        return Err(format!("{name} is a default preset; choose another name"));
     }
-    let dir = root().join("themes");
+    let dir = themes.join("custom");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     fs::write(dir.join(format!("{name}.json")), json).map_err(|e| e.to_string())
 }
 
+/// Deletes a custom preset.
 #[tauri::command]
 fn delete_theme(name: String) -> Result<(), String> {
-    if name.is_empty() || name.contains('/') || name.contains("..") {
-        return Err(format!("bad theme name: {name}"));
-    }
-    let path = root().join("themes").join(format!("{name}.json"));
+    theme_name_ok(&name)?;
+    let path = root().join("themes").join("custom").join(format!("{name}.json"));
     fs::remove_file(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 

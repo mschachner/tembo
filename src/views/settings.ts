@@ -120,7 +120,7 @@ export function settingsView(): Node {
 }
 
 function appearanceSections(): Node[] {
-  const presetButtons = [...app.presets.keys()].map((name) => {
+  const presetChip = (name: string) => {
     const del = h("button", { class: "preset-delete", title: `Delete ${name}`, "aria-label": `Delete ${name}` }, "×");
     // Two clicks to delete: the first arms the button for three seconds.
     let armed = 0;
@@ -132,7 +132,6 @@ function appearanceSections(): Node[] {
         return;
       }
       window.clearTimeout(armed);
-      if (app.presets.size <= 1) return; // keep at least one
       await deleteTheme(name);
       await loadThemes();
       if (app.settings.preset === name) {
@@ -154,15 +153,24 @@ function appearanceSections(): Node[] {
         persistSettings();
         rerender();
       } }, name),
-      app.presets.size > 1 ? del : null,
+      app.customPresets.has(name) ? del : null,   // defaults can't be deleted
     );
-  });
+  };
+  const names = [...app.presets.keys()];
+  const defaults = names.filter((n) => !app.customPresets.has(n));
+  const customs = names.filter((n) => app.customPresets.has(n));
 
   const nameInput = h("input", { type: "text", class: "text", placeholder: "preset name" });
+  const saveStatus = h("div", { class: "save-status error small" });
   const saveButton = h("button", { onclick: async () => {
     const name = nameInput.value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-");
     if (!name) return;
-    await writeTheme(name, JSON.stringify(activeTheme(), null, 2));
+    try {
+      await writeTheme(name, JSON.stringify(activeTheme(), null, 2));
+    } catch (e) {
+      saveStatus.textContent = String(e).replace(/^Error: /, "");
+      return;
+    }
     await loadThemes();
     app.settings.preset = name;
     app.settings.overrides = {};
@@ -186,9 +194,15 @@ function appearanceSections(): Node[] {
       "section",
       {},
       h("h2", {}, "Preset"),
-      h("div", { class: "presets" }, ...presetButtons),
+      h("div", { class: "preset-row" }, h("span", { class: "preset-row-label" }, "Defaults"),
+        h("div", { class: "presets" }, ...defaults.map(presetChip))),
+      customs.length
+        ? h("div", { class: "preset-row" }, h("span", { class: "preset-row-label" }, "Custom"),
+            h("div", { class: "presets" }, ...customs.map(presetChip)))
+        : null,
       h("div", { class: "save-preset" }, nameInput, saveButton,
         h("button", { class: "reset-all", onclick: resetAll, title: "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
+      saveStatus,
     ),
     group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
@@ -252,11 +266,12 @@ function appSections(): Node[] {
       h("div", { class: "control" }, h("label", {}, "Instant below"), thrSlider, thrReadout),
       h("div", { class: "control" }, h("label", {}, "Typing speed"),
         h("span", { class: "mono" }, `${app.cps.toFixed(1)} ch/s`),
-        h("span", { class: "muted small" }, calib ? `calibrated ${new Date(calib.endedAt).toLocaleDateString("en-GB")}` : "not calibrated"),
-        calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "calibrate now") : null)),
+        h("span", { class: "muted small" }, calib
+          ? new Date(calib.endedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+          : "not calibrated"),
+        calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "Calibrate") : null)),
     h("section", {}, h("h2", {}, "Files"),
-      h("div", { class: "control" }, h("label", {}, "Location"), h("span", { class: "mono small path" }, app.root)),
-      h("div", { class: "control" }, h("label", {}, "Open"),
+      h("div", { class: "control", title: app.root }, h("label", {}, "Open folder"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/quizzes`) }, "quizzes"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/data`) }, "data"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/themes`) }, "themes"))),

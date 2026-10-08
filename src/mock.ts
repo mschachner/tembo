@@ -6,12 +6,16 @@ const draftSources = import.meta.glob("../quizzes/_drafts/*/quiz.txt", { query: 
 const quizImages = import.meta.glob("../quizzes/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
 const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { query: "?url", import: "default" });
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
+const customSources = import.meta.glob("../themes/custom/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 let attempts = (import.meta.env.VITE_MOCK_ATTEMPTS as string | undefined) ?? "";
 let settings = localStorage.getItem("mock-settings") ?? "";
 const deletedThemes = new Set<string>();
 // Shared between preview windows through localStorage, like files on disk.
-const savedThemesNow = () => new Map<string, string>(JSON.parse(localStorage.getItem("mock-themes") ?? "[]"));
+const savedThemesNow = () => new Map<string, string>([
+  ...Object.entries(customSources).map(([f, json]) => [f.replace(/^.*\//, "").replace(/\.json$/, ""), json] as [string, string]),
+  ...JSON.parse(localStorage.getItem("mock-themes") ?? "[]"),
+]);
 
 export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   switch (cmd) {
@@ -59,21 +63,27 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       const out = [];
       for (const [file, load] of Object.entries(themeSources)) {
         const name = file.replace(/^.*\//, "").replace(/\.json$/, "");
-        if (!deletedThemes.has(name) && !savedThemes.has(name)) out.push({ name, json: (await load()) as string });
+        if (!deletedThemes.has(name)) out.push({ name, json: (await load()) as string, custom: false });
       }
-      for (const [name, json] of savedThemes) out.push({ name, json });
+      for (const [name, json] of savedThemes) if (!deletedThemes.has(name)) out.push({ name, json, custom: true });
       out.sort((a, b) => a.name.localeCompare(b.name));
       return out as T;
     }
     case "write_theme": {
+      if (Object.keys(themeSources).some((f) => f.endsWith(`/${args.name}.json`))) {
+        throw new Error(`${args.name} is a default preset; choose another name`);
+      }
       const savedThemes = savedThemesNow();
       savedThemes.set(String(args.name), String(args.json));
       localStorage.setItem("mock-themes", JSON.stringify([...savedThemes]));
       return undefined as T;
     }
-    case "delete_theme":
+    case "delete_theme": {
       deletedThemes.add(String(args.name));
+      const saved = savedThemesNow(); saved.delete(String(args.name));
+      localStorage.setItem("mock-themes", JSON.stringify([...saved]));
       return undefined as T;
+    }
     case "read_settings":
       return (localStorage.getItem("mock-settings") ?? settings) as T;
     case "write_settings":

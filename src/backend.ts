@@ -42,6 +42,7 @@ export function rootDir(): Promise<string> {
 export interface ThemeFile {
   name: string;
   json: string;
+  custom: boolean;   // saved by you (themes/custom/), as opposed to a default
 }
 
 export function listThemes(): Promise<ThemeFile[]> {

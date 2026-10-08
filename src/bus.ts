@@ -56,7 +56,7 @@ export function bindSettingsShortcut(fallback: () => void): void {
 // Open (or focus) the settings window; `fallback` runs if it can't open.
 export async function openSettingsWindow(fallback: () => void): Promise<void> {
   if (!inTauri) {
-    popup = window.open(`${location.pathname}#settings`, "tembo-settings", "width=560,height=800");
+    popup = window.open(`${location.pathname}#settings`, "tembo-settings", "width=640,height=820");
     return;
   }
   const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
@@ -65,9 +65,9 @@ export async function openSettingsWindow(fallback: () => void): Promise<void> {
   const win = new WebviewWindow("settings", {
     url: "index.html#settings",
     title: "Tembo settings",
-    width: 560,
-    height: 800,
-    minWidth: 420,
+    width: 640,
+    height: 820,
+    minWidth: 480,
     titleBarStyle: "overlay",
     hiddenTitle: true,
   });
