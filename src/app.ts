@@ -45,6 +45,11 @@ export async function reloadHistory(): Promise<void> {
 
 export async function loadThemes(): Promise<void> {
   const files: ThemeFile[] = await listThemes();
+  // Defaults first, in their "order" field; then custom presets by name.
+  const rank = (f: ThemeFile) => {
+    try { return Number((JSON.parse(f.json) as { order?: number }).order ?? 999); } catch { return 999; }
+  };
+  files.sort((a, b) => Number(a.custom) - Number(b.custom) || rank(a) - rank(b) || a.name.localeCompare(b.name));
   app.presets = new Map();
   app.customPresets = new Set();
   for (const f of files) {

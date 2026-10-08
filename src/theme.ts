@@ -75,7 +75,7 @@ export const FALLBACK_THEME: Theme = {
   bg: "#f6efe4", bg2: "#fdf9f2", bg3: "#ede3d3", fg: "#2d2218", fg2: "#5d4a3a", fg3: "#9a8672",
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  monoScale: 1, titleFont: "", titleSize: 35, titleWeight: 700, titleTracking: -0.01, headingFont: "", headingSize: 24,
+  monoScale: 1, titleFont: "Carter One", titleSize: 35, titleWeight: 400, titleTracking: -0.01, headingFont: "", headingSize: 24,
   labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
   bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "none", contrast: "auto",
 };

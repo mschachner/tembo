@@ -25,5 +25,8 @@
   "tabs": "pill",
   "bannerEdgePos": 100,
   "surfaces": "none",
-  "contrast": "auto"
+  "contrast": "auto",
+  "titleFont": "Carter One",
+  "titleWeight": 400,
+  "order": 4
 }

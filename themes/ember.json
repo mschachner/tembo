@@ -25,5 +25,8 @@
   "edgeSmooth": 45,
   "edgeDither": 0,
   "surfaces": "none",
-  "contrast": "auto"
+  "contrast": "auto",
+  "titleFont": "Carter One",
+  "titleWeight": 400,
+  "order": 7
 }

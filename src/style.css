@@ -1,3 +1,10 @@
+/* Bundled fonts (SIL Open Font License; see src/fonts/*-OFL.txt). */
+@font-face {
+  font-family: "Carter One";
+  src: url("./fonts/CarterOne.ttf") format("truetype");
+  font-weight: 400; font-style: normal; font-display: block;
+}
+
 /* All visual values come from the theme variables set on :root by theme.ts.
    Fallbacks here only matter for the first frame before the theme loads. */
 :root {

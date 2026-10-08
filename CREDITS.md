@@ -16,3 +16,6 @@ Banner photos in `banners/` are from [Unsplash](https://unsplash.com), used unde
 | pine.jpg | Dimitris Poulos | [Unsplash](https://unsplash.com/photos/a-forest-filled-with-lots-of-green-trees-xyh1DLyl4EQ) |
 | heather.jpg | Marek Piwnicki | [Unsplash](https://unsplash.com/photos/silhouette-of-mountains-during-sunset-LGgKrtjNsoI) |
 | lilac.jpg | Hugo L. Casanova | [Unsplash](https://unsplash.com/photos/mountain-range-under-clear-blue-sky-ualRCC1D3YA) |
+
+The title font, Carter One by Vernon Adams, is bundled in `src/fonts/` under the
+SIL Open Font License 1.1 (`src/fonts/CarterOne-OFL.txt`).
