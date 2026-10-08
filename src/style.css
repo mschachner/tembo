@@ -132,9 +132,9 @@ h2, .stats th, details.group > summary {
 }
 h2, details.group > summary { font-size: calc(1em * var(--label-size)); }
 .stats th { font-size: calc(0.95em * var(--label-size)); }
-[data-label-case="upper"] :is(h2, .stats th, details.group > summary) { text-transform: uppercase; }
-[data-label-case="small caps"] :is(h2, .stats th, details.group > summary) { text-transform: none; font-variant-caps: small-caps; }
-[data-label-case="as written"] :is(h2, .stats th, details.group > summary) { text-transform: none; }
+[data-label-case="upper"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: uppercase; }
+[data-label-case="small caps"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: none; font-variant-caps: small-caps; }
+[data-label-case="as written"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: none; }
 h2 { margin: calc(var(--u) * 3) 0 calc(var(--u) * 1); }
 section:first-child h2 { margin-top: 0; }
 header { margin-bottom: calc(var(--u) * 2); }
@@ -253,6 +253,32 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .card.missed .card-answer { color: var(--missed); }
 .card.missed { border-color: var(--missed); }
 .item-prompt { margin: var(--u) 0; }
+.card-data { color: var(--fg-2); font-size: 0.875em; }
+
+/* ---- play: list view (a table, one row per prompt) ---- */
+.quiz-table { border-collapse: collapse; width: 100%; }
+.quiz-table th {
+  text-align: left; font-family: var(--label-font, var(--font)); font-size: calc(1em * var(--label-size));
+  font-weight: var(--label-weight); letter-spacing: var(--label-tracking); color: var(--label-color, var(--fg-3));
+  padding: 0 calc(var(--u) * 1.5) calc(var(--u) * 0.5) 0;
+}
+.quiz-table td {
+  padding: calc(var(--u) * 0.35 * var(--row-pad)) calc(var(--u) * 1.5) calc(var(--u) * 0.35 * var(--row-pad)) 0;
+  border-bottom: 1px solid var(--line); vertical-align: middle;
+}
+.quiz-table .prompt-cell { white-space: nowrap; width: 1%; }
+.quiz-table .prompt-cell .prompt-image { margin: 0; }
+.quiz-table .data { color: var(--fg-2); white-space: nowrap; width: 1%; }
+.quiz-table .answer-cell { width: 100%; padding-right: 0; }
+.quiz-table .answer-input { font-size: 1em; margin: 0; padding: calc(var(--u) * 0.4) calc(var(--u) * 0.75); }
+.quiz-table .card-answer.accepted { padding: calc(var(--u) * 0.4) calc(var(--u) * 0.75 + 1px); }  /* lines up with typed text */
+.quiz-table .slot { color: var(--fg); }
+.quiz-table tr.slow .answer-cell { color: var(--slow); }
+.quiz-table tr.missed .answer-cell { color: var(--missed); }
+.quiz-table tr.instant .answer-cell { color: var(--instant); }
+
+.view-toggle { display: inline-flex; gap: 2px; }
+.view-toggle button.active { color: var(--accent); background: var(--bg-3); }
 
 /* ---- settings ---- */
 .settings section { margin-bottom: calc(var(--u) * 2); }

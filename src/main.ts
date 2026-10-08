@@ -28,6 +28,9 @@ if (isSettingsWindow) {
       void showWhenReady();
       return subscribe(async (msg) => {
         if (msg.kind === "themes") { await loadThemes(); nav.home(); }
+        // The main window saves the quiz views; keep them, so this window's
+        // next save doesn't write back stale ones.
+        if (msg.kind === "settings") app.settings.views = msg.settings.views ?? {};
       });
     })
     .catch(fail);

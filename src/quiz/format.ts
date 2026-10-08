@@ -7,6 +7,9 @@
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
 //   retired: true         # optional; drop the quiz from the schedule
 //   image-height: 72      # px, for image prompts (default 72)
+//   columns: Years, Party # optional; names of per-item data columns
+//   prompt-label: Order   # optional; table heading over the prompts
+//   answer-label: Name    # optional; table heading over the answers
 //   ---
 //   Algeria
 //   Côte d'Ivoire | Ivory Coast        # canonical answer, then aliases
@@ -16,6 +19,10 @@
 // with an optional height:     ![France](flags/fr.svg){height=120} :: France
 // Image paths are relative to the quiz file. Blank lines and lines
 // starting with # are ignored.
+//
+// Per-item data, one value per name in `columns`, follows `;;`:
+//   1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
+// It is shown alongside the prompt during play. Missing values are blank.
 
 export type Mode = "list" | "prompt";
 export type Kind = "normal" | "calibration";
@@ -30,6 +37,7 @@ export interface Item {
   prompt?: Prompt;
   canonical: string;
   aliases: string[];
+  data: string[];        // one value per quiz column ("" where missing)
 }
 
 export interface Quiz {
@@ -42,6 +50,9 @@ export interface Quiz {
   retired: boolean;
   passPercent: number;
   imageHeight: number;   // px, default 72
+  columns: string[];     // names of the per-item data columns
+  promptLabel: string;   // table headings ("" for none)
+  answerLabel: string;
   items: Item[];
 }
 
@@ -76,11 +87,12 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     throw new QuizFormatError(0, `unknown kind "${header.kind}"`);
   }
 
+  const columns = (header.columns ?? "").split(",").map((s) => s.trim()).filter((s) => s !== "");
   const items: Item[] = [];
   for (; i < lines.length; i++) {
     const line = stripComment(lines[i]).trim();
     if (line === "") continue;
-    items.push(parseItem(line, mode, i + 1));
+    items.push(parseItem(line, mode, i + 1, columns.length));
   }
   if (items.length === 0) throw new QuizFormatError(lines.length, "quiz has no items");
 
@@ -94,11 +106,19 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     retired: (header.retired ?? "false").toLowerCase() === "true",
     passPercent: header.pass ? Number(header.pass) : 100,
     imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
+    columns,
+    promptLabel: header["prompt-label"] ?? "",
+    answerLabel: header["answer-label"] ?? "",
     items,
   };
 }
 
-function parseItem(line: string, mode: Mode, lineNo: number): Item {
+function parseItem(full: string, mode: Mode, lineNo: number, columnCount: number): Item {
+  const [line, ...values] = full.split(";;").map((s) => s.trim());
+  if (values.length > columnCount) {
+    throw new QuizFormatError(lineNo, `${values.length} data values but ${columnCount} column${columnCount === 1 ? "" : "s"} in the header`);
+  }
+  const data = Array.from({ length: columnCount }, (_, k) => values[k] ?? "");
   let promptText: string | undefined;
   let answerText = line;
 
@@ -112,7 +132,7 @@ function parseItem(line: string, mode: Mode, lineNo: number): Item {
   const parts = answerText.split("|").map((s) => s.trim()).filter((s) => s !== "");
   if (parts.length === 0) throw new QuizFormatError(lineNo, "empty answer");
 
-  const item: Item = { canonical: parts[0], aliases: parts.slice(1) };
+  const item: Item = { canonical: parts[0], aliases: parts.slice(1), data };
   if (promptText !== undefined) {
     const m = IMAGE_PROMPT.exec(promptText);
     if (m) {

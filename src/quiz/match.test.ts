@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { findMatch, matchesItem, normalize } from "./match";
 import type { Item } from "./format";
 
-const item = (canonical: string, ...aliases: string[]): Item => ({ canonical, aliases });
+const item = (canonical: string, ...aliases: string[]): Item => ({ canonical, aliases, data: [] });
 
 describe("normalize", () => {
   it("is case- and diacritic-insensitive", () => {

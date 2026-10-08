@@ -6,8 +6,8 @@ import { itemStats, median, trouble } from "./stats";
 
 const quiz: Quiz = {
   path: "p", dir: "d", id: "q", title: "q", mode: "prompt", kind: "normal", retired: false,
-  passPercent: 100, imageHeight: 72,
-  items: [{ canonical: "A", aliases: [] }, { canonical: "B", aliases: [] }],
+  passPercent: 100, imageHeight: 72, columns: [], promptLabel: "", answerLabel: "",
+  items: [{ canonical: "A", aliases: [], data: [] }, { canonical: "B", aliases: [], data: [] }],
 };
 
 const v2: Attempt = {

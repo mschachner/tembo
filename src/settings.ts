@@ -8,6 +8,7 @@ export interface Settings {
   sound: { enabled: boolean; volume: number };
   grading: { instantSeconds: number };   // latency below this counts as instant
   motion: Motion;
+  views: Record<string, "cards" | "list">;   // prompt quizzes: last view, by quiz id
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sound: { enabled: true, volume: 0.5 },
   grading: { instantSeconds: 1.5 },
   motion: DEFAULT_MOTION,
+  views: {},
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -32,6 +34,7 @@ export async function loadSettings(): Promise<Settings> {
         enabled: raw.motion?.enabled ?? DEFAULT_MOTION.enabled,
         speed: raw.motion?.speed ?? DEFAULT_MOTION.speed,
       },
+      views: raw.views ?? {},
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);

@@ -1,9 +1,9 @@
-import { app, recordAttempt, stateOf } from "../app";
+import { app, persistSettings, recordAttempt, stateOf } from "../app";
 import { makeAttempt, type Attempt, type ItemTiming } from "../attempt";
 import { formatClock, h } from "../dom";
 import { bucketOf, gradeOf } from "../grade";
 import { nav } from "../nav";
-import type { Quiz } from "../quiz/format";
+import type { Item, Quiz } from "../quiz/format";
 import { findMatch, matchesItem } from "../quiz/match";
 import { renderScreen } from "../shell";
 import { shuffled } from "../shuffle";
@@ -75,14 +75,58 @@ function reject(session: Session, input: AnswerBox, idx?: number): void {
   input.select();
 }
 
-function playHeader(session: Session): HTMLElement {
+function playHeader(session: Session, toggle: Node | null = null): HTMLElement {
   return h(
     "header",
     { class: "play-header" },
     h("h1", {}, session.quiz.title),
-    h("div", { class: "status" }, session.clock, session.score,
+    h("div", { class: "status" }, session.clock, session.score, toggle,
       h("button", { class: "quiet", onclick: () => session.finish(true) }, "Give up")),
   );
+}
+
+// Prompt quizzes show as a list (a table, one row per prompt) or as cards.
+// Each quiz remembers its last view; list is the default.
+type View = "cards" | "list";
+
+function viewOf(quiz: Quiz): View {
+  return app.settings.views?.[quiz.id] ?? "list";
+}
+
+function viewToggle(quiz: Quiz, onChange: (v: View) => void): HTMLElement {
+  const buttons = (["list", "cards"] as View[]).map((v) =>
+    h("button", {
+      class: `quiet tiny ${v === viewOf(quiz) ? "active" : ""}`, "data-view": v,
+      onclick: (e: Event) => {
+        (e.currentTarget as HTMLButtonElement).blur();
+        if (v === viewOf(quiz)) return;
+        app.settings.views = { ...app.settings.views, [quiz.id]: v };
+        persistSettings();
+        buttons.forEach((b) => b.classList.toggle("active", b.dataset.view === v));
+        onChange(v);
+      },
+    }, v === "list" ? "List" : "Cards"),
+  );
+  return h("div", { class: "view-toggle" }, ...buttons);
+}
+
+// Table pieces shared by play and results.
+function tableHead(quiz: Quiz): HTMLElement | null {
+  const withPrompt = quiz.mode === "prompt";
+  if (!quiz.columns.length && !quiz.answerLabel && !(withPrompt && quiz.promptLabel)) return null;
+  return h("thead", {}, h("tr", {},
+    withPrompt ? h("th", {}, quiz.promptLabel) : null,
+    ...quiz.columns.map((c) => h("th", {}, c)),
+    h("th", {}, quiz.answerLabel)));
+}
+
+function dataCells(quiz: Quiz, item: Item): HTMLElement[] {
+  return quiz.columns.map((_, k) => h("td", { class: "data" }, item.data[k] ?? ""));
+}
+
+function cardData(item: Item): HTMLElement | null {
+  const values = item.data.filter((v) => v !== "");
+  return values.length ? h("div", { class: "card-data" }, values.join(" · ")) : null;
 }
 
 function answerInput(extraClass = ""): HTMLInputElement {
@@ -118,7 +162,10 @@ export function showPlay(quiz: Quiz): void {
 function playList(quiz: Quiz): void {
   const order = quiz.items.map((_, i) => i);
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
-  const slots = quiz.items.map(() => h("li", { class: "slot" }, " "));
+  // With data columns the quiz is a table (the data are the clues, answers
+  // fill in by row); without, numbered blanks.
+  const asTable = quiz.columns.length > 0;
+  const slots = quiz.items.map(() => asTable ? h("td", { class: "answer-cell slot" }) : h("li", { class: "slot" }, " "));
   const input = answerInput();
 
   function submit(): void {
@@ -138,7 +185,11 @@ function playList(quiz: Quiz): void {
     if (e.key === "Escape") input.value = "";
   });
 
-  renderScreen(h("div", {}, playHeader(session), input, h("ol", { class: "slots" }, ...slots)), { wide: true });
+  const listing = asTable
+    ? h("table", { class: "quiz-table" }, tableHead(quiz),
+        h("tbody", {}, ...quiz.items.map((item, idx) => h("tr", {}, ...dataCells(quiz, item), slots[idx]))))
+    : h("ol", { class: "slots" }, ...slots);
+  renderScreen(h("div", {}, playHeader(session), input, listing), { wide: true });
   input.focus();
 }
 
@@ -149,24 +200,31 @@ function playPrompt(quiz: Quiz): void {
   const shuffle = quiz.kind === "calibration" || stateOf(quiz).status === "proficient";
   const order = shuffle ? shuffled(inOrder) : inOrder;
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
-  const inputs = new Map<number, HTMLTextAreaElement>();
+  const found = (idx: number) => session.foundOrder.includes(idx);
+  // Typed-but-unsubmitted text, kept across a switch of view.
+  const drafts = new Map<number, string>();
+  let inputs = new Map<number, AnswerBox>();
+  let switching = false;
 
-  function nextUnanswered(after: number): HTMLTextAreaElement | null {
+  function nextUnanswered(after: number): AnswerBox | null {
     const pos = order.indexOf(after);
     for (let k = 1; k <= order.length; k++) {
       const idx = order[(pos + k) % order.length];
-      if (!session.foundOrder.includes(idx)) return inputs.get(idx)!;
+      if (!found(idx) && idx !== after) return inputs.get(idx) ?? null;
     }
     return null;
   }
+  const firstUnanswered = () => inputs.get(order.find((idx) => !found(idx)) ?? -1) ?? null;
 
   function submit(idx: number): void {
     const input = inputs.get(idx)!;
     if (input.value.trim() === "") { nextUnanswered(idx)?.focus(); return; }
     if (matchesItem(input.value, quiz.items[idx])) {
       const typed = input.value;
+      drafts.delete(idx);
       // Swap the box for the answer as text, which wraps freely.
       input.replaceWith(h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical));
+      inputs.delete(idx);
       const next = nextUnanswered(idx);
       markFound(session, idx, typed);
       next?.focus();
@@ -175,33 +233,87 @@ function playPrompt(quiz: Quiz): void {
     }
   }
 
-  const cards = order.map((idx) => {
-    const input = cardInput();
+  function box(idx: number, input: AnswerBox): Node {
+    if (found(idx)) return h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical);
+    input.value = drafts.get(idx) ?? "";
+    input.addEventListener("input", () => drafts.set(idx, input.value));
     input.addEventListener("focus", () => {
-      if (!session.foundOrder.includes(idx)) session.timing[idx].focusedMs = session.elapsedMs();
+      // Switching views refocuses the same box; that isn't a new look at the prompt.
+      if (!found(idx) && !switching) session.timing[idx].focusedMs = session.elapsedMs();
     });
-    input.addEventListener("keydown", (e) => {
+    input.addEventListener("keydown", (ev) => {
+      const e = ev as KeyboardEvent;
       if (e.key === "Enter") { e.preventDefault(); submit(idx); }
-      if (e.key === "Escape") input.value = "";
+      if (e.key === "Escape") { input.value = ""; drafts.delete(idx); }
     });
     inputs.set(idx, input);
-    return h("li", { class: "card" }, ...promptNode(quiz, quiz.items[idx]), input);
+    return input;
+  }
+
+  function listing(view: View): HTMLElement {
+    inputs = new Map();
+    if (view === "cards") {
+      return h("ol", { class: "prompt-grid" }, ...order.map((idx) => {
+        const item = quiz.items[idx];
+        return h("li", { class: "card" }, ...promptNode(quiz, item), cardData(item), box(idx, cardInput()));
+      }));
+    }
+    return h("table", { class: "quiz-table" }, tableHead(quiz), h("tbody", {}, ...order.map((idx) => {
+      const item = quiz.items[idx];
+      return h("tr", {},
+        h("td", { class: "prompt-cell" }, ...promptNode(quiz, item)),
+        ...dataCells(quiz, item),
+        h("td", { class: "answer-cell" }, box(idx, answerInput())));
+    })));
+  }
+
+  // Card boxes grow to fit restored text once they're on screen.
+  const fitAll = () => inputs.forEach((el) => { if (el instanceof HTMLTextAreaElement && el.value) el.dispatchEvent(new Event("input")); });
+
+  let current = listing(viewOf(quiz));
+  const toggle = viewToggle(quiz, (v) => {
+    const active = [...inputs].find(([, el]) => el === document.activeElement)?.[0];
+    const next = listing(v);
+    current.replaceWith(next);
+    current = next;
+    fitAll();
+    switching = true;
+    (active !== undefined ? inputs.get(active) : firstUnanswered())?.focus();
+    switching = false;
   });
 
-  renderScreen(h("div", {}, playHeader(session), h("ol", { class: "prompt-grid" }, ...cards)), { wide: true });
+  renderScreen(h("div", {}, playHeader(session, toggle), current), { wide: true });
   inputs.get(order[0])?.focus();
 }
 
 export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
-  const rows = order.map((idx) => {
-    const item = quiz.items[idx];
-    const bucket = bucketOf(attempt, idx, app.cps);
-    const tag = attempt.items[idx].found ? h("span", { class: "muted seconds mono" }, bucket) : null;
-    if (quiz.mode === "prompt") {
-      return h("li", { class: `card ${bucket}` }, ...promptNode(quiz, item), h("div", { class: "card-answer" }, item.canonical, " ", tag));
+  const tag = (idx: number) => attempt.items[idx].found ? h("span", { class: "muted seconds mono" }, bucketOf(attempt, idx, app.cps)) : null;
+
+  function listing(view: View): HTMLElement {
+    if (quiz.mode === "prompt" && view === "cards") {
+      return h("ol", { class: "prompt-grid" }, ...order.map((idx) => {
+        const item = quiz.items[idx];
+        return h("li", { class: `card ${bucketOf(attempt, idx, app.cps)}` },
+          ...promptNode(quiz, item), cardData(item), h("div", { class: "card-answer" }, item.canonical, " ", tag(idx)));
+      }));
     }
-    return h("li", { class: bucket }, item.canonical, " ", tag);
-  });
+    if (quiz.mode === "prompt" || quiz.columns.length) {
+      return h("table", { class: "quiz-table" }, tableHead(quiz), h("tbody", {}, ...order.map((idx) => {
+        const item = quiz.items[idx];
+        return h("tr", { class: bucketOf(attempt, idx, app.cps) },
+          quiz.mode === "prompt" ? h("td", { class: "prompt-cell" }, ...promptNode(quiz, item)) : null,
+          ...dataCells(quiz, item),
+          h("td", { class: "answer-cell" }, item.canonical, " ", tag(idx)));
+      })));
+    }
+    return h("ol", { class: "slots" }, ...order.map((idx) =>
+      h("li", { class: bucketOf(attempt, idx, app.cps) }, quiz.items[idx].canonical, " ", tag(idx))));
+  }
+
+  let current = listing(viewOf(quiz));
+  const toggle = quiz.mode === "prompt"
+    ? viewToggle(quiz, (v) => { const next = listing(v); current.replaceWith(next); current = next; })
+    : null;
 
   const state = stateOf(quiz);
   const status: Node[] = [
@@ -213,13 +325,14 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
     status.push(h("span", { class: "muted mono" }, `grade ${gradeOf(attempt, app.cps).toFixed(2)}`));
     status.push(h("span", { class: "muted" }, `next ${dueLabel(state)}`));
   }
+  if (toggle) status.push(toggle);
 
   renderScreen(
     h(
       "div",
       {},
       h("header", {}, h("h1", {}, quiz.title), h("div", { class: "status" }, ...status)),
-      quiz.mode === "prompt" ? h("ol", { class: "prompt-grid" }, ...rows) : h("ol", { class: "slots" }, ...rows),
+      current,
       h(
         "div",
         { class: "actions" },

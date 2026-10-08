@@ -59,6 +59,28 @@ Capital of France :: Paris
     expect(() => parseQuiz(`mode: prompt\n---\nno separator\n`)).toThrow(QuizFormatError);
   });
 
+  it("parses per-item data columns", () => {
+    const q = parseQuiz(`mode: prompt
+columns: Years, Party
+answer-label: President
+---
+1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
+9th :: William Henry Harrison ;; 1841
+`);
+    expect(q.columns).toEqual(["Years", "Party"]);
+    expect(q.answerLabel).toBe("President");
+    expect(q.promptLabel).toBe("");
+    expect(q.items[0].aliases).toEqual(["Washington"]);
+    expect(q.items[0].data).toEqual(["1789–1797", "Unaffiliated"]);
+    expect(q.items[1].data).toEqual(["1841", ""]);
+    expect(parseQuiz(`columns: Year\n---\nHamlet ;; 1601\n`).items[0]).toMatchObject({ canonical: "Hamlet", data: ["1601"] });
+    expect(parseQuiz(`---\nX\n`).items[0].data).toEqual([]);
+  });
+
+  it("rejects more data values than columns", () => {
+    expect(() => parseQuiz(`columns: Year\n---\nX ;; 1 ;; 2\n`)).toThrow(/2 data values but 1 column/);
+  });
+
   it("rejects an empty quiz", () => {
     expect(() => parseQuiz(`title: empty\n---\n`)).toThrow(/no items/);
   });
