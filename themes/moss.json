@@ -24,5 +24,7 @@
   "bannerY": 50,
   "bannerEdge": "dither",
   "bannerEdgeSize": 35,
-  "bannerEdgePos": 68
+  "bannerEdgePos": 68,
+  "panel": 0,
+  "panelBlur": 0
 }

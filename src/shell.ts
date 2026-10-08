@@ -14,30 +14,42 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "settings", label: "Settings" },
 ];
 
-function bannerNode(): HTMLElement {
+// The banner art lives in a backdrop layer behind the page, so its edge can
+// sit anywhere from 30% of the banner's height down into the body (300%).
+function backdropNode(): HTMLElement {
   const theme = activeTheme();
-  const wrap = h("div", { class: "banner", "data-tauri-drag-region": "" });
+  const bannerH = Number(theme.bannerHeight);
+  const pos = Math.max(30, Math.min(300, Number(theme.bannerEdgePos ?? 100)));
+  const artH = (bannerH * pos) / 100;
   const art = h("div", { class: "banner-art" });
+  // Images cover whichever is taller, the banner or the art; when the edge
+  // is raised they are cut off rather than squashed.
+  art.style.height = `${artH}px`;
+  art.style.setProperty("--art-height", `${Math.max(artH, bannerH)}px`);
   const path = String(theme.bannerImage ?? "");
   if (path) {
     const img = bannerImage("");
     asset(app.root, path).then((url) => { img.src = url; }, () => img.replaceWith(defaultBanner()));
     art.append(img);
   } else {
-    art.append(defaultBanner());
+    // The drawn landscape keeps the banner's proportions; below it the
+    // front hill's color continues down to the edge.
+    const svg = defaultBanner();
+    svg.style.height = `${bannerH}px`;
+    art.style.background = "var(--banner-hills)";
+    art.append(svg);
   }
-  // The art occupies the top `pos`% of the banner; below it is page color.
-  // Images keep the full banner's size and are cut off, not squashed.
-  const pos = Math.max(30, Math.min(100, Number(theme.bannerEdgePos ?? 100)));
-  art.style.height = `${pos}%`;
-  art.style.setProperty("--art-scale", String(100 / pos));
-  const artHeight = (Number(theme.bannerHeight) * pos) / 100;
-  applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), artHeight);
-  wrap.append(art);
+  applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), artH);
+  return h("div", { class: "backdrop" }, art);
+}
+
+function bannerNode(): HTMLElement {
   const due = dueCount();
   const now = new Date();
   const dateLabel = `${now.toLocaleDateString("en-GB", { weekday: "long" })} ${now.getDate()} ${now.toLocaleDateString("en-GB", { month: "long" })}`;
-  wrap.append(
+  return h(
+    "div",
+    { class: "banner", "data-tauri-drag-region": "" },
     h(
       "div",
       { class: "banner-text" },
@@ -45,11 +57,11 @@ function bannerNode(): HTMLElement {
       h("div", { class: "banner-sub" }, `${dateLabel} · ${due} due`),
     ),
   );
-  return wrap;
 }
 
-// Redraw just the banner (for live edge and image changes in Settings).
+// Redraw the banner and its art (for live changes in Settings).
 export function refreshBanner(): void {
+  document.querySelector(".backdrop")?.replaceWith(backdropNode());
   document.querySelector(".banner")?.replaceWith(bannerNode());
 }
 
@@ -69,6 +81,7 @@ export function renderHome(tab: Tab, content: Node): void {
   const root = document.getElementById("app")!;
   clear(root);
   root.append(
+    backdropNode(),
     bannerNode(),
     h(
       "nav",

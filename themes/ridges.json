@@ -24,5 +24,7 @@
   "bannerHeight": 260,
   "bannerEdge": "rule",
   "bannerEdgeSize": 10,
-  "bannerEdgePos": 100
+  "bannerEdgePos": 100,
+  "panel": 0,
+  "panelBlur": 0
 }

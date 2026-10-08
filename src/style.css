@@ -10,6 +10,7 @@
   --font: "Atkinson Hyperlegible Next", system-ui, sans-serif;
   --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
   --banner-height: 240px; --banner-y: 50%;
+  --panel: 0%; --panel-blur: 0px;
   --u: calc(8px * var(--space));          /* spacing unit */
   --titlebar: 28px;                        /* macOS overlay title bar */
 }
@@ -21,7 +22,8 @@ body {
   color: var(--fg); background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
-#app { min-height: 100%; display: flex; flex-direction: column; }
+#app { min-height: 100%; display: flex; flex-direction: column; position: relative; }
+#app > :not(.backdrop) { position: relative; z-index: 1; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .muted { color: var(--fg-3); }
 .small { font-size: 0.875em; }
@@ -30,18 +32,17 @@ body {
 
 /* ---- shell ---- */
 .drag-strip { height: var(--titlebar); flex: none; }
-.banner {
-  position: relative; height: var(--banner-height); overflow: hidden; flex: none;
-  background: var(--bg);
-}
-.banner-art { position: absolute; top: 0; left: 0; right: 0; height: 100%; overflow: hidden; pointer-events: none; }
+.banner { height: var(--banner-height); flex: none; }
+.backdrop { position: absolute; top: 0; left: 0; right: 0; z-index: 0; pointer-events: none; }
+.banner-art { position: absolute; top: 0; left: 0; right: 0; overflow: hidden; pointer-events: none; }
 .banner-art.edge-rule { border-bottom: 2px solid var(--accent); }
 .edge-hills { position: absolute; left: 0; bottom: -1px; width: 100%; display: block; }
 .banner-svg, .banner-img {
-  position: absolute; top: 0; left: 0; width: 100%; height: calc(100% * var(--art-scale, 1));
+  position: absolute; top: 0; left: 0; width: 100%; height: var(--art-height, 100%);
   display: block; object-fit: cover; pointer-events: none;
 }
 .banner-img { object-position: 50% var(--banner-y, 50%); }
+.banner { position: relative; }
 .banner-text {
   position: absolute; left: calc(var(--u) * 5); bottom: calc(var(--u) * 2); pointer-events: none;
   /* Halo in the page color keeps the title legible over busy art and edges. */
@@ -66,6 +67,13 @@ body {
   flex: 1; width: 100%; max-width: 820px; margin: 0 auto;
   padding: calc(var(--u) * 3) calc(var(--u) * 5) calc(var(--u) * 6);
 }
+/* Optional backing behind page content, for art that runs into the body. */
+.tabs + .page {
+  background: color-mix(in srgb, var(--bg) var(--panel), transparent);
+  backdrop-filter: blur(var(--panel-blur)); -webkit-backdrop-filter: blur(var(--panel-blur));
+  border-radius: var(--radius) var(--radius) 0 0; margin-top: calc(var(--u) * 2);
+}
+.tab { text-shadow: 0 0 2px var(--bg), 0 0 10px var(--bg); }
 .page.wide { max-width: 1100px; }
 
 .status-line {
