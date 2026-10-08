@@ -4,7 +4,9 @@ import type { Settings } from "./settings";
 
 export type Message =
   | { kind: "settings"; settings: Settings }   // live settings from the settings window
-  | { kind: "themes" };                        // a preset was saved; reload the list
+  | { kind: "themes" }                         // a preset was saved or deleted; reload the list
+  | { kind: "history" }                        // the attempt log changed on disk; reload it
+  | { kind: "play"; quizId: string };          // play a quiz in the main window
 
 const inTauri = "__TAURI_INTERNALS__" in window;
 const channel = inTauri ? null : new BroadcastChannel("tembo");

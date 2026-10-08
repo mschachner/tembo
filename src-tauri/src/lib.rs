@@ -213,6 +213,24 @@ fn read_attempts() -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
+/// Move the attempt log aside as `attempts.backup-<unix seconds>.jsonl`, so
+/// clearing history can be undone by renaming it back.
+#[tauri::command]
+fn clear_attempts() -> Result<String, String> {
+    let dir = root().join("data");
+    let log = dir.join("attempts.jsonl");
+    if !log.exists() {
+        return Ok(String::new());
+    }
+    let secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|e| e.to_string())?
+        .as_secs();
+    let backup = dir.join(format!("attempts.backup-{secs}.jsonl"));
+    fs::rename(&log, &backup).map_err(|e| format!("{}: {e}", log.display()))?;
+    Ok(backup.to_string_lossy().into_owned())
+}
+
 #[tauri::command]
 fn append_attempt(line: String) -> Result<(), String> {
     let dir = root().join("data");
@@ -231,7 +249,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_quizzes, read_asset, read_attempts, append_attempt,
             root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
-            list_drafts, approve_draft, new_draft, open_path
+            list_drafts, approve_draft, new_draft, open_path, clear_attempts
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

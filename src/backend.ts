@@ -80,3 +80,9 @@ export function newDraft(): Promise<string> {
 export function openPath(path: string): Promise<void> {
   return invoke("open_path", { path });
 }
+
+// Moves data/attempts.jsonl to a dated backup; returns the backup's path
+// ("" if there was no log).
+export function clearAttempts(): Promise<string> {
+  return invoke<string>("clear_attempts");
+}

@@ -2,7 +2,7 @@
 import { listQuizzes, listThemes, readAsset, readAttempts, rootDir, type ThemeFile } from "./backend";
 import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
-import { DEFAULT_CPS, gradeOf, typingSpeed } from "./grade";
+import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
 import { belongsTo, parseLog, type AnyAttempt } from "./log";
 import { parseQuiz, type Quiz } from "./quiz/format";
 import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
@@ -32,9 +32,14 @@ export async function loadAll(): Promise<void> {
   await loadThemes();
   applyActiveTheme();
   configureSound(app.settings.sound.enabled, app.settings.sound.volume);
+  setInstantSeconds(app.settings.grading.instantSeconds);
+  await reloadHistory();
+  await loadQuizzes();
+}
+
+export async function reloadHistory(): Promise<void> {
   app.attempts = parseLog(await readAttempts());
   app.cps = typingSpeed(app.attempts) ?? DEFAULT_CPS;
-  await loadQuizzes();
 }
 
 export async function loadThemes(): Promise<void> {
@@ -72,6 +77,7 @@ export function applyActiveTheme(): void {
 
 export function persistSettings(): void {
   saveSettings(app.settings);
+  setInstantSeconds(app.settings.grading.instantSeconds);
   configureSound(app.settings.sound.enabled, app.settings.sound.volume);
   void publish({ kind: "settings", settings: app.settings });
 }
@@ -79,6 +85,7 @@ export function persistSettings(): void {
 // Settings arriving from the other window.
 export function adoptSettings(settings: Settings): void {
   app.settings = settings;
+  setInstantSeconds(settings.grading.instantSeconds);
   applyActiveTheme();
   configureSound(settings.sound.enabled, settings.sound.volume);
 }

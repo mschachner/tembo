@@ -4,7 +4,7 @@ import { parseQuiz } from "../quiz/format";
 import { tembo } from "../banner";
 import { h } from "../dom";
 import { median } from "../stats";
-import { itemLatency } from "../grade";
+import { INSTANT_SECONDS, itemLatency } from "../grade";
 import { nav, type Tab } from "../nav";
 import { isCalibration } from "../log";
 import { isDue, localDate } from "../schedule";
@@ -158,7 +158,7 @@ function statsView(): Node {
     for (let i = 0; i < a.items.length; i++) {
       const lat = itemLatency(a, i, app.cps);
       if (lat === null) buckets.missed++;
-      else { latencies.push(lat); if (lat < 1.5) buckets.instant++; else buckets.slow++; }
+      else { latencies.push(lat); if (lat < INSTANT_SECONDS) buckets.instant++; else buckets.slow++; }
     }
   }
   const byDay = new Map<string, { attempts: number; cleared: number }>();

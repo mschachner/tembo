@@ -1,4 +1,4 @@
-import { adoptSettings, applyActiveTheme, loadAll, loadThemes } from "./app";
+import { adoptSettings, app, applyActiveTheme, loadAll, loadThemes, reloadHistory } from "./app";
 import { bindSettingsShortcut, subscribe } from "./bus";
 import { h } from "./dom";
 import { nav } from "./nav";
@@ -48,6 +48,12 @@ if (isSettingsWindow) {
           applyActiveTheme();
           const tab = onHome();
           if (tab) nav.home(tab);
+        } else if (msg.kind === "history") {
+          await reloadHistory();
+          nav.home(onHome() ?? "today");
+        } else if (msg.kind === "play") {
+          const quiz = app.quizzes.find((q) => q.id === msg.quizId);
+          if (quiz) nav.play(quiz);
         }
       });
     })

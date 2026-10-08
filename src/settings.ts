@@ -5,12 +5,14 @@ export interface Settings {
   preset: string;            // name of the theme preset in themes/
   overrides: Theme;          // per-variable overrides on top of the preset
   sound: { enabled: boolean; volume: number };
+  grading: { instantSeconds: number };   // latency below this counts as instant
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   preset: "wheat",
   overrides: {},
   sound: { enabled: true, volume: 0.5 },
+  grading: { instantSeconds: 1.5 },
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -22,6 +24,7 @@ export async function loadSettings(): Promise<Settings> {
       preset: raw.preset ?? DEFAULT_SETTINGS.preset,
       overrides: raw.overrides ?? {},
       sound: { ...DEFAULT_SETTINGS.sound, ...(raw.sound ?? {}) },
+      grading: { ...DEFAULT_SETTINGS.grading, ...(raw.grading ?? {}) },
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);

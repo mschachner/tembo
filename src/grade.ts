@@ -4,7 +4,10 @@ import type { AnyAttempt } from "./log";
 // An item's recall latency is the time spent on it minus the time its
 // answer would take to type at the calibrated speed. Items under
 // INSTANT_SECONDS are "instant"; the rest are "slow"; unfound are "missed".
-export const INSTANT_SECONDS = 1.5;
+export let INSTANT_SECONDS = 1.5;
+export function setInstantSeconds(x: number): void {
+  if (Number.isFinite(x) && x > 0) INSTANT_SECONDS = x;
+}
 // Used until a calibration attempt exists. 5 chars/s ≈ 60 wpm.
 export const DEFAULT_CPS = 5;
 

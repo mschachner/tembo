@@ -1,5 +1,5 @@
-import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings } from "../app";
-import { deleteTheme, writeTheme } from "../backend";
+import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings, reloadHistory } from "../app";
+import { clearAttempts, deleteTheme, openPath, writeTheme } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
 import { refreshBanner } from "../shell";
@@ -97,8 +97,29 @@ function control(spec: VarSpec): HTMLElement {
 }
 
 const openGroups = new Set<string>();
+let settingsTab: "appearance" | "app" = "appearance";
 
 export function settingsView(): Node {
+  const tabs = h(
+    "nav",
+    { class: "settings-tabs" },
+    ...([["appearance", "Appearance"], ["app", "App"]] as const).map(([id, label]) =>
+      h("button", {
+        class: `tab ${settingsTab === id ? "active" : ""}`,
+        onclick: () => { settingsTab = id; rerender(); },
+      }, label),
+    ),
+  );
+  return h(
+    "div",
+    { class: `settings ${Object.keys(app.settings.overrides).length ? "modified" : ""}` },
+    h("h1", { class: "settings-title" }, "Settings"),
+    tabs,
+    ...(settingsTab === "appearance" ? appearanceSections() : appSections()),
+  );
+}
+
+function appearanceSections(): Node[] {
   const presetButtons = [...app.presets.keys()].map((name) => {
     const del = h("button", { class: "preset-delete", title: `Delete ${name}`, "aria-label": `Delete ${name}` }, "×");
     // Two clicks to delete: the first arms the button for three seconds.
@@ -150,13 +171,6 @@ export function settingsView(): Node {
     rerender();
   } }, "Save as preset");
 
-  const soundToggle = h("input", { type: "checkbox" });
-  soundToggle.checked = app.settings.sound.enabled;
-  soundToggle.addEventListener("change", () => { app.settings.sound.enabled = soundToggle.checked; persistSettings(); });
-  const volume = h("input", { type: "range", min: 0, max: 1, step: 0.05, value: String(app.settings.sound.volume) });
-  volume.addEventListener("input", () => { app.settings.sound.volume = Number(volume.value); persistSettings(); });
-  volume.addEventListener("change", () => sounds.accept());
-
   const groupsOf = (keys: string[]) => keys.map((k) => THEME_VARS.find((v) => v.key === k)!).map(control);
 
   // A collapsible group; which ones are open survives redraws.
@@ -167,10 +181,7 @@ export function settingsView(): Node {
     return h("section", {}, d);
   };
 
-  return h(
-    "div",
-    { class: `settings ${Object.keys(app.settings.overrides).length ? "modified" : ""}` },
-    h("h1", { class: "settings-title" }, "Settings"),
+  return [
     h(
       "section",
       {},
@@ -184,12 +195,73 @@ export function settingsView(): Node {
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
     group("Fonts", ...groupsOf(["font", "fontSize", "fontMono", "monoScale", "titleFont", "titleSize", "titleWeight", "titleTracking", "headingFont", "headingSize", "labelSize"])),
     group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
-    group("Sound",
+  ];
+}
+
+function appSections(): Node[] {
+  const soundToggle = h("input", { type: "checkbox" });
+  soundToggle.checked = app.settings.sound.enabled;
+  soundToggle.addEventListener("change", () => { app.settings.sound.enabled = soundToggle.checked; persistSettings(); });
+  const volume = h("input", { type: "range", min: 0, max: 1, step: 0.05, value: String(app.settings.sound.volume) });
+  volume.addEventListener("input", () => { app.settings.sound.volume = Number(volume.value); persistSettings(); });
+  volume.addEventListener("change", () => sounds.accept());
+
+  // Grading
+  const thr = app.settings.grading.instantSeconds;
+  const thrReadout = h("span", { class: "mono small" }, `${thr.toFixed(1)}s`);
+  const thrSlider = h("input", { type: "range", min: 0.5, max: 4, step: 0.1, value: String(thr) });
+  thrSlider.addEventListener("input", () => {
+    app.settings.grading.instantSeconds = Number(thrSlider.value);
+    thrReadout.textContent = `${Number(thrSlider.value).toFixed(1)}s`;
+    persistSettings();
+  });
+  const calib = app.attempts.filter((a) => a.version === 2 && a.kind === "calibration").at(-1);
+  const calibQuiz = app.quizzes.find((q) => q.kind === "calibration");
+
+  // Danger zone: two clicks, the first arms the button for four seconds.
+  const clearButton = h("button", { class: "danger" }, "Clear all history");
+  const clearStatus = h("span", { class: "muted small" });
+  let armed = 0;
+  clearButton.addEventListener("click", async () => {
+    if (!armed) {
+      clearButton.classList.add("armed"); clearButton.textContent = "Click again to clear";
+      armed = window.setTimeout(() => { armed = 0; clearButton.classList.remove("armed"); clearButton.textContent = "Clear all history"; }, 4000);
+      return;
+    }
+    window.clearTimeout(armed); armed = 0;
+    try {
+      const backup = await clearAttempts();
+      await reloadHistory();
+      void publish({ kind: "history" });
+      clearButton.classList.remove("armed"); clearButton.textContent = "Clear all history";
+      clearStatus.textContent = backup ? `Cleared. Backup: ${backup.split("/").pop()}` : "Cleared (there was no history).";
+    } catch (e) {
+      clearStatus.textContent = String(e);
+    }
+  });
+
+  return [
+    h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
       h("div", { class: "control" }, h("label", {}, "Volume"), volume),
       h("div", { class: "control" }, h("label", {}, "Preview"),
         h("button", { class: "quiet tiny", onclick: sounds.accept }, "accept"),
         h("button", { class: "quiet tiny", onclick: sounds.reject }, "reject"),
         h("button", { class: "quiet tiny", onclick: sounds.complete }, "complete"))),
-  );
+    h("section", {}, h("h2", {}, "Grading"),
+      h("div", { class: "control" }, h("label", {}, "Instant below"), thrSlider, thrReadout),
+      h("div", { class: "control" }, h("label", {}, "Typing speed"),
+        h("span", { class: "mono" }, `${app.cps.toFixed(1)} ch/s`),
+        h("span", { class: "muted small" }, calib ? `calibrated ${new Date(calib.endedAt).toLocaleDateString("en-GB")}` : "not calibrated"),
+        calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "calibrate now") : null)),
+    h("section", {}, h("h2", {}, "Files"),
+      h("div", { class: "control" }, h("label", {}, "Location"), h("span", { class: "mono small path" }, app.root)),
+      h("div", { class: "control" }, h("label", {}, "Open"),
+        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/quizzes`) }, "quizzes"),
+        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/data`) }, "data"),
+        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/themes`) }, "themes"))),
+    h("section", { class: "danger-zone" }, h("h2", {}, "Danger zone"),
+      h("div", { class: "control" }, h("label", {}, "History"), clearButton, clearStatus),
+      h("p", { class: "muted small" }, "Moves data/attempts.jsonl to a dated backup in the same folder and starts an empty log. Every quiz becomes new.")),
+  ];
 }

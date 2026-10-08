@@ -46,7 +46,11 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       return (await load()) as T;
     }
     case "read_attempts":
-      return attempts as T;
+      return (localStorage.getItem("mock-attempts") ?? attempts) as T;
+    case "clear_attempts":
+      attempts = "";
+      localStorage.setItem("mock-attempts", "");
+      return "/mock/data/attempts.backup.jsonl" as T;
     case "append_attempt":
       attempts += `${args.line}\n`;
       return undefined as T;
