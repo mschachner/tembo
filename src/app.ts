@@ -9,6 +9,7 @@ import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule"
 import { loadSettings, saveSettings, type Settings } from "./settings";
 import { configureSound } from "./sound";
 import { applyTheme, FALLBACK_THEME, parseTheme, type Theme } from "./theme";
+import { publish } from "./bus";
 
 export interface Entry {
   quiz: Quiz;
@@ -61,7 +62,7 @@ export async function loadQuizzes(): Promise<void> {
 }
 
 export function activeTheme(): Theme {
-  const preset = app.presets.get(app.settings.preset) ?? app.presets.values().next().value ?? FALLBACK_THEME;
+  const preset = app.presets.get(app.settings.preset) ?? app.presets.get("wheat") ?? app.presets.values().next().value ?? FALLBACK_THEME;
   return { ...FALLBACK_THEME, ...preset, ...app.settings.overrides };
 }
 
@@ -72,6 +73,14 @@ export function applyActiveTheme(): void {
 export function persistSettings(): void {
   saveSettings(app.settings);
   configureSound(app.settings.sound.enabled, app.settings.sound.volume);
+  void publish({ kind: "settings", settings: app.settings });
+}
+
+// Settings arriving from the other window.
+export function adoptSettings(settings: Settings): void {
+  app.settings = settings;
+  applyActiveTheme();
+  configureSound(settings.sound.enabled, settings.sound.volume);
 }
 
 export function attemptsOf(quiz: Quiz): AnyAttempt[] {

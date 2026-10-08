@@ -3,11 +3,11 @@ import { writeTheme } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
 import { refreshBanner } from "../shell";
+import { publish } from "../bus";
 import { sounds } from "../sound";
 import { THEME_VARS, type VarSpec } from "../theme";
 
 function rerender(): void {
-  // Banner and status line read the theme too, so redraw the whole tab.
   nav.home("settings");
 }
 
@@ -98,6 +98,7 @@ export function settingsView(): Node {
     app.settings.preset = name;
     app.settings.overrides = {};
     persistSettings();
+    void publish({ kind: "themes" });
     rerender();
   } }, "Save as preset");
 

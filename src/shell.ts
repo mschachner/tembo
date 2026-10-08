@@ -5,6 +5,7 @@ import { bannerImage, defaultBanner } from "./banner";
 import { clear, h } from "./dom";
 import { applyEdge } from "./edge";
 import { nav, type Tab } from "./nav";
+import { openSettingsWindow } from "./bus";
 import { localDate } from "./schedule";
 
 const TABS: { id: Tab; label: string }[] = [
@@ -77,7 +78,10 @@ function tabsNode(tab: Tab): HTMLElement {
     "nav",
     { class: "tabs" },
     ...TABS.map((t) =>
-      h("button", { class: `tab ${t.id === tab ? "active" : ""}`, onclick: () => nav.home(t.id) }, t.label),
+      h("button", {
+        class: `tab ${t.id === tab ? "active" : ""}`,
+        onclick: () => (t.id === "settings" ? openSettingsWindow(() => nav.home("settings")) : nav.home(t.id)),
+      }, t.label),
     ),
   );
 }
@@ -108,11 +112,32 @@ function tabBarNode(tab: Tab): HTMLElement {
   return h("div", { class: "tabs-wrap" }, style === "card" ? null : tabsNode(tab));
 }
 
-// Redraw the banner and its art (for live changes in Settings).
+// Redraw the banner and its art (for live changes in Settings). No-op on
+// screens without a banner.
 export function refreshBanner(): void {
+  if (!document.querySelector(".backdrop")) return;
   document.querySelector(".backdrop")?.replaceWith(backdropNode());
   document.querySelector(".banner")?.replaceWith(bannerNode(currentTab));
   document.querySelector(".tabs-wrap")?.replaceWith(tabBarNode(currentTab));
+}
+
+export function refreshStatus(): void {
+  document.querySelector(".status-line")?.replaceWith(statusLine());
+}
+
+// Is the home screen showing (as opposed to play, results or detail)?
+export function onHome(): Tab | null {
+  return document.querySelector(".backdrop") ? currentTab : null;
+}
+
+// The settings window: a drag strip and the settings page, nothing else.
+export function renderSettingsWindow(content: Node): void {
+  const root = document.getElementById("app")!;
+  clear(root);
+  root.append(
+    h("div", { class: "drag-strip", "data-tauri-drag-region": "" }),
+    h("main", { class: "page settings-window" }, content),
+  );
 }
 
 function statusLine(): HTMLElement {

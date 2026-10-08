@@ -8,7 +8,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  preset: "october",
+  preset: "wheat",
   overrides: {},
   sound: { enabled: true, volume: 0.5 },
 };

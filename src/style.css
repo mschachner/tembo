@@ -148,7 +148,17 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .entry .play { padding: calc(var(--u) * 0.5) calc(var(--u) * 1.5); }
 .stamp { color: var(--fg-3); display: inline-flex; }
 
-.empty { display: flex; flex-direction: column; align-items: center; gap: var(--u); padding: calc(var(--u) * 4) 0; color: var(--fg-3); }
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--u); padding: calc(var(--u) * 3) 0; color: var(--fg-3); }
+/* The empty state is not one big plate: the elephant floats, and the label
+   and buttons each get a small one. */
+.page > div > .empty { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.empty .empty-title, .empty .actions {
+  background: color-mix(in srgb, var(--bg) var(--plate), transparent);
+  backdrop-filter: blur(var(--plate-blur)); -webkit-backdrop-filter: blur(var(--plate-blur));
+  border-radius: var(--radius); padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5);
+}
+.empty .actions { margin: 0; }
+.empty .tembo-mark { filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--bg) 60%, transparent)); }
 .empty-slot:empty { display: none; }
 
 /* ---- tables ---- */
@@ -214,3 +224,7 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 
 .banner-img { transition: opacity 0.3s ease; }
 .banner-img.entering { opacity: 0; }
+
+/* ---- settings window ---- */
+.settings-window { max-width: none; padding-top: calc(var(--u) * 1); }
+.settings-window .control label { width: 170px; }

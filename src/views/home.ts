@@ -202,6 +202,6 @@ export async function showHome(tab: Tab = "today"): Promise<void> {
     tab === "today" ? todayView(today)
     : tab === "library" ? libraryView(today)
     : tab === "stats" ? statsView()
-    : settingsView();
+    : settingsView(); // reachable only if the settings window can't open
   renderHome(tab, content);
 }
