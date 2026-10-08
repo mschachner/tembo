@@ -35,8 +35,6 @@ body {
 .banner { height: var(--banner-height); flex: none; }
 .backdrop { position: absolute; top: 0; left: 0; right: 0; z-index: 0; pointer-events: none; }
 .banner-art { position: absolute; top: 0; left: 0; right: 0; overflow: hidden; pointer-events: none; }
-.banner-art.edge-rule { border-bottom: 2px solid var(--accent); }
-.edge-hills { position: absolute; left: 0; bottom: -1px; width: 100%; display: block; }
 .banner-svg, .banner-img {
   position: absolute; top: 0; left: 0; width: 100%; height: var(--art-height, 100%);
   display: block; object-fit: cover; pointer-events: none;

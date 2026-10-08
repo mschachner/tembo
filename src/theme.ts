@@ -2,8 +2,6 @@
 // assigning each; presets live in themes/*.json, the active preset and any
 // overrides in data/settings.json.
 
-import { EDGES } from "./edge";
-
 export type VarKind = "color" | "px" | "pct" | "scale" | "text" | "image" | "choice";
 
 export interface VarSpec {
@@ -44,9 +42,9 @@ export const THEME_VARS: VarSpec[] = [
   { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path from repo root)" },
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
   { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
-  { key: "bannerEdge", css: "", kind: "choice", label: "Banner edge", options: EDGES },
-  { key: "bannerEdgeSize", css: "", kind: "pct", label: "Banner edge size", min: 2, max: 100, step: 1 },
-  { key: "bannerEdgePos", css: "", kind: "pct", label: "Banner edge position", min: 30, max: 300, step: 1 },
+  { key: "bannerEdgePos", css: "", kind: "pct", label: "Edge position", min: 30, max: 300, step: 1 },
+  { key: "edgeSmooth", css: "", kind: "pct", label: "Edge smoothing", min: 0, max: 100, step: 1 },
+  { key: "edgeDither", css: "", kind: "pct", label: "Edge dithering", min: 0, max: 100, step: 1 },
 ];
 
 export type Theme = Record<string, string | number>;
@@ -56,7 +54,7 @@ export const FALLBACK_THEME: Theme = {
   accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   bannerSky: "#e9c9a3", bannerHills: "#a65b32", bannerSun: "#f0a24a", bannerFigure: "#3a2416",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdge: "fade", bannerEdgeSize: 45, bannerEdgePos: 100, plate: 85, plateBlur: 10, tabs: "pill",
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill",
 };
 
 export function cssValue(spec: VarSpec, value: string | number): string {

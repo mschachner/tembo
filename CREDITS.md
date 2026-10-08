@@ -9,9 +9,10 @@ Banner photos in `banners/` are from [Unsplash](https://unsplash.com), used unde
 
 | file | photographer | source |
 |---|---|---|
-| meadow.jpg | Ciocan Ciprian | [Unsplash](https://unsplash.com/photos/a-field-with-a-hill-in-the-background-lxFrV4eqeBk) |
-| dusk.jpg | Jay Alexander | [Unsplash](https://unsplash.com/photos/a-scenic-view-of-a-hillside-with-trees-in-the-foreground-12RICHRtb_A) |
 | wheat.jpg | Federico Respini | [Unsplash](https://unsplash.com/photos/brown-field-near-tree-during-daytime-sYffw0LNr7s) |
 | ridges.jpg | Karthik B K | [Unsplash](https://unsplash.com/photos/a-view-of-a-mountain-range-at-sunset-6yzwQhC1bJE) |
 | ember.jpg | Artem Sapegin | [Unsplash](https://unsplash.com/photos/mountains-and-tree-range-during-golden-hour-8c6eS43iq1o) |
-| savanna.jpg | Richard Ringel | [Unsplash](https://unsplash.com/photos/low-sun-over-dark-hillside-wT1jNzEQWO8) |
+| clover.jpg | Spencer DeMera | [Unsplash](https://unsplash.com/photos/two-trees-on-a-grassy-hill-with-mountains-in-the-background-PFmGdAl8AL4) |
+| pine.jpg | Dimitris Poulos | [Unsplash](https://unsplash.com/photos/a-forest-filled-with-lots-of-green-trees-xyh1DLyl4EQ) |
+| heather.jpg | Marek Piwnicki | [Unsplash](https://unsplash.com/photos/silhouette-of-mountains-during-sunset-LGgKrtjNsoI) |
+| lilac.jpg | Hugo L. Casanova | [Unsplash](https://unsplash.com/photos/mountain-range-under-clear-blue-sky-ualRCC1D3YA) |
