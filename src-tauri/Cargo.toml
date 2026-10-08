@@ -3,6 +3,11 @@ name = "tembo"
 version = "0.1.0"
 edition = "2021"
 
+# The executable is "Tembo" so the Dock shows a capitalized name in dev too.
+[[bin]]
+name = "Tembo"
+path = "src/main.rs"
+
 [lib]
 name = "tembo_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
