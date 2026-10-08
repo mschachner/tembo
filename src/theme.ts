@@ -43,8 +43,8 @@ export const THEME_VARS: VarSpec[] = [
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
   { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
   { key: "bannerEdgePos", css: "", kind: "pct", label: "Edge position", min: 30, max: 300, step: 1 },
-  { key: "edgeSmooth", css: "", kind: "pct", label: "Edge smoothing", min: 0, max: 100, step: 1 },
-  { key: "edgeDither", css: "", kind: "pct", label: "Edge dithering", min: 0, max: 100, step: 1 },
+  { key: "edgeSmooth", css: "", kind: "pct", label: "Edge smoothing height", min: 0, max: 100, step: 1 },
+  { key: "edgeDither", css: "", kind: "pct", label: "Edge dithering height", min: 0, max: 100, step: 1 },
 ];
 
 export type Theme = Record<string, string | number>;

@@ -26,6 +26,6 @@
   "plate": 85,
   "plateBlur": 10,
   "tabs": "pill",
-  "edgeSmooth": 30,
-  "edgeDither": 60
+  "edgeSmooth": 10,
+  "edgeDither": 25
 }
