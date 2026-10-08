@@ -437,7 +437,9 @@ input, textarea,
 }
 
 /* theme changes */
-[data-anim-themes="on"] :is(body, .page > div > *, .tabs, .banner-text, .status-line, input, .card, .entry, h1, h2, td, th) {
+/* data-theme-ready is set after the first theme is applied, so a window
+   opens in its theme instead of fading in from the stylesheet defaults. */
+[data-anim-themes="on"][data-theme-ready] :is(body, .page > div > *, .tabs, .banner-text, .status-line, input, .card, .entry, h1, h2, td, th) {
   transition-property: background-color, color, border-color;
   transition-duration: calc(360ms * var(--dur));
 }

@@ -85,6 +85,11 @@ export function applyActiveTheme(): void {
   const theme = activeTheme();
   applyTheme(theme);
   void setWindowBackground(String(theme.bg ?? ""));
+  const root = document.documentElement;
+  if (!root.hasAttribute("data-theme-ready")) {
+    getComputedStyle(document.body).backgroundColor; // commit the first theme without a transition
+    root.setAttribute("data-theme-ready", "");
+  }
 }
 
 export function persistSettings(): void {
