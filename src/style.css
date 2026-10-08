@@ -282,14 +282,17 @@ details.group > summary:hover { color: var(--fg); }
   padding: 0; margin: 0 0 calc(var(--u) * 1.5);
 }
 
-/* preset chips: name button + delete */
-.preset-chip { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2); overflow: hidden; }
-.preset-chip .preset { border: none; border-radius: 0; background: none; }
-.preset-chip.active { border-color: var(--accent); }
-.preset-chip.active .preset { color: var(--accent); }
+/* preset chips: the delete control floats over the top-right corner and
+   only shows on hover, so it never changes the button's size. */
+.preset-chip { position: relative; display: inline-flex; }
+.preset-chip.active .preset { border-color: var(--accent); color: var(--accent); }
 .preset-delete {
-  border: none; border-radius: 0; background: none; color: var(--fg-3);
-  padding: 0 calc(var(--u) * 0.9) 0 calc(var(--u) * 0.2); font-size: 1.05em; line-height: 1;
+  position: absolute; top: -7px; right: -7px; z-index: 1;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  border: 1px solid var(--line); background: var(--bg-2); color: var(--fg-3);
+  font-size: 12px; line-height: 16px; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.12s;
 }
-.preset-delete:hover { color: var(--missed); background: none; }
-.preset-delete.armed { color: var(--bg); background: var(--missed); padding: 0 calc(var(--u) * 0.9); font-size: 0.85em; }
+.preset-chip:hover .preset-delete, .preset-delete.armed { opacity: 1; pointer-events: auto; }
+.preset-delete:hover { color: var(--bg); background: var(--missed); border-color: var(--missed); }
+.preset-delete.armed { color: var(--bg); background: var(--missed); border-color: var(--missed); font-size: 11px; }
