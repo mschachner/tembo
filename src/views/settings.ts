@@ -288,7 +288,7 @@ function appearanceSections(): Node[] {
       sub("Headings", [["headingFont", "Font"], ["headingSize", "Size"]]),
       sub("Section labels", [["labelFont", "Font"], ["labelSize", "Size (× body)"], ["labelWeight", "Weight"], ["labelTracking", "Letter spacing"], ["labelCase", "Case"]]),
     ),
-    group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
+    group("Layout", ...groupsOf(["layout", "contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
   ];
 }
 

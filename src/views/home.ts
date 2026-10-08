@@ -1,4 +1,4 @@
-import { app, entries, importQuiz, inLibrary, loadQuizzes, removeQuiz, stateOf, type Entry } from "../app";
+import { activeTheme, app, entries, importQuiz, inLibrary, loadQuizzes, removeQuiz, stateOf, type Entry } from "../app";
 import type { Quiz } from "../quiz/format";
 import { tembo } from "../banner";
 import { h } from "../dom";
@@ -10,6 +10,7 @@ import { isDue, localDate } from "../schedule";
 import { renderHome } from "../shell";
 import { attemptRow, dueLabel, th } from "./common";
 import { settingsView } from "./settings";
+import { panesView } from "./panes";
 
 function entryRow(e: Entry, today: string, canPlay: boolean): HTMLElement {
   const meta = [`${e.quiz.items.length}`, e.quiz.mode, dueLabel(e.state, today)].filter(Boolean).join(" · ");
@@ -28,13 +29,13 @@ function section(name: string, rows: Node[]): HTMLElement | null {
   return h("section", {}, h("h2", {}, name), h("ul", { class: "quiz-list" }, ...rows));
 }
 
-function alertLine(msg: string): void {
+export function alertLine(msg: string): void {
   // Non-blocking error line at the top of the page (no browser dialogs).
   const page = document.querySelector(".page");
   page?.prepend(h("p", { class: "error" }, msg));
 }
 
-function groups(today: string) {
+export function groups(today: string) {
   const all = entries();
   const normal = all.filter((e) => e.quiz.kind === "normal" && !e.quiz.retired);
   const byDue = (a: Entry, b: Entry) => a.state.dueDate!.localeCompare(b.state.dueDate!);
@@ -132,7 +133,7 @@ function wateringHoleView(): Node {
   );
 }
 
-function statsView(): Node {
+export function statsView(): Node {
   const normal = app.attempts.filter((a) => !isCalibration(a));
   const latencies: number[] = [];
   const buckets = { instant: 0, slow: 0, missed: 0 };
@@ -179,6 +180,12 @@ function statsView(): Node {
 
 export async function showHome(tab: Tab = "today"): Promise<void> {
   await loadQuizzes();
+  if (String(activeTheme().layout) === "panes" && tab !== "settings") {
+    const view = panesView(tab);
+    renderHome(tab, view.el, { panes: true });
+    view.mount();
+    return;
+  }
   const today = localDate(new Date());
   const content =
     tab === "today" ? todayView(today)

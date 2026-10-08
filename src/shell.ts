@@ -98,9 +98,9 @@ function tabsNode(tab: Tab): HTMLElement {
   return h(
     "nav",
     { class: "tabs" },
-    ...TABS.map((t) =>
+    ...TABS.map((t, i) =>
       h("button", {
-        class: `tab ${t.id === tab ? "active" : ""}`,
+        class: `tab ${t.id === tab ? "active" : ""}`, "data-key": String(i + 1), tabindex: "-1",
         onclick: (e: Event) => {
           (e.currentTarget as HTMLButtonElement).blur();
           nav.home(t.id);
@@ -180,11 +180,12 @@ function statusLine(): HTMLElement {
   return h("footer", { class: "status-line" }, ...parts.map((p) => h("span", {}, p)));
 }
 
-export function renderHome(tab: Tab, content: Node): void {
+export function renderHome(tab: Tab, content: Node, opts: { panes?: boolean } = {}): void {
   currentTab = tab;
   const root = document.getElementById("app")!;
   clear(root);
-  root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: "page" }, content), statusLine(), gearButton());
+  root.dataset.layout = opts.panes ? "panes" : "page";
+  root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: opts.panes ? "page panes-page" : "page" }, content), statusLine(), gearButton());
   scheduleContrast();
   indexForStagger(document.getElementById("app")!);
 }
@@ -193,6 +194,7 @@ export function renderHome(tab: Tab, content: Node): void {
 export function renderScreen(content: Node, opts: { wide?: boolean } = {}): void {
   const root = document.getElementById("app")!;
   clear(root);
+  root.dataset.layout = "page";
   root.append(
     h("div", { class: "drag-strip", "data-tauri-drag-region": "" }),
     h("main", { class: `page ${opts.wide ? "wide" : ""}` }, content),

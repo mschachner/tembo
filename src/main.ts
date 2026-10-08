@@ -1,4 +1,4 @@
-import { adoptSettings, app, applyActiveTheme, loadAll, loadQuizzes, loadThemes, reloadHistory } from "./app";
+import { activeTheme, adoptSettings, app, applyActiveTheme, loadAll, loadQuizzes, loadThemes, reloadHistory } from "./app";
 import { bindSettingsShortcut, showWhenReady, subscribe } from "./bus";
 import { syncNow } from "./backend";
 import { h } from "./dom";
@@ -54,8 +54,12 @@ if (isSettingsWindow) {
       });
       return subscribe(async (msg) => {
         if (msg.kind === "settings") {
+          const layout = String(activeTheme().layout);
           adoptSettings(msg.settings);
-          refreshBanner();
+          // A layout change redraws the whole home screen; anything else only the banner.
+          const tab = onHome();
+          if (tab && String(activeTheme().layout) !== layout) nav.home(tab);
+          else refreshBanner();
           refreshStatus();
         } else if (msg.kind === "themes") {
           await loadThemes();
