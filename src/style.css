@@ -296,3 +296,15 @@ details.group > summary:hover { color: var(--fg); }
 .preset-chip:hover .preset-delete, .preset-delete.armed { opacity: 1; pointer-events: auto; }
 .preset-delete:hover { color: var(--bg); background: var(--missed); border-color: var(--missed); }
 .preset-delete.armed { color: var(--bg); background: var(--missed); border-color: var(--missed); font-size: 11px; }
+
+/* modified state: per-control reset, reset-to-preset, marker on the active preset */
+.control .control-reset { visibility: hidden; }
+.control.overridden .control-reset { visibility: visible; }
+.reset-all { display: none; }
+.settings.modified .reset-all { display: inline-block; color: var(--accent); border-color: var(--accent); }
+.settings.modified .preset-chip.active .preset::after {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; vertical-align: middle;
+  border-radius: 50%; background: var(--accent);
+}
+.save-preset input { min-width: 0; }
+.save-preset button { flex: none; white-space: nowrap; }

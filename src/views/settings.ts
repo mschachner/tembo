@@ -18,6 +18,25 @@ function setOverride(key: string, value: string | number): void {
   applyActiveTheme();
   persistSettings();
   if (BANNER_KEYS.has(key)) refreshBanner();
+  syncModified();
+}
+
+// Show each control's reset link, the preset's modified marker, and the
+// reset-to-preset button according to the current overrides, without a
+// redraw (which would interrupt a slider drag).
+function syncModified(): void {
+  const keys = new Set(Object.keys(app.settings.overrides));
+  for (const row of document.querySelectorAll<HTMLElement>(".control[data-key]")) {
+    row.classList.toggle("overridden", keys.has(row.dataset.key!));
+  }
+  document.querySelector(".settings")?.classList.toggle("modified", keys.size > 0);
+}
+
+function resetAll(): void {
+  app.settings.overrides = {};
+  applyActiveTheme();
+  persistSettings();
+  rerender();
 }
 
 function control(spec: VarSpec): HTMLElement {
@@ -70,10 +89,11 @@ function control(spec: VarSpec): HTMLElement {
     }
   }
 
-  const reset = overridden
-    ? h("button", { class: "quiet tiny", onclick: () => { delete app.settings.overrides[spec.key]; applyActiveTheme(); persistSettings(); rerender(); } }, "reset")
-    : null;
-  return h("div", { class: "control" }, h("label", {}, spec.label), input, readout, reset);
+  const reset = h("button", {
+    class: "quiet tiny control-reset",
+    onclick: () => { delete app.settings.overrides[spec.key]; applyActiveTheme(); persistSettings(); rerender(); },
+  }, "reset");
+  return h("div", { class: `control ${overridden ? "overridden" : ""}`, "data-key": spec.key }, h("label", {}, spec.label), input, readout, reset);
 }
 
 const openGroups = new Set<string>();
@@ -149,14 +169,15 @@ export function settingsView(): Node {
 
   return h(
     "div",
-    { class: "settings" },
+    { class: `settings ${Object.keys(app.settings.overrides).length ? "modified" : ""}` },
     h("h1", { class: "settings-title" }, "Settings"),
     h(
       "section",
       {},
       h("h2", {}, "Preset"),
       h("div", { class: "presets" }, ...presetButtons),
-      h("div", { class: "save-preset" }, nameInput, saveButton),
+      h("div", { class: "save-preset" }, nameInput, saveButton,
+        h("button", { class: "reset-all", onclick: resetAll, title: "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
     ),
     group("Colors", ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line", "instant", "slow", "missed"])),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
