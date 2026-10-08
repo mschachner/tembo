@@ -9,3 +9,7 @@ Quizzes: one folder each under `quizzes/`, containing `quiz.txt` (format documen
 top of `src/quiz/format.ts`) plus any images it references.
 Drafts awaiting approval go in `quizzes/_drafts/` (ignored by the app).
 Attempt log: `data/attempts.jsonl`, one JSON object per line.
+
+App icon: masters are in `art/icons/` (sunset is installed). To switch,
+run `npm run tauri icon art/icons/<name>.png -- -o src-tauri/icons` and
+delete the `android/` and `ios/` folders it writes.
