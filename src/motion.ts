@@ -4,29 +4,14 @@
 
 export interface Motion {
   enabled: boolean;
-  followSystem: boolean;   // turn everything off when macOS "Reduce motion" is on
   speed: number;           // 0.25–2
-  pages: boolean;          // screens and tabs fade/slide in
-  lists: boolean;          // rows and cards cascade in
-  feedback: boolean;       // accept pop, score bump, reject shake
-  celebrate: boolean;      // cleared stamp on results
-  themes: boolean;         // color cross-fade on theme changes
-  banner: boolean;         // slow drift on photo banners
 }
 
-export const DEFAULT_MOTION: Motion = {
-  enabled: true, followSystem: true, speed: 1,
-  pages: true, lists: true, feedback: true, celebrate: true, themes: true, banner: true,
-};
+export const DEFAULT_MOTION: Motion = { enabled: true, speed: 1 };
 
-export const MOTION_PARTS: [keyof Motion, string][] = [
-  ["pages", "Page transitions"],
-  ["lists", "List entrance"],
-  ["feedback", "Answer feedback"],
-  ["celebrate", "Completion"],
-  ["themes", "Theme changes"],
-  ["banner", "Banner drift"],
-];
+// Each kind of animation has its own attribute so the CSS can still gate
+// them separately; for now they all follow the one switch.
+const PARTS = ["pages", "lists", "feedback", "celebrate", "themes", "banner"];
 
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 let current: Motion = DEFAULT_MOTION;
@@ -34,9 +19,10 @@ let current: Motion = DEFAULT_MOTION;
 export function applyMotion(m: Motion): void {
   current = m;
   const root = document.documentElement;
-  const on = m.enabled && !(m.followSystem && reduce.matches);
+  // macOS "Reduce motion" turns animations off.
+  const on = m.enabled && !reduce.matches;
   root.dataset.motion = on ? "on" : "off";
-  for (const [key] of MOTION_PARTS) root.dataset[`anim${key[0].toUpperCase()}${key.slice(1)}`] = m[key] ? "on" : "off";
+  for (const key of PARTS) root.dataset[`anim${key[0].toUpperCase()}${key.slice(1)}`] = "on";
   root.style.setProperty("--dur", String(1 / Math.max(0.25, Math.min(2, m.speed || 1))));
 }
 

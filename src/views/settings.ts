@@ -5,7 +5,6 @@ import { nav } from "../nav";
 import { refreshBanner } from "../shell";
 import { publish } from "../bus";
 import { sounds } from "../sound";
-import { MOTION_PARTS } from "../motion";
 import { THEME_VARS, type VarSpec } from "../theme";
 
 function rerender(): void {
@@ -115,6 +114,17 @@ function control(spec: VarSpec, labelText = spec.label): HTMLElement {
 }
 
 const openGroups = new Set<string>();
+
+// A collapsible group; which ones are open survives redraws.
+function group(name: string, ...children: (Node | null)[]): HTMLElement;
+function group(opts: { name: string; class?: string }, ...children: (Node | null)[]): HTMLElement;
+function group(o: string | { name: string; class?: string }, ...children: (Node | null)[]): HTMLElement {
+  const { name, class: cls } = typeof o === "string" ? { name: o, class: undefined } : o;
+  const d = h("details", { class: "group" }, h("summary", {}, name), ...children);
+  d.open = openGroups.has(name);
+  d.addEventListener("toggle", () => { if (d.open) openGroups.add(name); else openGroups.delete(name); });
+  return h("section", cls ? { class: cls } : {}, d);
+}
 let settingsTab: "appearance" | "app" = "appearance";
 
 export function settingsView(): Node {
@@ -205,13 +215,6 @@ function appearanceSections(): Node[] {
   const colorCol = (title: string, items: [string, string][]) =>
     h("div", { class: "color-col" }, h("h3", {}, title), ...items.map(([k, l]) => control(spec(k), l)));
 
-  // A collapsible group; which ones are open survives redraws.
-  const group = (name: string, ...children: Node[]) => {
-    const d = h("details", { class: "group" }, h("summary", {}, name), ...children);
-    d.open = openGroups.has(name);
-    d.addEventListener("toggle", () => { if (d.open) openGroups.add(name); else openGroups.delete(name); });
-    return h("section", {}, d);
-  };
 
   return [
     h(
@@ -294,42 +297,32 @@ function appSections(): Node[] {
 
   // Motion
   const m = app.settings.motion;
-  const check = (on: boolean, change: (v: boolean) => void) => {
-    const el = h("input", { type: "checkbox" });
-    el.checked = on;
-    el.addEventListener("change", () => { change(el.checked); persistSettings(); syncMotionRows(); });
-    return el;
-  };
+  const animToggle = h("input", { type: "checkbox" });
+  animToggle.checked = m.enabled;
   const speedReadout = h("span", { class: "mono small" }, `${m.speed.toFixed(2)}×`);
   const speed = h("input", { type: "range", min: 0.25, max: 2, step: 0.05, value: String(m.speed) });
+  const speedRow = h("div", { class: "control" }, h("label", {}, "Speed"), speed, speedReadout);
+  const syncSpeed = () => speedRow.classList.toggle("disabled", !m.enabled);
+  animToggle.addEventListener("change", () => { m.enabled = animToggle.checked; persistSettings(); syncSpeed(); });
   speed.addEventListener("input", () => {
     m.speed = Number(speed.value);
     speedReadout.textContent = `${m.speed.toFixed(2)}×`;
     persistSettings();
   });
-  const partRows = MOTION_PARTS.map(([key, label]) =>
-    h("div", { class: "control motion-part" }, h("label", {}, label),
-      check(Boolean(m[key]), (v) => { (m as unknown as Record<string, unknown>)[key] = v; })));
-  const syncMotionRows = () => {
-    for (const row of partRows) row.classList.toggle("disabled", !m.enabled);
-  };
-  syncMotionRows();
+  syncSpeed();
 
   return [
-    h("section", {}, h("h2", {}, "Motion"),
-      h("div", { class: "control" }, h("label", {}, "Animations"), check(m.enabled, (v) => { m.enabled = v; })),
-      h("div", { class: "control", title: "Turn animations off when Reduce Motion is on in macOS Accessibility settings" },
-        h("label", {}, "Use system setting"), check(m.followSystem, (v) => { m.followSystem = v; })),
-      h("div", { class: "control" }, h("label", {}, "Speed"), speed, speedReadout),
-      ...partRows),
-    h("section", {}, h("h2", {}, "Sound"),
+    group("Motion",
+      h("div", { class: "control" }, h("label", {}, "Animations"), animToggle),
+      speedRow),
+    group("Sound",
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),
       h("div", { class: "control" }, h("label", {}, "Volume"), volume),
       h("div", { class: "control" }, h("label", {}, "Preview"),
         h("button", { class: "quiet tiny", onclick: sounds.accept }, "accept"),
         h("button", { class: "quiet tiny", onclick: sounds.reject }, "reject"),
         h("button", { class: "quiet tiny", onclick: sounds.complete }, "complete"))),
-    h("section", {}, h("h2", {}, "Grading"),
+    group("Grading",
       h("div", { class: "control" }, h("label", {}, "Instant below"), thrSlider, thrReadout),
       h("div", { class: "control" }, h("label", {}, "Typing speed"),
         h("span", { class: "mono" }, `${app.cps.toFixed(1)} ch/s`),
@@ -337,12 +330,12 @@ function appSections(): Node[] {
           ? new Date(calib.endedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
           : "not calibrated"),
         calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "Calibrate") : null)),
-    h("section", {}, h("h2", {}, "Files"),
+    group("Files",
       h("div", { class: "control", title: app.root }, h("label", {}, "Open folder"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/quizzes`) }, "quizzes"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/data`) }, "data"),
         h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/themes`) }, "themes"))),
-    h("section", { class: "danger-zone" }, h("h2", {}, "Danger zone"),
+    group({ name: "Danger zone", class: "danger-zone" },
       h("div", { class: "control" }, h("label", {}, "History"), clearButton, clearStatus),
       h("p", { class: "muted small" }, "Moves data/attempts.jsonl to a dated backup in the same folder and starts an empty log. Every quiz becomes new.")),
   ];

@@ -28,7 +28,10 @@ export async function loadSettings(): Promise<Settings> {
       overrides: raw.overrides ?? {},
       sound: { ...DEFAULT_SETTINGS.sound, ...(raw.sound ?? {}) },
       grading: { ...DEFAULT_SETTINGS.grading, ...(raw.grading ?? {}) },
-      motion: { ...DEFAULT_MOTION, ...(raw.motion ?? {}) },
+      motion: {
+        enabled: raw.motion?.enabled ?? DEFAULT_MOTION.enabled,
+        speed: raw.motion?.speed ?? DEFAULT_MOTION.speed,
+      },
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);
