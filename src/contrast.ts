@@ -46,7 +46,10 @@ function sampleArt(art: HTMLElement, bannerH: number, bannerY: number): boolean 
   if (!W) return false;
   const scale = SAMPLE_W / W;
   const h = Math.max(1, Math.round(dispH * scale));
-  const img = art.querySelector<HTMLImageElement>(".banner-img:not(.entering)");
+  // While a new photo fades in, the outgoing one is still in the layer,
+  // earlier in document order. Sample the newest loaded photo, which is
+  // what the screen settles on.
+  const img = [...art.querySelectorAll<HTMLImageElement>(".banner-img:not(.entering)")].at(-1) ?? null;
   const src = img?.src ?? "drawn";
   if (samples && samples.src === src && samples.w === SAMPLE_W && samples.h === h) return true;
   const canvas = document.createElement("canvas");
