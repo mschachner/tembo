@@ -1,5 +1,5 @@
 import { adoptSettings, app, applyActiveTheme, loadAll, loadThemes, reloadHistory } from "./app";
-import { bindSettingsShortcut, subscribe } from "./bus";
+import { bindSettingsShortcut, showWhenReady, subscribe } from "./bus";
 import { h } from "./dom";
 import { nav } from "./nav";
 import { onHome, refreshBanner, refreshStatus, renderSettingsWindow } from "./shell";
@@ -13,6 +13,7 @@ const isSettingsWindow = location.hash === "#settings";
 function fail(e: unknown): void {
   const root = document.getElementById("app")!;
   root.replaceChildren(h("p", { class: "error", style: "padding: 40px" }, String(e)));
+  void showWhenReady();
 }
 
 if (isSettingsWindow) {
@@ -23,6 +24,7 @@ if (isSettingsWindow) {
   loadAll()
     .then(() => {
       nav.home();
+      void showWhenReady();
       return subscribe(async (msg) => {
         if (msg.kind === "themes") { await loadThemes(); nav.home(); }
       });
@@ -36,8 +38,9 @@ if (isSettingsWindow) {
   nav.item = showItem;
   bindSettingsShortcut(() => nav.home("settings"));
   loadAll()
-    .then(() => {
-      nav.home();
+    .then(async () => {
+      await showHome("today");
+      void showWhenReady();
       return subscribe(async (msg) => {
         if (msg.kind === "settings") {
           adoptSettings(msg.settings);

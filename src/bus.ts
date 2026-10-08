@@ -71,6 +71,21 @@ export async function openSettingsWindow(fallback: () => void): Promise<void> {
     minWidth: 480,
     titleBarStyle: "overlay",
     hiddenTitle: true,
+    visible: false,   // shown by the window itself once it has drawn (no white flash)
   });
   void win.once("tauri://error", (e) => { console.error("settings window", e); fallback(); });
 }
+
+// Windows start hidden and call this after their first render, so they never
+// show the webview's blank white page. A timer shows the window anyway if
+// rendering fails or stalls.
+let shown = false;
+export async function showWhenReady(): Promise<void> {
+  if (shown || !inTauri) return;
+  shown = true;
+  const { getCurrentWindow } = await import("@tauri-apps/api/window");
+  // Let the first frame paint before revealing the window.
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await getCurrentWindow().show();
+}
+window.setTimeout(() => void showWhenReady(), 1500);
