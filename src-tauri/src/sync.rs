@@ -41,6 +41,12 @@ fn git(root: &PathBuf, args: &[&str]) -> Result<String, String> {
         .args(args)
         .current_dir(root)
         .env("GIT_TERMINAL_PROMPT", "0")
+        // An app opened from the Dock gets a minimal PATH; add Homebrew's so
+        // credential helpers installed there (e.g. gh) are found.
+        .env("PATH", format!(
+            "{}:/opt/homebrew/bin:/usr/local/bin",
+            std::env::var("PATH").unwrap_or_else(|_| "/usr/bin:/bin:/usr/sbin:/sbin".into())
+        ))
         .output()
         .map_err(|e| format!("git: {e}"))?;
     if out.status.success() {

@@ -10,7 +10,8 @@
     "tauri": "tauri",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "tsx scripts/check.ts"
+    "check": "tsx scripts/check.ts",
+    "app": "tauri build --bundles app && rm -rf /Applications/Tembo.app && cp -R src-tauri/target/release/bundle/macos/Tembo.app /Applications/"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.4.0"

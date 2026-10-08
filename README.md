@@ -1,7 +1,8 @@
 # Tembo
 
     npm install
-    npm run tauri dev     # desktop app
+    npm run tauri dev     # desktop app, from the terminal
+    npm run app           # build Tembo.app and install it in /Applications
     npm test              # unit tests
     npm run check         # validate every quiz file
 
