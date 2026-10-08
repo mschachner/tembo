@@ -117,7 +117,7 @@ export function settingsView(): Node {
     h("section", {}, h("h2", {}, "Colors"), ...groupsOf(["bg", "bg2", "bg3", "fg", "fg2", "fg3", "accent", "line"])),
     h("section", {}, h("h2", {}, "Results"), ...groupsOf(["instant", "slow", "missed"])),
     h("section", {}, h("h2", {}, "Banner"), ...groupsOf(["bannerEdge", "bannerEdgeSize", "bannerEdgePos", "bannerImage", "bannerHeight", "bannerY", "bannerSky", "bannerHills", "bannerSun", "bannerFigure"])),
-    h("section", {}, h("h2", {}, "Page panel"), ...groupsOf(["panel", "panelBlur"])),
+    h("section", {}, h("h2", {}, "Surfaces"), ...groupsOf(["plate", "plateBlur"])),
     h("section", {}, h("h2", {}, "Type and shape"), ...groupsOf(["font", "fontMono", "fontSize", "radius", "space"])),
     h("section", {}, h("h2", {}, "Sound"),
       h("div", { class: "control" }, h("label", {}, "Enabled"), soundToggle),

@@ -25,6 +25,6 @@
   "bannerEdge": "rule",
   "bannerEdgeSize": 10,
   "bannerEdgePos": 100,
-  "panel": 0,
-  "panelBlur": 0
+  "plate": 85,
+  "plateBlur": 10
 }

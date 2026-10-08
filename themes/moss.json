@@ -25,6 +25,6 @@
   "bannerEdge": "dither",
   "bannerEdgeSize": 35,
   "bannerEdgePos": 68,
-  "panel": 0,
-  "panelBlur": 0
+  "plate": 85,
+  "plateBlur": 10
 }

@@ -14,6 +14,41 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "settings", label: "Settings" },
 ];
 
+// The art's media (photo or drawing) is kept across redraws, so adjusting
+// settings doesn't reload it. A different photo fades in over the old one.
+let media: { key: string; el: HTMLElement | SVGSVGElement } | null = null;
+
+function mediaFor(path: string, bannerH: number): { el: HTMLElement | SVGSVGElement; previous: Element | null } {
+  const key = path ? `img:${path}` : "drawn";
+  if (media && media.key === key) {
+    if (!path) (media.el as SVGSVGElement).style.height = `${bannerH}px`;
+    return { el: media.el, previous: null };
+  }
+  const previous = media?.el ?? null;
+  let el: HTMLElement | SVGSVGElement;
+  if (path) {
+    const img = bannerImage("");
+    img.classList.add("entering");
+    asset(app.root, path).then(
+      async (url) => {
+        img.src = url;
+        await img.decode().catch(() => {});
+        img.classList.remove("entering");
+        window.setTimeout(() => { if (previous && previous !== media?.el) previous.remove(); }, 350);
+      },
+      () => img.replaceWith(defaultBanner()),
+    );
+    el = img;
+  } else {
+    // The drawn landscape keeps the banner's proportions; below it the
+    // front hill's color continues down to the edge.
+    el = defaultBanner();
+    el.style.height = `${bannerH}px`;
+  }
+  media = { key, el };
+  return { el, previous: path ? previous : null };
+}
+
 // The banner art lives in a backdrop layer behind the page, so its edge can
 // sit anywhere from 30% of the banner's height down into the body (300%).
 function backdropNode(): HTMLElement {
@@ -27,18 +62,10 @@ function backdropNode(): HTMLElement {
   art.style.height = `${artH}px`;
   art.style.setProperty("--art-height", `${Math.max(artH, bannerH)}px`);
   const path = String(theme.bannerImage ?? "");
-  if (path) {
-    const img = bannerImage("");
-    asset(app.root, path).then((url) => { img.src = url; }, () => img.replaceWith(defaultBanner()));
-    art.append(img);
-  } else {
-    // The drawn landscape keeps the banner's proportions; below it the
-    // front hill's color continues down to the edge.
-    const svg = defaultBanner();
-    svg.style.height = `${bannerH}px`;
-    art.style.background = "var(--banner-hills)";
-    art.append(svg);
-  }
+  const { el, previous } = mediaFor(path, bannerH);
+  if (previous) art.append(previous);
+  art.append(el);
+  if (!path) art.style.background = "var(--banner-hills)";
   applyEdge(art, String(theme.bannerEdge), Number(theme.bannerEdgeSize), artH);
   return h("div", { class: "backdrop" }, art);
 }
