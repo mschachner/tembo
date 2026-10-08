@@ -28,5 +28,6 @@
   "contrast": "auto",
   "titleFont": "Carter One",
   "titleWeight": 400,
-  "order": 4
+  "order": 4,
+  "titleSize": 52
 }
