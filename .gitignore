@@ -6,3 +6,7 @@ src-tauri/gen/
 shot-*.png
 shot.mjs
 data/attempts.backup-*.jsonl
+
+# Personal, machine-local until it moves to a separate data repo
+data/settings.json
+themes/custom/
