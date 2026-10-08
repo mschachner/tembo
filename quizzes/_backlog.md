@@ -4,7 +4,7 @@ The daily quiz task takes the first unchecked line, builds it, and checks it
 off with the date. Reorder, add or delete lines freely.
 
 - [x] US presidents in order, 1–24 (prompt: "16th" → Lincoln) — added 2026-10-08 as us-presidents-1-24
-- [ ] US presidents in order, 25–47 (prompt)
+- [x] US presidents in order, 25–47 (prompt) — added 2026-10-08 as us-presidents-25-47
 - [ ] Element symbols, 1–20 (prompt: symbol → element)
 - [ ] Capitals of South America (prompt)
 - [ ] Shakespeare's plays (list)
