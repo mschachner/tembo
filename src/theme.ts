@@ -55,7 +55,6 @@ export const THEME_VARS: VarSpec[] = [
   { key: "labelCase", css: "", kind: "choice", label: "Case", options: ["upper", "small caps", "as written"] },
   { key: "labelColor", css: "--label-color", kind: "color", label: "Color" },
   // Layout.
-  { key: "layout", css: "", kind: "choice", label: "Home layout", options: ["page", "panes"] },
   { key: "contentWidth", css: "--content-width", kind: "px", label: "Main column width", min: 560, max: 1400, step: 10 },
   { key: "wideWidth", css: "--wide-width", kind: "px", label: "Quiz column width", min: 700, max: 1800, step: 10 },
   { key: "lineHeight", css: "--line-height", kind: "scale", label: "Line height", min: 1.1, max: 2.0, step: 0.05 },
@@ -68,6 +67,8 @@ export const THEME_VARS: VarSpec[] = [
   { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path from repo root)" },
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
   { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
+  // How far the art travels from the first tab to the last.
+  { key: "bannerPan", css: "--pan-range", kind: "px", label: "Banner pan between tabs", min: 0, max: 600, step: 10 },
   { key: "bannerEdgePos", css: "", kind: "pct", label: "Edge position", min: 30, max: 300, step: 1 },
   { key: "edgeSmooth", css: "", kind: "pct", label: "Edge smoothing height", min: 0, max: 100, step: 1 },
   { key: "edgeDither", css: "", kind: "pct", label: "Edge dithering height", min: 0, max: 100, step: 1 },
@@ -81,7 +82,7 @@ export const FALLBACK_THEME: Theme = {
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
   monoScale: 1, titleFont: "Carter One", titleSize: 52, titleWeight: 400, titleTracking: -0.01, headingFont: "", headingSize: 24,
   labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
-  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "none", contrast: "auto", layout: "page",
+  bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "none", contrast: "auto", bannerPan: 360,
 };
 
 const GENERIC_FAMILIES = new Set([

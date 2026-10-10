@@ -1,69 +1,38 @@
+// The quiz, attempt and item screens: a head pane and table panes filling
+// the window, driven from the keyboard like the home screen.
 import { app, attemptsOf, playable, stateOf } from "../app";
 import { formatClock, h } from "../dom";
 import { gradeOf, itemRecord, playOrder } from "../grade";
 import type { AnyAttempt } from "../log";
 import { nav } from "../nav";
+import { BACK, mountPanes, tablePane, type KeyAction, type Pane, type Row } from "../panes";
 import type { Quiz } from "../quiz/format";
-import { renderScreen } from "../shell";
-import { itemStats, median, trouble } from "../stats";
-import { backButton, dueLabel, fmtDate, fmtNum, fmtSecs, promptNode, th } from "./common";
+import { localDate } from "../schedule";
+import { lastTab, renderScreen } from "../shell";
+import { median } from "../stats";
+import { fmtDate, fmtNum, fmtSecs, promptNode } from "./common";
+import { detailPanes } from "./panes";
 import { rich } from "../rich";
 
+function mountScreen(scope: string, head: HTMLElement, grid: HTMLElement, panes: Pane[], extra: (row: Row | null) => KeyAction[]): void {
+  const legend = h("nav", { class: "keys" });
+  const root = h("div", { class: "detail screen-detail" }, head, grid);
+  renderScreen(h("div", { class: "panes-wrap" }, legend, root), { panes: true });
+  const actions = (_p: Pane | null, row: Row | null): KeyAction[] => [
+    ...(row?.activate ? [{ keys: ["Enter"], hint: "enter", label: "Open", run: row.activate }] : []),
+    ...extra(row),
+  ];
+  mountPanes({ scope, root, legend, panes, actions });
+}
+
 export function showQuiz(quiz: Quiz): void {
-  const state = stateOf(quiz);
-  const own = attemptsOf(quiz);
-  const canPlay = playable(quiz, state);
-
-  const facts = [
-    `${quiz.items.length} items`,
-    quiz.mode,
-    quiz.kind === "calibration" ? "calibration" : quiz.retired ? "retired" : state.status,
-    state.intervalDays ? `interval ${state.intervalDays.toFixed(1)}d` : null,
-    state.dueDate ? `due ${state.dueDate} (${dueLabel(state)})` : null,
-    `${own.length} attempts`,
-  ].filter(Boolean).join(" · ");
-
-  const history = own.slice().reverse().map((a) =>
-    h(
-      "tr",
-      { class: "row-link", onclick: () => nav.attempt(quiz, a, () => showQuiz(quiz)) },
-      h("td", {}, fmtDate(a.endedAt)),
-      h("td", { class: "num" }, `${a.score}/${a.total}`),
-      h("td", { class: "num" }, formatClock(a.durationSeconds)),
-      h("td", { class: "num" }, gradeOf(a, app.cps).toFixed(2)),
-      h("td", {}, a.cleared ? "cleared" : ""),
-    ),
-  );
-
-  const stats = itemStats(quiz, own, app.cps)
-    .map((st) => ({ st, t: trouble(st) }))
-    .sort((a, b) => b.t - a.t || a.st.answer.localeCompare(b.st.answer))
-    .map(({ st }) => {
-      const med = median(st.latencies);
-      return h(
-        "tr",
-        { class: `row-link ${st.last ?? ""}`, onclick: () => nav.item(quiz, st.answer, () => showQuiz(quiz)) },
-        h("td", {}, st.answer),
-        h("td", { class: "num" }, String(st.seen)),
-        h("td", { class: "num" }, String(st.instant)),
-        h("td", { class: "num" }, String(st.slow)),
-        h("td", { class: "num" }, String(st.missed)),
-        h("td", { class: "num" }, med === null ? "" : `${med.toFixed(1)}s`),
-        h("td", {}, st.last ?? ""),
-      );
-    });
-
-  renderScreen(
-    h(
-      "div",
-      {},
-      backButton("Home", () => nav.home()),
-      h("header", {}, h("h1", {}, quiz.title), h("div", { class: "muted small" }, facts)),
-      canPlay ? h("div", { class: "actions" }, h("button", { class: "primary", onclick: () => nav.play(quiz) }, "Play")) : null,
-      own.length ? h("section", {}, h("h2", {}, "Items"), h("table", { class: "stats" }, th("answer", "seen", "instant", "slow", "missed", "median latency", "last"), ...stats)) : null,
-      own.length ? h("section", {}, h("h2", {}, "Attempts"), h("table", { class: "stats" }, th("when", "score", "time", "grade", ""), ...history)) : null,
-    ),
-  );
+  const back = () => nav.home(lastTab());
+  const d = detailPanes(quiz, () => showQuiz(quiz), localDate(new Date()), true);
+  const canPlay = playable(quiz, stateOf(quiz));
+  mountScreen(`quiz:${quiz.id}`, d.head, d.grid, d.panes, () => [
+    ...(canPlay ? [{ keys: ["p"], hint: "p", label: "Play", run: () => nav.play(quiz) }] : []),
+    BACK(back, "Home"),
+  ]);
 }
 
 export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): void {
@@ -75,33 +44,26 @@ export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): 
     `grade ${gradeOf(attempt, app.cps).toFixed(2)}`,
     attempt.version === 2 ? `${attempt.rejected} rejected` : "no timing (older record)",
   ].join(" · ");
+  const head = h("section", { class: "pane detail-head" },
+    h("div", { class: "detail-title" }, attempt.title),
+    h("div", { class: "muted small" }, facts));
 
-  const rows = playOrder(attempt).map((answer, i) => {
-    const r = itemRecord(attempt, answer, app.cps);
-    if (!r) return h("tr", {}, h("td", {}, rich(answer)));
-    return h(
-      "tr",
-      { class: `row-link ${r.result}`, onclick: () => nav.item(quiz, answer, () => showAttempt(quiz, attempt, back)) },
-      h("td", { class: "num" }, String(i + 1)),
-      h("td", {}, rich(answer)),
-      h("td", {}, r.result),
-      h("td", { class: "num" }, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000)),
-      h("td", { class: "num" }, fmtSecs(r.seconds)),
-      h("td", { class: "num" }, fmtSecs(r.latency)),
-      h("td", { class: "num" }, fmtNum(r.typedChars)),
-      h("td", { class: "num" }, fmtNum(r.wrong)),
-    );
+  const answers = playOrder(attempt).map((answer) => ({ answer, r: itemRecord(attempt, answer, app.cps) }));
+  const items = tablePane({
+    id: "answers", title: "Answers", entries: answers, key: (x) => x.answer,
+    cols: "4ch minmax(12ch, 32ch) 8ch 6ch 6ch 8ch 6ch minmax(6ch, 1fr)",
+    head: ["#", "answer", "result", "at", "time", "latency", "typed", "wrong"],
+    rowClass: (x) => x.r?.result ?? "",
+    cells: ({ answer, r }, i) => r
+      ? [String(i + 1), rich(answer), r.result, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000), fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtNum(r.wrong)]
+      : [String(i + 1), rich(answer)],
+    activate: ({ answer, r }) => r ? () => nav.item(quiz, answer, () => showAttempt(quiz, attempt, back)) : undefined,
   });
-
-  renderScreen(
-    h(
-      "div",
-      {},
-      backButton("Back", back),
-      h("header", {}, h("h1", {}, attempt.title), h("div", { class: "muted small" }, facts)),
-      h("table", { class: "stats" }, th("#", "answer", "result", "at", "time", "latency", "typed", "wrong"), ...rows),
-    ),
-  );
+  const grid = h("div", { class: "detail-grid" }, items.el);
+  mountScreen(`attempt:${attempt.endedAt}`, head, grid, [items], () => [
+    { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
+    BACK(back),
+  ]);
 }
 
 export function showItem(quiz: Quiz, answer: string, back: () => void): void {
@@ -125,34 +87,23 @@ export function showItem(quiz: Quiz, answer: string, back: () => void): void {
     med === null ? null : `median latency ${med.toFixed(1)}s`,
   ].filter(Boolean).join(" · ");
 
-  const rows = records.map(({ a, r }) =>
-    h(
-      "tr",
-      { class: `row-link ${r.result}`, onclick: () => nav.attempt(quiz, a, () => showItem(quiz, answer, back)) },
-      h("td", {}, fmtDate(a.endedAt)),
-      h("td", {}, r.result),
-      h("td", { class: "num" }, fmtSecs(r.seconds)),
-      h("td", { class: "num" }, fmtSecs(r.latency)),
-      h("td", { class: "num" }, fmtNum(r.typedChars)),
-      h("td", { class: "num" }, fmtNum(r.wrong)),
-    ),
-  );
+  const head = h("section", { class: "pane detail-head" },
+    h("div", { class: "detail-title" }, rich(answer)),
+    h("div", { class: "muted small" }, quiz.title),
+    item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
+    item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item)) : null,
+    h("div", { class: "muted small" }, facts));
 
-  renderScreen(
-    h(
-      "div",
-      {},
-      backButton("Back", back),
-      h(
-        "header",
-        {},
-        h("h1", {}, rich(answer)),
-        h("div", { class: "muted small" }, quiz.title),
-        item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
-        item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item)) : null,
-        h("div", { class: "muted small" }, facts),
-      ),
-      h("table", { class: "stats" }, th("when", "result", "time", "latency", "typed", "wrong"), ...rows),
-    ),
-  );
+  const seen = tablePane({
+    id: "seen", title: "Attempts", entries: records, key: (x) => x.a.endedAt,
+    cols: "17ch 8ch 6ch 8ch 6ch minmax(6ch, 1fr)", head: ["when", "result", "time", "latency", "typed", "wrong"],
+    rowClass: (x) => x.r.result,
+    cells: ({ a, r }) => [fmtDate(a.endedAt), r.result, fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtNum(r.wrong)],
+    activate: ({ a }) => () => nav.attempt(quiz, a, () => showItem(quiz, answer, back)),
+  });
+  const grid = h("div", { class: "detail-grid" }, seen.el);
+  mountScreen(`item:${quiz.id}:${answer}`, head, grid, [seen], () => [
+    { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
+    BACK(back),
+  ]);
 }

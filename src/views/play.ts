@@ -11,6 +11,7 @@ import { sounds } from "../sound";
 import { dueLabel, promptNode } from "./common";
 import { rich } from "../rich";
 import { diagramDisplay, nearestInDirection, nodeData, nodeLabel } from "./diagram";
+import { plainKey, setKeys, typing } from "../keys";
 
 interface Session {
   quiz: Quiz;
@@ -23,6 +24,7 @@ interface Session {
   timer: number;
   clock: HTMLElement;
   score: HTMLElement;
+  giveUp: HTMLButtonElement;
   elapsedMs: () => number;
   finish: (gaveUp: boolean) => void;
 }
@@ -34,6 +36,7 @@ function startSession(quiz: Quiz, order: number[], onFinish: (attempt: Attempt) 
     rejected: 0, finished: false, timer: 0,
     clock: h("span", { class: "clock mono" }, "0:00"),
     score: h("span", { class: "score mono" }, `0 / ${quiz.items.length}`),
+    giveUp: h("button", { class: "quiet give-up", onclick: () => session.finish(true) }, h("kbd", {}, "esc esc"), " Give up"),
     elapsedMs: () => Date.now() - session.startedAt.getTime(),
     finish,
   };
@@ -82,9 +85,40 @@ function playHeader(session: Session, toggle: Node | null = null): HTMLElement {
     "header",
     { class: "play-header" },
     h("h1", {}, session.quiz.title),
-    h("div", { class: "status" }, session.clock, session.score, toggle,
-      h("button", { class: "quiet", onclick: () => session.finish(true) }, "Give up")),
+    h("div", { class: "status" }, session.clock, session.score, toggle, session.giveUp),
   );
+}
+
+// Keys during play. The answer boxes handle typing, Enter and Escape (which
+// clears a box); here: Escape in an empty box, pressed twice, gives up;
+// ⌘L switches between list and cards; and typing while no box has focus
+// goes to the first open box.
+function playKeys(session: Session, focusFirst: () => void, toggleView?: () => void): void {
+  let armed = 0;
+  const disarm = () => {
+    window.clearTimeout(armed); armed = 0;
+    session.giveUp.classList.remove("armed");
+    session.giveUp.replaceChildren(h("kbd", {}, "esc esc"), " Give up");
+  };
+  setKeys((e) => {
+    if (session.finished) return false;
+    if (e.key === "Escape" && plainKey(e)) {
+      const box = (e.target as HTMLElement).closest?.("input, textarea") as AnswerBox | null;
+      if (box && box.value !== "") { disarm(); return false; }
+      if (armed) { disarm(); session.finish(true); return true; }
+      session.giveUp.classList.add("armed");
+      session.giveUp.replaceChildren(h("kbd", {}, "esc"), " again to give up");
+      armed = window.setTimeout(disarm, 2500);
+      return true;
+    }
+    if (armed && !["Shift", "Meta", "Alt", "Control"].includes(e.key)) disarm();
+    if (toggleView && e.metaKey && !e.altKey && !e.ctrlKey && e.key.toLowerCase() === "l") { toggleView(); return true; }
+    if (!typing(e) && plainKey(e) && (e.key.length === 1 || e.key === "Enter")) {
+      focusFirst();
+      return e.key === "Enter";
+    }
+    return false;
+  });
 }
 
 // Prompt quizzes show as a list (a table, one row per prompt) or as cards.
@@ -109,7 +143,12 @@ function viewToggle(quiz: Quiz, onChange: (v: View) => void): HTMLElement {
       },
     }, v === "list" ? "List" : "Cards"),
   );
-  return h("div", { class: "view-toggle" }, ...buttons);
+  return h("div", { class: "view-toggle", title: "⌘L" }, ...buttons);
+}
+
+// Switch a toggle to its other view, as a click would.
+function flip(toggle: HTMLElement): void {
+  toggle.querySelector<HTMLButtonElement>("button:not(.active)")?.click();
 }
 
 // Table pieces shared by play and results.
@@ -192,6 +231,7 @@ function playDiagram(quiz: Quiz): void {
       }
     });
     renderScreen(h("div", {}, playHeader(session), input, display.el), { wide: true });
+    playKeys(session, () => input.focus());
     input.focus();
     return;
   }
@@ -252,6 +292,7 @@ function playDiagram(quiz: Quiz): void {
   });
 
   renderScreen(h("div", {}, playHeader(session), display.el), { wide: true });
+  playKeys(session, () => inputs.get(open()[0])?.focus());
   inputs.get(order[0])?.focus();
 }
 
@@ -286,6 +327,7 @@ function playList(quiz: Quiz): void {
         h("tbody", {}, ...quiz.items.map((item, idx) => h("tr", {}, ...dataCells(quiz, item), slots[idx]))))
     : h("ol", { class: "slots" }, ...slots);
   renderScreen(h("div", {}, playHeader(session), input, listing), { wide: true });
+  playKeys(session, () => input.focus());
   input.focus();
 }
 
@@ -379,6 +421,7 @@ function playPrompt(quiz: Quiz): void {
   });
 
   renderScreen(h("div", {}, playHeader(session, toggle), current), { wide: true });
+  playKeys(session, () => firstUnanswered()?.focus(), () => flip(toggle));
   inputs.get(order[0])?.focus();
 }
 
@@ -432,21 +475,29 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
   }
   if (toggle) status.push(toggle);
 
+  const actions = [
+    { keys: ["Enter", "Escape"], hint: "enter", label: "Home", run: () => nav.home() },
+    ...(quiz.kind === "calibration" ? [{ keys: ["a"], hint: "a", label: "Again", run: () => showPlay(quiz) }] : []),
+    { keys: ["d"], hint: "d", label: "Details", run: () => nav.attempt(quiz, attempt, () => showResults(quiz, attempt, order)) },
+    { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
+    ...(toggle ? [{ keys: ["v"], hint: "v", label: "", run: () => flip(toggle) }] : []),
+  ];
+
   renderScreen(
     h(
       "div",
       {},
       h("header", {}, h("h1", {}, quiz.title), h("div", { class: "status" }, ...status)),
       current,
-      h(
-        "div",
-        { class: "actions" },
-        quiz.kind === "calibration" ? h("button", { onclick: () => showPlay(quiz) }, "Again") : null,
-        h("button", { class: "quiet", onclick: () => nav.attempt(quiz, attempt, () => showResults(quiz, attempt, order)) }, "Details"),
-        h("button", { class: "quiet", onclick: () => nav.quiz(quiz) }, "History"),
-        h("button", { class: "quiet", onclick: () => nav.home() }, "Home"),
-      ),
+      h("div", { class: "actions keys" }, ...actions.filter((a) => a.label).map((a) =>
+        h("button", { class: "key", onclick: a.run }, h("kbd", {}, a.hint), " ", a.label))),
     ),
     { wide: true },
   );
+  setKeys((e) => {
+    if (!plainKey(e) || typing(e)) return false;
+    const a = actions.find((x) => x.keys.includes(e.key));
+    if (a) a.run();
+    return !!a;
+  });
 }

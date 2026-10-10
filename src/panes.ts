@@ -1,8 +1,9 @@
-// Keyboard-driven panes for the home screen's "panes" layout. One pane has
-// focus and each pane has a cursor row; arrow keys or j/k move the cursor,
-// Tab moves between panes, Enter activates the cursor row, and the other
-// keys run whatever actions the legend shows for the current row.
+// Keyboard-driven panes, used by every screen except play and results. One
+// pane has focus and each pane has a cursor row; ↑↓ or j/k move the cursor,
+// Tab, or ←→ / h/l, move between panes, Enter activates the cursor row, and
+// the other keys run whatever actions the legend shows for the current row.
 import { h } from "./dom";
+import { plainKey, setKeys, typing } from "./keys";
 
 export interface Row {
   id: string;
@@ -21,7 +22,7 @@ export interface Pane {
 export interface KeyAction {
   keys: string[];      // KeyboardEvent.key values
   hint: string;        // as shown in the legend
-  label: string;
+  label: string;       // empty: a key with no legend entry
   run: () => void;
 }
 
@@ -35,7 +36,7 @@ interface Controller {
 }
 
 // Remembered across redraws: the cursor row of each pane and the focused
-// pane, per tab.
+// pane, per screen.
 const cursors = new Map<string, string>();
 const focused = new Map<string, string>();
 let ctl: Controller | null = null;
@@ -55,6 +56,12 @@ function focusedPane(): Pane | null {
   return ctl?.panes.find((p) => p.id === ctl!.focus) ?? null;
 }
 
+// Keys shown in every legend, after the screen's own.
+const MOVE_HINTS: KeyAction[] = [
+  { keys: [], hint: "↑↓", label: "Move", run: () => {} },
+  { keys: [], hint: "tab", label: "Pane", run: () => {} },
+];
+
 function paint(): void {
   if (!ctl) return;
   for (const pane of ctl.panes) {
@@ -64,8 +71,8 @@ function paint(): void {
   }
   const pane = focusedPane();
   const row = pane ? cursorRow(pane) : null;
-  // Unlabeled actions are keys only.
-  ctl.legend.replaceChildren(...ctl.actions(pane, row).filter((a) => a.label).map((a) =>
+  const shown = [...ctl.actions(pane, row), ...(ctl.panes.length > 1 ? MOVE_HINTS : MOVE_HINTS.slice(0, 1))].filter((a) => a.label);
+  ctl.legend.replaceChildren(...shown.map((a) =>
     h("button", { class: "key", tabindex: "-1", onclick: () => a.run() }, h("kbd", {}, a.hint), " ", a.label)));
 }
 
@@ -107,6 +114,7 @@ export function mountPanes(opts: {
     if (cur) { cur.el.scrollIntoView({ block: "nearest" }); pane.onCursor?.(cur); }
   }
   paint();
+  setKeys(onKey);
 }
 
 // Replace the panes with these ids (they may be gone or rebuilt) and add
@@ -135,24 +143,80 @@ function cycle(delta: number): void {
   setFocus(ctl.panes[(i + delta + ctl.panes.length) % ctl.panes.length]);
 }
 
-window.addEventListener("keydown", (e) => {
-  if (!ctl || !ctl.root.isConnected) return;
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-  if ((e.target as HTMLElement).closest?.("input, textarea, select")) return;
+// The nearest pane to the left or right of the focused one, preferring
+// panes that overlap it vertically.
+function sideways(dir: -1 | 1): void {
+  const pane = focusedPane();
+  if (!ctl || !pane) return;
+  const a = pane.el.getBoundingClientRect();
+  let best: Pane | null = null, bestScore = Infinity;
+  for (const p of ctl.panes) {
+    if (p === pane) continue;
+    const b = p.el.getBoundingClientRect();
+    const gap = dir > 0 ? b.left - a.right : a.left - b.right;
+    if (gap < -1) continue;
+    const overlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+    const score = gap + (overlap > 0 ? 0 : 10_000 - overlap);
+    if (score < bestScore) { bestScore = score; best = p; }
+  }
+  if (best) setFocus(best);
+}
+
+function onKey(e: KeyboardEvent): boolean {
+  if (!ctl || !ctl.root.isConnected) return false;
+  if (!plainKey(e) || typing(e)) return false;
   const pane = focusedPane();
   const row = pane ? cursorRow(pane) : null;
-  let handled = true;
   switch (e.key) {
-    case "Tab": cycle(e.shiftKey ? -1 : 1); break;
-    case "ArrowDown": case "j": move(1); break;
-    case "ArrowUp": case "k": move(-1); break;
-    case "PageDown": move(10); break;
-    case "PageUp": move(-10); break;
-    case "Enter": row?.activate?.(); break;
-    default: {
-      const action = ctl.actions(pane, row).find((a) => a.keys.includes(e.key));
-      if (action) action.run(); else handled = false;
-    }
+    case "Tab": cycle(e.shiftKey ? -1 : 1); return true;
+    case "ArrowDown": case "j": move(1); return true;
+    case "ArrowUp": case "k": move(-1); return true;
+    case "ArrowLeft": case "h": sideways(-1); return true;
+    case "ArrowRight": case "l": sideways(1); return true;
+    case "PageDown": move(10); return true;
+    case "PageUp": move(-10); return true;
+    case "Home": case "g": if (pane?.rows[0]) setCursor(pane, pane.rows[0]); return true;
+    case "End": case "G": if (pane?.rows.length) setCursor(pane, pane.rows.at(-1)!); return true;
   }
-  if (handled) e.preventDefault();
-});
+  const action = ctl.actions(pane, row).find((a) => a.keys.includes(e.key));
+  if (action) { action.run(); return true; }
+  if (e.key === "Enter" && row?.activate) { row.activate(); return true; }
+  return false;
+}
+
+// ---------- building blocks ----------
+
+export function paneEl(id: string, title: string, body: HTMLElement, opts: { cols?: string; extra?: string; meta?: string } = {}): HTMLElement {
+  return h("section", { class: `pane ${opts.extra ?? ""}`, "data-pane": id, style: opts.cols ? `--cols: ${opts.cols}` : null },
+    h("header", { class: "pane-title" }, h("span", {}, title), opts.meta ? h("span", { class: "pane-meta" }, opts.meta) : null),
+    body);
+}
+
+export function cells(...xs: (string | Node | null)[]): HTMLElement[] {
+  return xs.map((x) => h("span", { class: "cell" }, x ?? ""));
+}
+
+// A pane of table rows: a sticky header row, then one row per entry.
+export function tablePane<T>(opts: {
+  id: string;
+  title: string;
+  cols: string;
+  head: string[];
+  entries: T[];
+  key: (t: T, i: number) => string;
+  cells: (t: T, i: number) => (string | Node | null)[];
+  rowClass?: (t: T) => string;
+  activate?: (t: T) => (() => void) | undefined;
+  extra?: string;
+  meta?: string;
+}): Pane {
+  const body = h("div", { class: "pane-body" }, h("div", { class: "row head" }, ...cells(...opts.head)));
+  const rows: Row[] = opts.entries.map((t, i) => {
+    const el = h("div", { class: `row ${opts.rowClass?.(t) ?? ""}` }, ...cells(...opts.cells(t, i)));
+    body.append(el);
+    return { id: opts.key(t, i), el, activate: opts.activate?.(t) };
+  });
+  return { id: opts.id, el: paneEl(opts.id, opts.title, body, { cols: opts.cols, extra: opts.extra, meta: opts.meta }), rows, body };
+}
+
+export const BACK = (run: () => void, label = "Back"): KeyAction => ({ keys: ["Escape", "Backspace"], hint: "esc", label, run });

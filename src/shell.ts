@@ -9,6 +9,7 @@ import { openSettingsWindow } from "./bus";
 import { scheduleContrast } from "./contrast";
 import { indexForStagger } from "./motion";
 import { localDate } from "./schedule";
+import { setKeys } from "./keys";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "today", label: "Today" },
@@ -71,6 +72,13 @@ function mediaFor(path: string, bannerH: number): { el: HTMLElement | SVGSVGElem
   return { el, previous: path ? previous : null };
 }
 
+// The settings the backdrop is built from; a redraw keeps the backdrop
+// while these are unchanged.
+function backdropSignature(): string {
+  const t = activeTheme();
+  return JSON.stringify([t.bannerImage, t.bannerHeight, t.bannerEdgePos, t.edgeSmooth, t.edgeDither]);
+}
+
 // The banner art lives in a backdrop layer behind the page, so its edge can
 // sit anywhere from 30% of the banner's height down into the body (300%).
 function backdropNode(): HTMLElement {
@@ -89,10 +97,24 @@ function backdropNode(): HTMLElement {
   art.append(el);
   if (!path) art.style.background = "var(--banner-hills)";
   applyEdge(art, (bannerH * Number(theme.edgeSmooth)) / 100, (bannerH * Number(theme.edgeDither)) / 100, artH);
-  return h("div", { class: "backdrop" }, art);
+  return h("div", { class: "backdrop", "data-sig": backdropSignature() }, art);
+}
+
+// Each tab has its own spot along the banner art; switching tabs pans the
+// art there (the CSS animates the change). The pan is a fraction from 0
+// (first tab) to 1 (last).
+function panTo(tab: Tab): void {
+  const i = TABS.findIndex((t) => t.id === tab);
+  if (i < 0) return;
+  document.getElementById("app")!.style.setProperty("--pan", String(i / (TABS.length - 1)));
 }
 
 let currentTab: Tab = "today";
+
+// The tab the home screen last showed, for returning to it.
+export function lastTab(): Tab {
+  return currentTab;
+}
 
 function tabsNode(tab: Tab): HTMLElement {
   return h(
@@ -159,6 +181,7 @@ export function onHome(): Tab | null {
 
 // The settings window: a drag strip and the settings page, nothing else.
 export function renderSettingsWindow(content: Node): void {
+  setKeys(null);
   const root = document.getElementById("app")!;
   clear(root);
   root.append(
@@ -180,24 +203,34 @@ function statusLine(): HTMLElement {
   return h("footer", { class: "status-line" }, ...parts.map((p) => h("span", {}, p)));
 }
 
-export function renderHome(tab: Tab, content: Node, opts: { panes?: boolean } = {}): void {
+export function renderHome(tab: Tab, content: Node): void {
   currentTab = tab;
+  setKeys(null);
   const root = document.getElementById("app")!;
-  clear(root);
-  root.dataset.layout = opts.panes ? "panes" : "page";
-  root.append(backdropNode(), bannerNode(tab), tabBarNode(tab), h("main", { class: opts.panes ? "page panes-page" : "page" }, content), statusLine(), gearButton());
+  // Keep the backdrop when switching tabs (unless its settings changed),
+  // so the art stays in place and can pan to the new tab's spot.
+  const old = root.querySelector<HTMLElement>(":scope > .backdrop");
+  const keep = old && old.dataset.sig === backdropSignature() ? old : null;
+  for (const child of [...root.children]) if (child !== keep) child.remove();
+  root.dataset.layout = "panes";
+  panTo(tab);
+  root.append(...(keep ? [] : [backdropNode()]), bannerNode(tab), tabBarNode(tab), h("main", { class: "page panes-page" }, content), statusLine(), gearButton());
   scheduleContrast();
   indexForStagger(document.getElementById("app")!);
 }
 
-// Screens other than the home tabs: a slim drag strip instead of the banner.
-export function renderScreen(content: Node, opts: { wide?: boolean } = {}): void {
+// Screens other than the home tabs: a slim drag strip instead of the
+// banner. Detail screens fill the window with panes; play and results are
+// a centred column.
+export function renderScreen(content: Node, opts: { wide?: boolean; panes?: boolean } = {}): void {
+  setKeys(null);
   const root = document.getElementById("app")!;
   clear(root);
-  root.dataset.layout = "page";
+  root.dataset.layout = opts.panes ? "panes" : "page";
+  const cls = opts.panes ? "page panes-page" : `page ${opts.wide ? "wide" : ""}`;
   root.append(
     h("div", { class: "drag-strip", "data-tauri-drag-region": "" }),
-    h("main", { class: `page ${opts.wide ? "wide" : ""}` }, content),
+    h("main", { class: cls }, content),
     statusLine(),
     gearButton(),
   );

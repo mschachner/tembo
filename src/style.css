@@ -180,30 +180,8 @@ input[type="checkbox"]:checked::after { opacity: 1; transform: rotate(45deg) sca
 input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
 
-/* ---- lists ---- */
-.quiz-list { list-style: none; padding: 0; margin: 0; }
-.entry {
-  display: flex; align-items: center; gap: calc(var(--u) * 1.5);
-  padding: calc(var(--u) * var(--row-pad)) 0; border-bottom: 1px solid var(--line);
-}
-.entry .meta { flex: 1; font-size: 0.9em; }
-button.quiz-link { border: none; background: none; padding: 0; color: var(--fg); font-weight: 500; }
-button.quiz-link:hover { color: var(--accent); background: none; }
-button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
-.entry .play { padding: calc(var(--u) * 0.5) calc(var(--u) * 1.5); }
+/* ---- empty states ---- */
 .stamp { color: var(--fg-3); display: inline-flex; }
-
-.empty { display: flex; flex-direction: column; align-items: center; gap: var(--u); padding: calc(var(--u) * 3) 0; color: var(--fg-3); }
-/* The empty state is not one big plate: the elephant floats, and the label
-   and buttons each get a small one. */
-.page > div > .empty { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
-.empty .empty-title, .empty .actions {
-  background: color-mix(in srgb, var(--bg) var(--plate), transparent);
-  backdrop-filter: blur(var(--plate-blur)); -webkit-backdrop-filter: blur(var(--plate-blur));
-  border-radius: var(--plate-radius); padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5);
-}
-.empty .actions { margin: 0; }
-.empty .tembo-mark { color: var(--fg-2); }
 .empty-slot:empty { display: none; }
 
 /* ---- tables ---- */
@@ -309,6 +287,10 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .dnode.missed { border-color: var(--missed); }
 
 .view-toggle { display: inline-flex; gap: 2px; }
+.give-up kbd, .actions.keys kbd { margin-right: 2px; }
+button.give-up.armed { color: var(--missed); background: color-mix(in srgb, var(--missed) 10%, transparent); }
+.actions.keys { gap: calc(var(--u) * 0.5); }
+.actions.keys .key { font-size: 1em; padding: calc(var(--u) * 0.5) calc(var(--u) * 1); }
 .view-toggle button.active { color: var(--accent); background: var(--bg-3); }
 
 /* ---- home: panes layout ----
@@ -396,6 +378,16 @@ kbd {
 .detail-grid { flex: 1; min-height: 0; display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: minmax(0, 1fr); }
 .detail-grid.two { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .detail-grid:empty { display: none; }
+/* stats tab: facts across the top, two table panes below */
+.panes.stats-panes { grid-template-rows: auto minmax(0, 1fr); grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
+.panes.stats-panes > .detail-head { grid-column: 1 / -1; }
+/* quiz, attempt and item screens */
+.detail.screen-detail { flex: 1; }
+.page.panes-page > .panes-wrap > .detail { padding: 0; }
+[data-pane="answers"] .row.missed .cell:nth-child(2) { color: var(--missed); }
+[data-pane="answers"] .row.slow .cell:nth-child(2) { color: var(--slow); }
+[data-pane="answers"] .row .cell:first-child { color: var(--fg-3); }
+.detail-head .item-prompt { margin: calc(var(--u) * 0.5) 0; }
 .detail-empty { flex: 1; align-items: center; justify-content: center; gap: var(--u); color: var(--fg-3); border-style: dashed; }
 
 /* ---- settings ---- */
@@ -409,11 +401,20 @@ kbd {
 .tembo-mark { display: inline-flex; color: inherit; }
 .tembo-mark svg { display: block; filter: drop-shadow(0 1px 2px var(--halo, transparent)); }
 .empty-title { font-size: 1.15em; color: var(--fg-2); }
-.empty .actions { margin-top: var(--u); }
 .preset.small { padding: 3px 10px; font-size: 0.9em; }
 
 .banner-img { transition: opacity 0.3s ease; }
 .banner-img.entering { opacity: 0; }
+
+/* Banner pan: each home tab has its own spot along the art (--pan, 0 for
+   the first tab to 1 for the last, set by shell.ts). A photo is wider than
+   the banner by the pan range and slides left; the drawn landscape moves
+   its layers at different rates instead. */
+:root { --ease-pan: cubic-bezier(0.45, 0.05, 0.25, 1); }
+.banner-img { width: calc(100% + var(--pan-range, 0px)); translate: calc(var(--pan, 0) * -1 * var(--pan-range, 0px)) 0; }
+.banner-svg .pl { transform: translateX(calc((0.5 - var(--pan, 0)) * var(--k) * var(--pan-range, 0px))); }
+[data-anim-banner="on"] .banner-img { transition: opacity 0.3s ease, translate calc(1100ms * var(--dur)) var(--ease-pan); }
+[data-anim-banner="on"] .banner-svg .pl { transition: transform calc(1100ms * var(--dur)) var(--ease-pan); }
 
 /* ---- settings window ---- */
 .settings-window { max-width: none; padding-top: calc(var(--u) * 1); }
@@ -563,7 +564,7 @@ input, textarea,
 [data-anim-pages="on"] button:active:not(:disabled) { transform: scale(0.97); }
 
 /* lists cascade */
-[data-anim-lists="on"] :is(.quiz-list > li, .stats tr, .prompt-grid > li, .slots > li, .color-col) {
+[data-anim-lists="on"] :is(.stats tr, .prompt-grid > li, .slots > li, .color-col) {
   animation: rise-in calc(300ms * var(--dur)) var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 28ms * var(--dur));
 }
@@ -586,7 +587,7 @@ input, textarea,
 /* theme changes */
 /* data-theme-ready is set after the first theme is applied, so a window
    opens in its theme instead of fading in from the stylesheet defaults. */
-[data-anim-themes="on"][data-theme-ready] :is(body, .page > div > *, .tabs, .banner-text, .status-line, input, .card, .entry, h1, h2, td, th) {
+[data-anim-themes="on"][data-theme-ready] :is(body, .page > div > *, .tabs, .banner-text, .status-line, input, .card, h1, h2, td, th) {
   transition-property: background-color, color, border-color;
   transition-duration: calc(360ms * var(--dur));
 }
@@ -602,3 +603,17 @@ input, textarea,
 
 .sync-error { color: var(--missed); margin: calc(var(--u) * 0.5) 0 0; overflow-wrap: anywhere; }
 .sync-error[hidden] { display: none; }
+
+/* settings: keyboard cursor and key legend */
+.settings .nav-row { background: color-mix(in srgb, var(--bg-3) 70%, transparent); box-shadow: inset 2px 0 0 var(--accent); border-radius: 4px; }
+.settings .control.nav-row, .settings summary.nav-row, .settings .preset-row.nav-row, .settings .save-preset.nav-row, .settings .preset-actions.nav-row, .settings .settings-tabs.nav-row {
+  margin-left: calc(var(--u) * -1); padding-left: var(--u); margin-right: calc(var(--u) * -1); padding-right: var(--u);
+}
+.settings .nav-item { outline: 2px solid var(--accent); outline-offset: 1px; }
+.settings input[type="range"].nav-item { outline-offset: 3px; border-radius: 4px; }
+.settings-keys {
+  position: sticky; bottom: 0; z-index: 2; margin: calc(var(--u) * 2) calc(var(--u) * -1.5) 0;
+  padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5); background: var(--bg-2); border-top: 1px solid var(--line);
+}
+.page > div > nav.settings-keys { border-radius: 0; margin-left: calc(var(--u) * -1.5); margin-right: calc(var(--u) * -1.5); }
+.settings-keys .key { padding: 2px 6px; color: var(--fg-2); }

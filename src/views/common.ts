@@ -1,7 +1,5 @@
-import { app, asset } from "../app";
-import { formatClock, h } from "../dom";
-import { gradeOf } from "../grade";
-import type { AnyAttempt } from "../log";
+import { asset } from "../app";
+import { h } from "../dom";
 import type { Item, Quiz } from "../quiz/format";
 import { daysBetween, localDate, type QuizState } from "../schedule";
 
@@ -38,24 +36,3 @@ export function fmtDate(iso: string): string {
 
 export const fmtSecs = (x: number | null) => (x === null ? "" : `${x.toFixed(1)}s`);
 export const fmtNum = (x: number | null) => (x === null ? "" : String(x));
-
-export function th(...names: string[]): HTMLElement {
-  return h("tr", {}, ...names.map((n) => h("th", {}, n)));
-}
-
-export function attemptRow(quiz: Quiz, a: AnyAttempt, onclick: () => void): HTMLElement {
-  return h(
-    "tr",
-    { class: "row-link", onclick },
-    h("td", {}, fmtDate(a.endedAt)),
-    h("td", { class: "muted" }, quiz.title),
-    h("td", { class: "num" }, `${a.score}/${a.total}`),
-    h("td", { class: "num" }, formatClock(a.durationSeconds)),
-    h("td", { class: "num" }, gradeOf(a, app.cps).toFixed(2)),
-    h("td", {}, a.cleared ? "cleared" : ""),
-  );
-}
-
-export function backButton(label: string, onclick: () => void): HTMLElement {
-  return h("button", { class: "quiet back", onclick }, `← ${label}`);
-}

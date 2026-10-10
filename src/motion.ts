@@ -30,7 +30,7 @@ reduce.addEventListener("change", () => applyMotion(current));
 
 // Give the children of each list an index for staggered entrances.
 export function indexForStagger(root: ParentNode): void {
-  for (const list of root.querySelectorAll(".quiz-list, .stats, .prompt-grid, .slots, .color-grid")) {
+  for (const list of root.querySelectorAll(".stats, .prompt-grid, .slots, .color-grid")) {
     let i = 0;
     for (const child of list.querySelectorAll(":scope > li, :scope > tr, :scope > tbody > tr, :scope > .color-col")) {
       (child as HTMLElement).style.setProperty("--i", String(Math.min(i++, 24)));

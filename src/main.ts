@@ -1,13 +1,14 @@
-import { activeTheme, adoptSettings, app, applyActiveTheme, loadAll, loadQuizzes, loadThemes, reloadHistory } from "./app";
-import { bindSettingsShortcut, showWhenReady, subscribe } from "./bus";
+import { adoptSettings, app, applyActiveTheme, loadAll, loadQuizzes, loadThemes, reloadHistory } from "./app";
+import { bindSettingsShortcut, showWhenReady, subscribe, toggleSettingsWindow } from "./bus";
 import { syncNow } from "./backend";
 import { h } from "./dom";
 import { nav } from "./nav";
-import { onHome, refreshBanner, refreshStatus, renderSettingsWindow } from "./shell";
+import { lastTab, onHome, refreshBanner, refreshStatus, renderSettingsWindow } from "./shell";
 import { showAttempt, showItem, showQuiz } from "./views/detail";
 import { showHome } from "./views/home";
 import { showPlay } from "./views/play";
 import { settingsView } from "./views/settings";
+import { mountSettingsNav } from "./views/settingsNav";
 
 const isSettingsWindow = location.hash === "#settings";
 
@@ -20,7 +21,11 @@ function fail(e: unknown): void {
 if (isSettingsWindow) {
   // Settings window: renders only the settings page; its changes are
   // written to disk and broadcast to the main window.
-  nav.home = () => renderSettingsWindow(settingsView());
+  nav.home = () => {
+    const view = settingsView() as HTMLElement;
+    renderSettingsWindow(view);
+    mountSettingsNav(view, () => void toggleSettingsWindow(() => {}));
+  };
   bindSettingsShortcut(() => {});
   loadAll()
     .then(() => {
@@ -35,7 +40,7 @@ if (isSettingsWindow) {
     })
     .catch(fail);
 } else {
-  nav.home = (tab) => { showHome(tab).catch(fail); };
+  nav.home = (tab) => { showHome(tab ?? lastTab()).catch(fail); };
   nav.quiz = showQuiz;
   nav.play = showPlay;
   nav.attempt = showAttempt;
@@ -54,12 +59,8 @@ if (isSettingsWindow) {
       });
       return subscribe(async (msg) => {
         if (msg.kind === "settings") {
-          const layout = String(activeTheme().layout);
           adoptSettings(msg.settings);
-          // A layout change redraws the whole home screen; anything else only the banner.
-          const tab = onHome();
-          if (tab && String(activeTheme().layout) !== layout) nav.home(tab);
-          else refreshBanner();
+          refreshBanner();
           refreshStatus();
         } else if (msg.kind === "themes") {
           await loadThemes();

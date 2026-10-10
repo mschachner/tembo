@@ -12,7 +12,7 @@ function rerender(): void {
   nav.home("settings");
 }
 
-const BANNER_KEYS = new Set(["bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerImage", "bannerY", "tabs", "surfaces", "contrast", "plate", "plateBlur"]);
+const BANNER_KEYS = new Set(["bannerPan", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerImage", "bannerY", "tabs", "surfaces", "contrast", "plate", "plateBlur"]);
 
 function setOverride(key: string, value: string | number): void {
   app.settings.overrides[key] = value;
@@ -279,7 +279,7 @@ function appearanceSections(): Node[] {
         control(spec("iconBg"), "Background"), control(spec("iconFg"), "Elephant"),
         h("img", { class: "icon-preview", alt: "", src: iconDataUrl(String(activeTheme().iconBg), String(activeTheme().iconFg)) })),
     )),
-    group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY"])),
+    group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY", "bannerPan"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
     group("Fonts",
       sub("Body", [["font", "Font"], ["fontSize", "Size"]]),
@@ -288,7 +288,7 @@ function appearanceSections(): Node[] {
       sub("Headings", [["headingFont", "Font"], ["headingSize", "Size"]]),
       sub("Section labels", [["labelFont", "Font"], ["labelSize", "Size (× body)"], ["labelWeight", "Weight"], ["labelTracking", "Letter spacing"], ["labelCase", "Case"]]),
     ),
-    group("Layout", ...groupsOf(["layout", "contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
+    group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
   ];
 }
 

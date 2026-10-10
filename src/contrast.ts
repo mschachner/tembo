@@ -8,8 +8,8 @@ import { edgeOpacity } from "./edge";
 
 const SAMPLE_W = 96;
 const SELECTOR = [
-  ".banner-text", ".tab", ".settings-gear", ".entry", ".stats tr", ".page h1", ".page h2", ".page p",
-  ".control", ".actions", ".keys", ".empty-title", ".empty .tembo-mark", ".page .small", ".card", ".slots li", ".presets",
+  ".banner-text", ".tab", ".settings-gear", ".page h1", ".page h2", ".page p",
+  ".control", ".actions", ".keys", ".page .small", ".card", ".slots li", ".presets",
 ].join(", ");
 // Target contrast ratio. Below it, the theme colors give way to stronger
 // versions pushed toward black or white; light text that still falls short
@@ -40,8 +40,12 @@ function reset(): void {
 
 // Downscaled copy of the displayed art (photo, or a flat stand-in for the
 // drawing) laid out exactly as it is on screen.
-function sampleArt(art: HTMLElement, bannerH: number, bannerY: number): boolean {
+// A photo is wider than the art by the pan range and shifted left by its
+// share of it for the current tab (see shell.ts); it is sampled where it
+// will come to rest.
+function sampleArt(art: HTMLElement, bannerH: number, bannerY: number, panRange: number): boolean {
   const W = art.clientWidth;
+  const pan = Number(document.getElementById("app")!.style.getPropertyValue("--pan") || 0);
   const dispH = Math.max(art.clientHeight, bannerH);
   if (!W) return false;
   const scale = SAMPLE_W / W;
@@ -50,15 +54,16 @@ function sampleArt(art: HTMLElement, bannerH: number, bannerY: number): boolean 
   // earlier in document order. Sample the newest loaded photo, which is
   // what the screen settles on.
   const img = [...art.querySelectorAll<HTMLImageElement>(".banner-img:not(.entering)")].at(-1) ?? null;
-  const src = img?.src ?? "drawn";
+  const src = `${img?.src ?? "drawn"}@${pan}/${panRange}`;
   if (samples && samples.src === src && samples.w === SAMPLE_W && samples.h === h) return true;
   const canvas = document.createElement("canvas");
   canvas.width = SAMPLE_W; canvas.height = h;
   const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   if (img && img.naturalWidth) {
-    const s = Math.max(W / img.naturalWidth, dispH / img.naturalHeight);
+    const boxW = W + panRange;
+    const s = Math.max(boxW / img.naturalWidth, dispH / img.naturalHeight);
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
-    const dx = (W - dw) / 2, dy = (dispH - dh) * (bannerY / 100);
+    const dx = (boxW - dw) / 2 - pan * panRange, dy = (dispH - dh) * (bannerY / 100);
     ctx.drawImage(img, dx * scale, dy * scale, dw * scale, dh * scale);
   } else if (img) {
     return false; // not loaded yet
@@ -106,7 +111,7 @@ export function updateContrast(): void {
 
   const bannerH = Number(theme.bannerHeight);
   const artH = art.clientHeight;
-  if (!sampleArt(art, bannerH, Number(theme.bannerY ?? 50))) return;
+  if (!sampleArt(art, bannerH, Number(theme.bannerY ?? 50), Number(theme.bannerPan ?? 0))) return;
   const { ctx, w, h } = samples!;
   const px = ctx.getImageData(0, 0, w, h).data;
   const scale = w / art.clientWidth;
