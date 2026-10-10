@@ -13,7 +13,7 @@ import { settingsView } from "./settings";
 import { panesView } from "./panes";
 
 function entryRow(e: Entry, today: string, canPlay: boolean): HTMLElement {
-  const meta = [`${e.quiz.items.length}`, e.quiz.mode, dueLabel(e.state, today)].filter(Boolean).join(" · ");
+  const meta = [`${e.quiz.items.length}`, e.quiz.diagram ? "diagram" : e.quiz.mode, dueLabel(e.state, today)].filter(Boolean).join(" · ");
   return h(
     "li",
     { class: "entry" },
@@ -114,7 +114,7 @@ function wateringHoleView(): Node {
   };
   const row = (q: Quiz) => {
     const mine = inLibrary(q);
-    const meta = [`${q.items.length}`, q.mode, ...(q.columns.length ? [q.columns.join(", ").toLowerCase()] : [])].join(" · ");
+    const meta = [`${q.items.length}`, q.diagram ? "diagram" : q.mode, ...(q.columns.length ? [q.columns.join(", ").toLowerCase()] : [])].join(" · ");
     return h(
       "li",
       { class: "entry" },

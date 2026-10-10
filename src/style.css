@@ -277,6 +277,36 @@ button.quiz-link.muted { color: var(--fg-3); font-weight: 400; }
 .quiz-table tr.missed .answer-cell { color: var(--missed); }
 .quiz-table tr.instant .answer-cell { color: var(--instant); }
 
+/* ---- play: diagram layout ---- */
+.diagram-wrap { overflow-x: auto; padding: var(--u) 0; }
+.diagram { position: relative; width: 100%; margin: 0 auto; }
+.diagram-edges { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.diagram-edges line { stroke: var(--fg-3); stroke-width: 1.5; stroke-linecap: round; }
+.diagram-edges polygon { fill: var(--fg-3); }
+.dnode {
+  position: absolute; transform: translate(-50%, -50%); z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  min-width: 3.5em; padding: calc(var(--u) * 0.4) calc(var(--u) * 0.9);
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-2);
+  white-space: nowrap; text-align: center; font-weight: 500; cursor: text;
+}
+.dnode.given { background: var(--bg-3); border-color: transparent; color: var(--fg-2); cursor: default; }
+.dnode.found { cursor: default; }
+.dnode:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.dnode .dlabel { font-size: 0.75em; font-weight: 400; color: var(--fg-2); }
+.dnode-answer { min-height: 1.45em; }
+.dnode-answer.vacant { min-width: 3em; }
+.dnode .answer-input {
+  margin: 0; padding: 0; min-width: 4ch; font-size: 1em; font-weight: 500; text-align: center;
+  border: 0; background: transparent; box-shadow: none;
+}
+.dnode .answer-input:focus { outline: none; }
+.dnode.found .dnode-answer { color: var(--instant); }
+.dnode.instant .dnode-answer { color: var(--instant); }
+.dnode.slow .dnode-answer { color: var(--slow); }
+.dnode.missed .dnode-answer { color: var(--missed); }
+.dnode.missed { border-color: var(--missed); }
+
 .view-toggle { display: inline-flex; gap: 2px; }
 .view-toggle button.active { color: var(--accent); background: var(--bg-3); }
 
@@ -540,6 +570,7 @@ input, textarea,
 /* answer feedback */
 [data-anim-feedback="on"] .card-answer.accepted { animation: pop calc(320ms * var(--dur)) var(--ease-back) both; }
 [data-anim-feedback="on"] .slot.found { animation: pop calc(320ms * var(--dur)) var(--ease-back) both; }
+[data-anim-feedback="on"] .dnode.found .dnode-answer { animation: pop calc(320ms * var(--dur)) var(--ease-back) both; }
 [data-anim-feedback="on"] .score.bump { display: inline-block; animation: bump calc(260ms * var(--dur)) var(--ease-out); }
 [data-anim-feedback="on"] .shake { animation: shake calc(300ms * var(--dur)); }
 

@@ -49,7 +49,7 @@ for (const name of readdirSync(root).sort()) {
       report(name, `item ${i + 1}: image not found: ${item.prompt.image}`);
     }
   });
-  console.log(`${name}: ok (${quiz.items.length} items, ${quiz.mode}${quiz.kind === "calibration" ? ", calibration" : ""})`);
+  console.log(`${name}: ok (${quiz.items.length} items, ${quiz.mode}${quiz.diagram ? " diagram" : ""}${quiz.kind === "calibration" ? ", calibration" : ""})`);
 }
 
 const libraryPath = join(import.meta.dirname, "..", "data", "library.txt");

@@ -9,6 +9,7 @@ import { renderScreen } from "../shell";
 import { shuffled } from "../shuffle";
 import { sounds } from "../sound";
 import { dueLabel, promptNode } from "./common";
+import { diagramDisplay, nearestInDirection, nodeData, nodeLabel } from "./diagram";
 
 interface Session {
   quiz: Quiz;
@@ -155,8 +156,102 @@ function cardInput(): HTMLTextAreaElement {
 }
 
 export function showPlay(quiz: Quiz): void {
-  if (quiz.mode === "prompt") playPrompt(quiz);
+  if (quiz.diagram) playDiagram(quiz);
+  else if (quiz.mode === "prompt") playPrompt(quiz);
   else playList(quiz);
+}
+
+// Diagrams keep file order (the position is the clue, so there is nothing
+// to shuffle). In prompt mode each blank node is an answer box; in list
+// mode answers go in one box and land in their nodes.
+function playDiagram(quiz: Quiz): void {
+  const order = quiz.items.map((_, i) => i);
+  const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
+  const found = (idx: number) => session.foundOrder.includes(idx);
+  const answer = (idx: number) => h("div", { class: "dnode-answer" }, quiz.items[idx].canonical);
+
+  if (quiz.mode === "list") {
+    const input = answerInput();
+    const display = diagramDisplay(quiz, (idx, node) =>
+      node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer vacant" }), nodeData(quiz, idx)].filter((x): x is HTMLElement => x !== null)));
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") input.value = "";
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const idx = findMatch(input.value, quiz.items);
+      if (idx >= 0 && !found(idx)) {
+        const node = display.nodeOf.get(idx)!;
+        node.querySelector(".dnode-answer")!.replaceWith(answer(idx));
+        node.classList.add("found");
+        const typed = input.value;
+        input.value = "";
+        markFound(session, idx, typed);
+      } else {
+        reject(session, input);
+      }
+    });
+    renderScreen(h("div", {}, playHeader(session), input, display.el), { wide: true });
+    input.focus();
+    return;
+  }
+
+  const inputs = new Map<number, HTMLInputElement>();
+  const open = () => order.filter((idx) => !found(idx));
+  const nextOpen = (after: number) => {
+    for (let k = 1; k < order.length; k++) {
+      const idx = (after + k) % order.length;
+      if (!found(idx)) return inputs.get(idx) ?? null;
+    }
+    return null;
+  };
+  // Up/Down always move to the nearest open node that way; Left/Right do
+  // when the box is empty or with Option held, so they still move the caret
+  // inside a typed answer.
+  const ARROWS: Record<string, [number, number]> = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+
+  function submit(idx: number): void {
+    const input = inputs.get(idx)!;
+    if (input.value.trim() === "") { nextOpen(idx)?.focus(); return; }
+    if (matchesItem(input.value, quiz.items[idx])) {
+      const typed = input.value;
+      input.replaceWith(answer(idx));
+      inputs.delete(idx);
+      display.nodeOf.get(idx)!.classList.add("found");
+      const next = nextOpen(idx);
+      markFound(session, idx, typed);
+      next?.focus();
+    } else {
+      reject(session, input, idx);
+    }
+  }
+
+  const display = diagramDisplay(quiz, (idx, node) => {
+    const input = answerInput();
+    const fit = () => { input.style.width = `${Math.max(4, input.value.length + 1)}ch`; };
+    fit();
+    input.addEventListener("input", fit);
+    input.addEventListener("focus", () => { session.timing[idx].focusedMs = session.elapsedMs(); });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); submit(idx); return; }
+      if (e.key === "Escape") { input.value = ""; fit(); return; }
+      const dir = ARROWS[e.key];
+      const vertical = e.key === "ArrowUp" || e.key === "ArrowDown";
+      if (dir && (vertical || e.altKey || input.value === "")) {
+        e.preventDefault();
+        const to = nearestInDirection(quiz, idx, dir, open());
+        if (to !== null) inputs.get(to)?.focus();
+      }
+    });
+    // A click anywhere on the node goes to its box.
+    node.addEventListener("mousedown", (e) => {
+      if (e.target !== input && inputs.has(idx)) { e.preventDefault(); input.focus(); }
+    });
+    inputs.set(idx, input);
+    node.append(...[nodeLabel(quiz, idx), input, nodeData(quiz, idx)].filter((x): x is HTMLElement => x !== null));
+  });
+
+  renderScreen(h("div", {}, playHeader(session), display.el), { wide: true });
+  inputs.get(order[0])?.focus();
 }
 
 function playList(quiz: Quiz): void {
@@ -290,6 +385,15 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
   const tag = (idx: number) => attempt.items[idx].found ? h("span", { class: "muted seconds mono" }, bucketOf(attempt, idx, app.cps)) : null;
 
   function listing(view: View): HTMLElement {
+    if (quiz.diagram) {
+      return diagramDisplay(quiz, (idx, node) => {
+        const bucket = bucketOf(attempt, idx, app.cps);
+        node.classList.add(bucket);
+        node.title = bucket;
+        node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, quiz.items[idx].canonical), nodeData(quiz, idx)]
+          .filter((x): x is HTMLElement => x !== null));
+      }).el;
+    }
     if (quiz.mode === "prompt" && view === "cards") {
       return h("ol", { class: "prompt-grid" }, ...order.map((idx) => {
         const item = quiz.items[idx];
@@ -311,7 +415,7 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
   }
 
   let current = listing(viewOf(quiz));
-  const toggle = quiz.mode === "prompt"
+  const toggle = quiz.mode === "prompt" && !quiz.diagram
     ? viewToggle(quiz, (v) => { const next = listing(v); current.replaceWith(next); current = next; })
     : null;
 

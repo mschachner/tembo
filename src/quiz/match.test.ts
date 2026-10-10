@@ -14,6 +14,19 @@ describe("normalize", () => {
     expect(normalize("St. Kitts & Nevis")).toBe("stkittsnevis");
     expect(normalize("Hawai‘i")).toBe("hawaii");
   });
+  it("folds math letters and subscripts", () => {
+    expect(normalize("add(𝒩)")).toBe(normalize("add N"));
+    expect(normalize("cov(ℳ)")).toBe("covm");
+    expect(normalize("𝔟")).toBe("b");
+    expect(normalize("ℵ₁")).toBe(normalize("ℵ1"));
+  });
+  it("keeps sharps and flats", () => {
+    expect(normalize("F♯")).toBe("fsharp");
+    expect(normalize("F#")).toBe("fsharp");
+    expect(normalize("F sharp")).toBe("fsharp");
+    expect(normalize("B♭ minor")).toBe(normalize("B flat minor"));
+    expect(normalize("F#")).not.toBe(normalize("F"));
+  });
 });
 
 describe("matchesItem", () => {

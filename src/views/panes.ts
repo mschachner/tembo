@@ -33,7 +33,7 @@ function cells(...xs: (string | Node | null)[]): HTMLElement[] {
 interface ListGroup { name: string; quizzes: Quiz[] }
 
 function quizMeta(q: Quiz, today: string): string {
-  if (!inLibrary(q)) return `${q.items.length} · ${q.mode}`;
+  if (!inLibrary(q)) return `${q.items.length} · ${q.diagram ? "diagram" : q.mode}`;
   const st = stateOf(q);
   return [dueLabel(st, today) || (st.status === "new" ? "new" : ""), `${q.items.length}`].filter(Boolean).join(" · ");
 }
@@ -73,7 +73,7 @@ function detailPanes(q: Quiz, tab: Tab, today: string): { head: HTMLElement; pan
   const facts = [
     mine ? (q.kind === "calibration" ? "calibration" : q.retired ? "retired" : st.status) : "not in library",
     mine ? dueLabel(st, today) : null,
-    `${q.items.length} ${q.mode === "prompt" ? "prompts" : "answers"}`,
+    `${q.items.length} ${q.diagram ? "blanks" : q.mode === "prompt" ? "prompts" : "answers"}`,
     q.columns.length ? q.columns.join(", ").toLowerCase() : null,
     st.intervalDays ? `interval ${st.intervalDays.toFixed(1)}d` : null,
     own.length ? `${own.length} attempt${own.length === 1 ? "" : "s"}` : null,
@@ -111,7 +111,7 @@ function detailPanes(q: Quiz, tab: Tab, today: string): { head: HTMLElement; pan
       return { id: a.endedAt, el, activate: () => nav.attempt(q, a, back) };
     });
     panes.push({ id: "attempts", el: pane("attempts", "Attempts", abody, { cols: "17ch 7ch 6ch 6ch minmax(0, 1fr)" }), rows: arows, body: abody });
-  } else if (q.mode === "prompt" || q.columns.length) {
+  } else if (!q.diagram && (q.mode === "prompt" || q.columns.length)) {
     // Not played yet: what the quiz asks, without the answers.
     const labels = [q.mode === "prompt" ? (q.promptLabel || "prompt") : null, ...q.columns.map((c) => c.toLowerCase())].filter((x): x is string => x !== null);
     const body = h("div", { class: "pane-body" }, h("div", { class: "row head" }, ...cells(...labels)));

@@ -84,4 +84,69 @@ answer-label: President
   it("rejects an empty quiz", () => {
     expect(() => parseQuiz(`title: empty\n---\n`)).toThrow(/no items/);
   });
+
+  it("keeps # inside answers but strips comments after a space", () => {
+    const q = parseQuiz(`mode: prompt
+---
+# comment
+Key :: F# | F sharp   # a comment
+`);
+    expect(q.items[0].canonical).toBe("F#");
+    expect(q.items[0].aliases).toEqual(["F sharp"]);
+  });
+
+  it("parses a diagram: blanks, anchors, labels, polar positions, edges", () => {
+    const q = parseQuiz(`title: D
+mode: prompt
+layout: diagram
+diagram-scale: 90
+columns: Sharps
+---
+given @0,0 :: ℵ₁
+@1,0 :: add(𝒩) | add N
+@1,2 lower :: cov(𝒩)
+@2<90 :: G ;; 1
+ℵ₁ -> add(𝒩) -> cov(𝒩)
+G -- ℵ₁
+`);
+    const d = q.diagram!;
+    expect(d.scale).toBe(90);
+    expect(q.items.map((i) => i.canonical)).toEqual(["add(𝒩)", "cov(𝒩)", "G"]);
+    expect(q.items[0].prompt).toBeUndefined();
+    expect(q.items[1].prompt).toEqual({ text: "lower" });
+    expect(q.items[2].data).toEqual(["1"]);
+    expect(d.nodes).toEqual([
+      { x: 0, y: 0, given: "ℵ₁" },
+      { x: 1, y: 0, item: 0 },
+      { x: 1, y: 2, item: 1 },
+      { x: 2, y: 0, item: 2 },
+    ]);
+    expect(d.edges).toEqual([
+      { from: 0, to: 1, arrow: true },
+      { from: 1, to: 2, arrow: true },
+      { from: 3, to: 0, arrow: false },
+    ]);
+  });
+
+  it("works in list mode, and quizzes without a layout have no diagram", () => {
+    const q = parseQuiz(`layout: diagram
+---
+@0,0 :: A
+@0,1 :: B
+A -> B
+`);
+    expect(q.mode).toBe("list");
+    expect(q.items).toHaveLength(2);
+    expect(parseQuiz("---\nA\n").diagram).toBeUndefined();
+  });
+
+  it("rejects bad diagrams", () => {
+    const bad = (body: string) => () => parseQuiz(`layout: diagram\n---\n${body}`);
+    expect(bad("@0,0 :: A\nA -> Z\n")).toThrow(/no node named "Z"/);
+    expect(bad("@0,0 :: A\n@1,0 :: A\n")).toThrow(/two nodes named/);
+    expect(bad("@x :: A\n")).toThrow(/expected a position/);
+    expect(bad("@0,0 A\n")).toThrow(/needs `@position :: answer`/);
+    expect(bad("@0,0 :: A\nwhat\n")).toThrow(/expected a node/);
+    expect(() => parseQuiz("layout: grid\n---\nA\n")).toThrow(/unknown layout/);
+  });
 });
