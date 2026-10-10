@@ -20,6 +20,13 @@ describe("normalize", () => {
     expect(normalize("𝔟")).toBe("b");
     expect(normalize("ℵ₁")).toBe(normalize("ℵ1"));
   });
+  it("spells out Greek letters and daggers", () => {
+    expect(normalize("κ → (ω₁)^{<ω}_{2}")).toBe(normalize("kappa -> (omega_1)^<omega_2"));
+    expect(normalize("α-Mahlo")).toBe("alphamahlo");
+    expect(normalize("ς")).toBe("sigma");
+    expect(normalize("0^{†} exists")).toBe("0daggerexists");
+    expect(normalize("0^{#} exists")).toBe("0sharpexists");
+  });
   it("keeps sharps and flats", () => {
     expect(normalize("F♯")).toBe("fsharp");
     expect(normalize("F#")).toBe("fsharp");

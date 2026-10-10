@@ -14,6 +14,7 @@ import { openSettingsWindow } from "../bus";
 import { itemStats, median, trouble } from "../stats";
 import { dueLabel, fmtDate } from "./common";
 import { alertLine, groups, statsView } from "./home";
+import { rich } from "../rich";
 
 const TAB_KEYS: [string, Tab][] = [["1", "today"], ["2", "library"], ["3", "watering-hole"], ["4", "stats"]];
 const SPARK = "▁▂▃▄▅▆▇█";
@@ -98,7 +99,7 @@ function detailPanes(q: Quiz, tab: Tab, today: string): { head: HTMLElement; pan
     const body = h("div", { class: "pane-body" }, h("div", { class: "row head" }, ...cells("answer", "missed", "slow", "median", "last")));
     const rows: Row[] = stats.map(({ s }) => {
       const med = median(s.latencies);
-      const el = h("div", { class: `row ${s.last ?? ""}` }, ...cells(s.answer, String(s.missed), String(s.slow), med === null ? "" : `${med.toFixed(1)}s`, s.last ?? ""));
+      const el = h("div", { class: `row ${s.last ?? ""}` }, ...cells(rich(s.answer), String(s.missed), String(s.slow), med === null ? "" : `${med.toFixed(1)}s`, s.last ?? ""));
       body.append(el);
       return { id: s.answer, el, activate: () => nav.item(q, s.answer, back) };
     });

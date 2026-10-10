@@ -1,0 +1,48 @@
+title: Kanamori's chart of cardinals
+mode: prompt
+layout: diagram
+diagram-scale: 30
+pass: 100
+---
+# Transcribed from the Chart of Cardinals in Kanamori, The Higher Infinite.
+# Arrows: direct implications or relative consistency implications, often both.
+# Columns at x = 0, 7, 14; y is minus the row on the chart.
+
+given @1,0 :: 0 = 1
+@7,-1 :: I0–I3 | rank-into-rank | rank into rank | I0 to I3
+@14,-2 :: n-huge
+@14,-4 :: superhuge
+@7,-5 :: huge
+@7,-7 :: almost huge
+@0,-8 :: Vopěnka's Principle | Vopenka's Principle | Vopenka | Vopěnka | VP
+@0,-10 :: extendible | extendable
+@7,-11 :: supercompact
+@14,-12 :: strongly compact
+@0,-13 :: superstrong
+@7,-14 :: Woodin
+@7,-16 :: strong
+@7,-18 :: 0^{†} exists | 0† | 0 dagger | zero dagger | zero dagger exists
+@7,-20 :: measurable
+@7,-22 :: Ramsey
+@14,-23 :: Rowbottom
+@7,-24 :: Jónsson
+@0,-25 :: κ → (ω₁)^{<ω}_{2} | kappa -> (omega_1)_2^<omega | kappa -> (omega_1)^<omega | kappa -> (omega_1) | k -> (w1)^<w_2 | k -> (w1)_2^<w | k -> (w1)^<w | k -> (w1) | omega_1-Erdős | omega_1 Erdos
+@7,-26 :: ∀a ∈ ^{ω}ω (a^{#} exists) | every real has a sharp | all reals have sharps | a# exists for every real | a# exists for all reals | for all reals a, a# exists | forall a in omega^omega (a# exists) | a sharp exists for every real | all sharps exist
+@7,-28 :: 0^{#} exists | 0# | 0 sharp | zero sharp | zero sharp exists
+@14,-29 :: κ → (ω)^{<ω}_{2} | kappa -> (omega)_2^<omega | kappa -> (omega)^<omega | kappa -> (omega) | k -> (w)^<w_2 | k -> (w)_2^<w | k -> (w)^<w | k -> (w) | omega-Erdős | omega Erdos
+@14,-31 :: indescribable
+@7,-32 :: weakly compact
+@0,-33 :: α-Mahlo | alpha Mahlo
+@7,-34 :: Mahlo
+@14,-35 :: α-inaccessible | alpha inaccessible
+@7,-36 :: inaccessible | strongly inaccessible
+@7,-38 :: weakly inaccessible
+
+0 = 1 -> I0–I3 -> n-huge -> superhuge -> huge -> almost huge -> Vopěnka's Principle -> extendible -> supercompact
+supercompact -> strongly compact -> Woodin
+supercompact -> superstrong -> Woodin
+Woodin -> strong -> 0^{†} exists -> measurable -> Ramsey
+Ramsey -> Rowbottom -> Jónsson -> ∀a ∈ ^{ω}ω (a^{#} exists)
+Ramsey -> κ → (ω₁)^{<ω}_{2} -> ∀a ∈ ^{ω}ω (a^{#} exists)
+∀a ∈ ^{ω}ω (a^{#} exists) -> 0^{#} exists -> κ → (ω)^{<ω}_{2} -> indescribable -> weakly compact -> α-Mahlo
+α-Mahlo -> Mahlo -> α-inaccessible -> inaccessible -> weakly inaccessible

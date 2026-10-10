@@ -7,6 +7,7 @@ import type { Quiz } from "../quiz/format";
 import { renderScreen } from "../shell";
 import { itemStats, median, trouble } from "../stats";
 import { backButton, dueLabel, fmtDate, fmtNum, fmtSecs, promptNode, th } from "./common";
+import { rich } from "../rich";
 
 export function showQuiz(quiz: Quiz): void {
   const state = stateOf(quiz);
@@ -77,12 +78,12 @@ export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): 
 
   const rows = playOrder(attempt).map((answer, i) => {
     const r = itemRecord(attempt, answer, app.cps);
-    if (!r) return h("tr", {}, h("td", {}, answer));
+    if (!r) return h("tr", {}, h("td", {}, rich(answer)));
     return h(
       "tr",
       { class: `row-link ${r.result}`, onclick: () => nav.item(quiz, answer, () => showAttempt(quiz, attempt, back)) },
       h("td", { class: "num" }, String(i + 1)),
-      h("td", {}, answer),
+      h("td", {}, rich(answer)),
       h("td", {}, r.result),
       h("td", { class: "num" }, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000)),
       h("td", { class: "num" }, fmtSecs(r.seconds)),
@@ -145,7 +146,7 @@ export function showItem(quiz: Quiz, answer: string, back: () => void): void {
       h(
         "header",
         {},
-        h("h1", {}, answer),
+        h("h1", {}, rich(answer)),
         h("div", { class: "muted small" }, quiz.title),
         item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
         item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item)) : null,

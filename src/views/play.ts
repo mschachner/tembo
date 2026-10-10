@@ -9,6 +9,7 @@ import { renderScreen } from "../shell";
 import { shuffled } from "../shuffle";
 import { sounds } from "../sound";
 import { dueLabel, promptNode } from "./common";
+import { rich } from "../rich";
 import { diagramDisplay, nearestInDirection, nodeData, nodeLabel } from "./diagram";
 
 interface Session {
@@ -168,7 +169,7 @@ function playDiagram(quiz: Quiz): void {
   const order = quiz.items.map((_, i) => i);
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
   const found = (idx: number) => session.foundOrder.includes(idx);
-  const answer = (idx: number) => h("div", { class: "dnode-answer" }, quiz.items[idx].canonical);
+  const answer = (idx: number) => h("div", { class: "dnode-answer" }, rich(quiz.items[idx].canonical));
 
   if (quiz.mode === "list") {
     const input = answerInput();
@@ -390,7 +391,7 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
         const bucket = bucketOf(attempt, idx, app.cps);
         node.classList.add(bucket);
         node.title = bucket;
-        node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, quiz.items[idx].canonical), nodeData(quiz, idx)]
+        node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, rich(quiz.items[idx].canonical)), nodeData(quiz, idx)]
           .filter((x): x is HTMLElement => x !== null));
       }).el;
     }

@@ -1,14 +1,16 @@
 import { h } from "../dom";
 import type { DiagramNode, Quiz } from "../quiz/format";
+import { plain, rich } from "../rich";
 
-// Draws quiz.diagram. Nodes are boxes positioned by percentage over the
-// drawing, so it scales down with the window; edges are an SVG layer
+// Draws quiz.diagram. Node centres are placed by percentage inside a margin
+// (so the drawing scales down with the window); edges are an SVG layer
 // underneath, redrawn whenever the drawing or any box changes size
-// (answers filling in change box widths).
+// (answers filling in change box widths). The side margins are sized from
+// the longest label in the outermost columns, so wide boxes there stay
+// inside the drawing.
 //
 // `fill` puts the contents into each blank node; anchors get their text.
 
-const PAD = 0.75;   // grid units of margin around the outermost node centres
 const GAP = 4;      // px between an edge's end and the box it meets
 const HEAD = 9;     // arrowhead length, px
 
@@ -22,25 +24,36 @@ export interface DiagramDisplay {
 export function diagramDisplay(quiz: Quiz, fill: (item: number, node: HTMLElement) => void): DiagramDisplay {
   const d = quiz.diagram!;
   const xs = d.nodes.map((n) => n.x), ys = d.nodes.map((n) => n.y);
-  const minX = Math.min(...xs) - PAD, maxX = Math.max(...xs) + PAD;
-  const minY = Math.min(...ys) - PAD, maxY = Math.max(...ys) + PAD;
-  const w = maxX - minX, ht = maxY - minY;
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const w = (maxX - minX) * d.scale, ht = (maxY - minY) * d.scale;   // px between outermost centres, at full size
 
+  const text = (n: DiagramNode) => plain(n.given ?? quiz.items[n.item!].canonical);
+  const outer = d.nodes.filter((n) => n.x === minX || n.x === maxX);
+  const widest = Math.max(...outer.map((n) => Math.max(text(n).length, plain(n.item !== undefined ? quiz.items[n.item].prompt?.text ?? "" : "").length)));
+  // Inner width shrinks with the window down to 60%; height follows it.
+  const inner = `(min(100cqw - 2 * var(--px), ${w}px))`;
   const svg = document.createElementNS(SVG, "svg");
   svg.classList.add("diagram-edges");
   const box = h("div", {
     class: "diagram",
-    style: `max-width: ${w * d.scale}px; min-width: ${w * d.scale * 0.6}px; aspect-ratio: ${w} / ${ht}`,
+    style: [
+      `--px: ${(widest * 0.3 + 1.5).toFixed(2)}em`,
+      `width: calc(max(${inner}, ${w * 0.6}px) + 2 * var(--px))`,
+      `height: calc(${w ? `max(${inner}, ${w * 0.6}px) * ${ht / w}` : `${ht}px`} + 2 * var(--py))`,
+    ].join("; "),
   });
   box.append(svg);
 
   const nodeOf = new Map<number, HTMLElement>();
   const els = d.nodes.map((n: DiagramNode) => {
+    const fx = maxX > minX ? (n.x - minX) / (maxX - minX) : 0.5;
+    const fy = maxY > minY ? (maxY - n.y) / (maxY - minY) : 0.5;
     const el = h("div", {
       class: `dnode ${n.given !== undefined ? "given" : "blank"}`,
-      style: `left: ${((n.x - minX) / w) * 100}%; top: ${((maxY - n.y) / ht) * 100}%`,
+      style: `left: calc(var(--px) + ${fx.toFixed(4)} * (100% - 2 * var(--px))); top: calc(var(--py) + ${fy.toFixed(4)} * (100% - 2 * var(--py)))`,
     });
-    if (n.given !== undefined) el.append(n.given);
+    if (n.given !== undefined) el.append(rich(n.given));
     else { nodeOf.set(n.item!, el); fill(n.item!, el); }
     box.append(el);
     return el;
@@ -87,7 +100,7 @@ export function diagramDisplay(quiz: Quiz, fill: (item: number, node: HTMLElemen
 // data values (below).
 export function nodeLabel(quiz: Quiz, idx: number): HTMLElement | null {
   const text = quiz.items[idx].prompt?.text;
-  return text ? h("div", { class: "dlabel" }, text) : null;
+  return text ? h("div", { class: "dlabel" }, rich(text)) : null;
 }
 
 export function nodeData(quiz: Quiz, idx: number): HTMLElement | null {
