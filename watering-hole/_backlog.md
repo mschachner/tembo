@@ -6,7 +6,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] US presidents in order, 1–24 (prompt: "16th" → Lincoln) — added 2026-10-08 as us-presidents-1-24
 - [x] US presidents in order, 25–47 (prompt) — added 2026-10-08 as us-presidents-25-47
 - [x] Element symbols, 1–20 (prompt: symbol → element) — added 2026-10-09 as element-symbols-1-20
-- [ ] Capitals of South America (prompt)
+- [x] Capitals of South America (prompt) — added 2026-10-10 as capitals-of-south-america
 - [ ] Shakespeare's plays (list)
 - [ ] Greek gods → Roman names (prompt)
 - [ ] NATO phonetic alphabet (list)
