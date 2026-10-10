@@ -410,11 +410,11 @@ kbd {
    the first tab to 1 for the last, set by shell.ts). A photo is wider than
    the banner by the pan range and slides left; the drawn landscape moves
    its layers at different rates instead. */
-:root { --ease-pan: cubic-bezier(0.45, 0.05, 0.25, 1); }
+:root { --ease-pan: cubic-bezier(0.2, 0.7, 0.2, 1); }
 .banner-img { width: calc(100% + var(--pan-range, 0px)); translate: calc(var(--pan, 0) * -1 * var(--pan-range, 0px)) 0; }
 .banner-svg .pl { transform: translateX(calc((0.5 - var(--pan, 0)) * var(--k) * var(--pan-range, 0px))); }
-[data-anim-banner="on"] .banner-img { transition: opacity 0.3s ease, translate calc(1100ms * var(--dur)) var(--ease-pan); }
-[data-anim-banner="on"] .banner-svg .pl { transition: transform calc(1100ms * var(--dur)) var(--ease-pan); }
+[data-anim-banner="on"] .banner-img { transition: opacity 0.3s ease, translate calc(380ms * var(--dur)) var(--ease-pan); }
+[data-anim-banner="on"] .banner-svg .pl { transition: transform calc(380ms * var(--dur)) var(--ease-pan); }
 
 /* ---- settings window ---- */
 .settings-window { max-width: none; padding-top: calc(var(--u) * 1); }
