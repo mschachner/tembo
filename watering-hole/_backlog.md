@@ -7,7 +7,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] US presidents in order, 25–47 (prompt) — added 2026-10-08 as us-presidents-25-47
 - [x] Element symbols, 1–20 (prompt: symbol → element) — added 2026-10-09 as element-symbols-1-20
 - [x] Capitals of South America (prompt) — added 2026-10-10 as capitals-of-south-america
-- [ ] Primes, 1–99 (list)
+- [x] Primes, 1–99 (list) — added 2026-10-11 as primes-1-99
 - [ ] Shakespeare's plays (list)
 - [ ] Greek gods → Roman names (prompt)
 - [ ] Primes, 100–199 (list)
