@@ -8,7 +8,9 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Element symbols, 1–20 (prompt: symbol → element) — added 2026-10-09 as element-symbols-1-20
 - [x] Capitals of South America (prompt) — added 2026-10-10 as capitals-of-south-america
 - [x] Primes, 1–99 (list) — added 2026-10-11 as primes-1-99
-- [ ] Shakespeare's plays (list)
+- [x] Shakespeare's plays (list) — added 2026-10-12 as shakespeare-comedies
+- [ ] Shakespeare's histories, First Folio (list)
+- [ ] Shakespeare's tragedies, First Folio (list)
 - [ ] Greek gods → Roman names (prompt)
 - [ ] Primes, 100–199 (list)
 - [ ] NATO phonetic alphabet (list)
