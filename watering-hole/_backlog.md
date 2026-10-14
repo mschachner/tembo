@@ -9,7 +9,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Capitals of South America (prompt) — added 2026-10-10 as capitals-of-south-america
 - [x] Primes, 1–99 (list) — added 2026-10-11 as primes-1-99
 - [x] Shakespeare's plays (list) — added 2026-10-12 as shakespeare-comedies
-- [ ] Shakespeare's histories, First Folio (list)
+- [x] Shakespeare's histories, First Folio (list) — added 2026-10-14 as shakespeare-histories
 - [ ] Shakespeare's tragedies, First Folio (list)
 - [ ] Greek gods → Roman names (prompt)
 - [ ] Primes, 100–199 (list)

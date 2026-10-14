@@ -1,0 +1,14 @@
+title: Shakespeare's histories (First Folio)
+mode: list
+pass: 100
+---
+King John | The Life and Death of King John
+Richard II | Richard the Second | Richard 2 | King Richard II | King Richard the Second
+Henry IV, Part 1 | 1 Henry IV | Henry IV Part One | Henry the Fourth Part 1 | Henry the Fourth Part One | Henry 4 Part 1 | The First Part of King Henry the Fourth
+Henry IV, Part 2 | 2 Henry IV | Henry IV Part Two | Henry the Fourth Part 2 | Henry the Fourth Part Two | Henry 4 Part 2 | The Second Part of King Henry the Fourth
+Henry V | Henry the Fifth | Henry 5 | King Henry V | King Henry the Fifth
+Henry VI, Part 1 | 1 Henry VI | Henry VI Part One | Henry the Sixth Part 1 | Henry the Sixth Part One | Henry 6 Part 1 | The First Part of King Henry the Sixth
+Henry VI, Part 2 | 2 Henry VI | Henry VI Part Two | Henry the Sixth Part 2 | Henry the Sixth Part Two | Henry 6 Part 2 | The Second Part of King Henry the Sixth
+Henry VI, Part 3 | 3 Henry VI | Henry VI Part Three | Henry the Sixth Part 3 | Henry the Sixth Part Three | Henry 6 Part 3 | The Third Part of King Henry the Sixth
+Richard III | Richard the Third | Richard 3 | King Richard III | King Richard the Third
+Henry VIII | Henry the Eighth | Henry 8 | King Henry VIII | King Henry the Eighth | All Is True
