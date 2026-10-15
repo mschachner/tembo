@@ -10,7 +10,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Primes, 1–99 (list) — added 2026-10-11 as primes-1-99
 - [x] Shakespeare's plays (list) — added 2026-10-12 as shakespeare-comedies
 - [x] Shakespeare's histories, First Folio (list) — added 2026-10-14 as shakespeare-histories
-- [ ] Shakespeare's tragedies, First Folio (list)
+- [x] Shakespeare's tragedies, First Folio (list) — added 2026-10-15 as shakespeare-tragedies
 - [ ] Greek gods → Roman names (prompt)
 - [ ] Primes, 100–199 (list)
 - [ ] NATO phonetic alphabet (list)

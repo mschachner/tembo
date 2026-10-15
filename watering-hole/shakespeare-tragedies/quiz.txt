@@ -1,0 +1,16 @@
+title: Shakespeare's tragedies (First Folio)
+mode: list
+pass: 100
+---
+Troilus and Cressida | Troilus & Cressida | Troilus
+Coriolanus | The Tragedy of Coriolanus
+Titus Andronicus | Titus | The Tragedy of Titus Andronicus
+Romeo and Juliet | Romeo & Juliet | The Tragedy of Romeo and Juliet
+Timon of Athens | Timon
+Julius Caesar | The Tragedy of Julius Caesar
+Macbeth | The Tragedy of Macbeth
+Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark
+King Lear | Lear | The Tragedy of King Lear
+Othello | Othello, the Moor of Venice | The Tragedy of Othello, the Moor of Venice
+Antony and Cleopatra | Antony & Cleopatra
+Cymbeline | Cymbeline, King of Britain
