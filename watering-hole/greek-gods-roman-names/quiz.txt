@@ -1,0 +1,33 @@
+title: Greek gods and their Roman names
+mode: prompt
+pass: 100
+prompt-label: Greek
+answer-label: Roman
+---
+Zeus :: Jupiter | Jove | Iuppiter | Juppiter
+Hera :: Juno | Iuno
+Poseidon :: Neptune | Neptunus
+Demeter :: Ceres
+Athena :: Minerva
+Apollo :: Apollo
+Artemis :: Diana
+Ares :: Mars
+Aphrodite :: Venus
+Hephaestus :: Vulcan | Vulcanus | Volcanus | Mulciber
+Hermes :: Mercury | Mercurius
+Dionysus :: Bacchus | Liber | Liber Pater
+Hestia :: Vesta
+Hades :: Pluto | Dis Pater | Dis | Orcus
+Persephone :: Proserpina | Proserpine
+Eros :: Cupid | Cupido | Amor
+Cronus :: Saturn | Saturnus
+Rhea :: Ops | Magna Mater
+Gaia :: Terra | Tellus | Terra Mater
+Helios :: Sol
+Selene :: Luna
+Eos :: Aurora | Matuta
+Nike :: Victoria
+Tyche :: Fortuna
+Hypnos :: Somnus
+Pan :: Faunus
+Asclepius :: Aesculapius | Esculapius
