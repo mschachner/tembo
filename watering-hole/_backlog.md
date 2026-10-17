@@ -12,7 +12,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Shakespeare's histories, First Folio (list) — added 2026-10-14 as shakespeare-histories
 - [x] Shakespeare's tragedies, First Folio (list) — added 2026-10-15 as shakespeare-tragedies
 - [x] Greek gods → Roman names (prompt) — added 2026-10-16 as greek-gods-roman-names
-- [ ] Primes, 100–199 (list)
+- [x] Primes, 100–199 (list) — added 2026-10-17 as primes-100-199
 - [ ] NATO phonetic alphabet (list)
 - [ ] US state capitals A–M (prompt)
 - [ ] Primes, 200–299 (list)
