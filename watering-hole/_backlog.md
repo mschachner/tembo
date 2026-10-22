@@ -15,7 +15,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Primes, 100–199 (list) — added 2026-10-17 as primes-100-199
 - [x] NATO phonetic alphabet (list) — added 2026-10-20 as nato-phonetic-alphabet
 - [x] US state capitals A–M (prompt) — added 2026-10-21 as us-state-capitals-a-m
-- [ ] Primes, 200–299 (list)
+- [x] Primes, 200–299 (list) — added 2026-10-22 as primes-200-299
 - [ ] Seven Wonders of the Ancient World (list)
 - [ ] Planets and their largest moons (prompt)
 - [ ] Primes, 300–399 (list)
