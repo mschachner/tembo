@@ -16,7 +16,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] NATO phonetic alphabet (list) — added 2026-10-20 as nato-phonetic-alphabet
 - [x] US state capitals A–M (prompt) — added 2026-10-21 as us-state-capitals-a-m
 - [x] Primes, 200–299 (list) — added 2026-10-22 as primes-200-299
-- [ ] Seven Wonders of the Ancient World (list)
+- [x] Seven Wonders of the Ancient World (list) — added 2026-10-23 as seven-wonders-ancient-world
 - [ ] Planets and their largest moons (prompt)
 - [ ] Primes, 300–399 (list)
 - [ ] Wives of Henry VIII (prompt: order → name)
