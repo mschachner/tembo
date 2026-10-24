@@ -241,7 +241,7 @@ function donePane(todays: AnyAttempt[], today: string): HTMLElement {
   const run = streak(days, today);
   return h("section", { class: "pane detail-empty done" },
     h("div", { class: "done-mark" },
-      tembo(110),
+      tembo(96),
       h("div", { class: "empty-title" }, "Done for today"),
       h("div", { class: "empty-slot" } /* copy slot: Mark's own words for the done state */)),
     h("div", { class: "done-facts" },
