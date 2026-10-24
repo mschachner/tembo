@@ -697,11 +697,15 @@ input, textarea,
 .pane.bottom { grid-column: auto; }
 .panes.done > .detail-empty { grid-column: 1 / -1; }
 .detail-empty.done {
-  flex: none; flex-direction: row; justify-content: center; gap: calc(var(--u) * 5); padding: calc(var(--u) * 1.5) calc(var(--u) * 4);
+  flex: none; display: grid; grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr); align-items: center;
+  gap: calc(var(--u) * 6); padding: calc(var(--u) * 2) calc(var(--u) * 5);
   border-style: solid;
 }
-.done-mark { display: flex; flex-direction: column; align-items: center; gap: var(--u); text-align: center; }
-.done-facts { display: flex; flex-direction: column; gap: calc(var(--u) * 1.5); width: min(100%, 520px); min-width: 0; }
+.done-mark { display: flex; flex-direction: column; align-items: center; justify-self: center; gap: var(--u); text-align: center; }
+.done-facts {
+  display: flex; flex-direction: column; gap: calc(var(--u) * 1.5); width: min(100%, 720px); min-width: 0;
+  padding-left: calc(var(--u) * 5); border-left: 1px solid var(--line);
+}
 .detail-empty.done .tiles { grid-template-columns: repeat(4, 1fr); }
 .detail-empty.done .tile-value { color: var(--fg); }
 .detail-empty.done .empty-title { font-size: 1.5em; font-weight: 600; color: var(--fg); }
