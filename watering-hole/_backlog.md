@@ -17,7 +17,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] US state capitals A–M (prompt) — added 2026-10-21 as us-state-capitals-a-m
 - [x] Primes, 200–299 (list) — added 2026-10-22 as primes-200-299
 - [x] Seven Wonders of the Ancient World (list) — added 2026-10-23 as seven-wonders-ancient-world
-- [ ] Planets and their largest moons (prompt)
+- [x] Planets and their largest moons (prompt) — added 2026-10-24 as planets-largest-moons
 - [ ] Primes, 300–399 (list)
 - [ ] Wives of Henry VIII (prompt: order → name)
 - [ ] Author of the novel, set 1 (prompt)
