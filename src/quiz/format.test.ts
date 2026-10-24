@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseQuiz, QuizFormatError } from "./format";
+import { parseQuiz, QuizFormatError, topicOf } from "./format";
 
 describe("parseQuiz", () => {
   it("parses a list-mode quiz with aliases and comments", () => {
@@ -148,5 +148,19 @@ A -> B
     expect(bad("@0,0 A\n")).toThrow(/needs `@position :: answer`/);
     expect(bad("@0,0 :: A\nwhat\n")).toThrow(/expected a node/);
     expect(() => parseQuiz("layout: grid\n---\nA\n")).toThrow(/unknown layout/);
+  });
+});
+
+describe("tags and variants", () => {
+  it("reads tags lower-cased with the first as the topic", () => {
+    const q = parseQuiz("title: T\ntags: Geography, Capitals\n---\nParis\n");
+    expect(q.tags).toEqual(["geography", "capitals"]);
+    expect(topicOf(q)).toBe("geography");
+    expect(q.after).toBeNull();
+  });
+  it("reads the base quiz of a harder variant", () => {
+    const q = parseQuiz("title: T\nafter: capitals-of-europe\n---\nParis\n");
+    expect(q.after).toBe("capitals-of-europe");
+    expect(topicOf(q)).toBe("");
   });
 });

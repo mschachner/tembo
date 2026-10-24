@@ -1,6 +1,7 @@
 title: Shakespeare's tragedies (First Folio)
 mode: list
 pass: 100
+tags: literature, shakespeare
 ---
 Troilus and Cressida | Troilus & Cressida | Troilus
 Coriolanus | The Tragedy of Coriolanus

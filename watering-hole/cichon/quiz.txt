@@ -2,6 +2,7 @@ title: Cichoń's diagram
 mode: prompt
 layout: diagram
 pass: 100
+tags: mathematics, set theory
 ---
 given @0,0 :: ℵ₁
 given @5,2 :: 𝔠

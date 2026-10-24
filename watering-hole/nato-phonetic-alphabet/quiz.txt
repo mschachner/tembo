@@ -1,6 +1,7 @@
 title: NATO phonetic alphabet
 mode: list
 pass: 100
+tags: language
 ---
 Alfa | Alpha
 Bravo

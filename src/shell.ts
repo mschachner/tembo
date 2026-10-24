@@ -1,7 +1,7 @@
 // Page skeleton: title-bar drag strip, banner (home only), tabs, content,
 // status line.
 import { activeTheme, app, asset, dueCount } from "./app";
-import { bannerImage, defaultBanner } from "./banner";
+import { bannerImage, defaultBanner, tembo } from "./banner";
 import { clear, h } from "./dom";
 import { applyEdge } from "./edge";
 import { nav, type Tab } from "./nav";
@@ -144,7 +144,7 @@ function bannerNode(tab: Tab): HTMLElement {
     h(
       "div",
       { class: "banner-text" },
-      h("div", { class: "banner-title" }, "Tembo"),
+      h("div", { class: "banner-title" }, tembo(), h("span", {}, "Tembo")),
       h("div", { class: "banner-sub" }, `${dateLabel} · ${due} due`),
       style === "card" ? tabsNode(tab) : null,
     ),

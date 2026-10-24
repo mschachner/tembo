@@ -2,7 +2,8 @@
 //   npm run check
 // Reports format errors, missing image files, duplicate ids, and answers
 // or aliases that collide within a quiz after normalization, and imported
-// ids (data/library.txt) that match no quiz.
+// ids (data/library.txt) that match no quiz, untagged quizzes, and
+// `after:` headers naming no quiz.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parseQuiz } from "../src/quiz/format";
@@ -11,6 +12,7 @@ import { normalize } from "../src/quiz/match";
 const root = join(import.meta.dirname, "..", "watering-hole");
 let problems = 0;
 const ids = new Map<string, string>();
+const afters: { name: string; after: string }[] = [];
 
 function report(where: string, msg: string): void {
   problems++;
@@ -33,6 +35,8 @@ for (const name of readdirSync(root).sort()) {
 
   if (ids.has(quiz.id)) report(name, `id "${quiz.id}" also used by ${ids.get(quiz.id)}`);
   ids.set(quiz.id, name);
+  if (quiz.after) afters.push({ name, after: quiz.after });
+  if (!quiz.tags.length && quiz.kind === "normal") report(name, "no tags (the first tag is the quiz's topic)");
 
   const seen = new Map<string, string>();
   quiz.items.forEach((item, i) => {
@@ -50,6 +54,10 @@ for (const name of readdirSync(root).sort()) {
     }
   });
   console.log(`${name}: ok (${quiz.items.length} items, ${quiz.mode}${quiz.diagram ? " diagram" : ""}${quiz.kind === "calibration" ? ", calibration" : ""})`);
+}
+
+for (const { name, after } of afters) {
+  if (!ids.has(after)) report(name, `after: "${after}" matches no quiz`);
 }
 
 const libraryPath = join(import.meta.dirname, "..", "data", "library.txt");

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 columns: Years, Party
 answer-label: President
+tags: history, us presidents
 ---
 1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
 2nd :: John Adams ;; 1797–1801 ;; Federalist

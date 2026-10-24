@@ -9,6 +9,7 @@ export interface Settings {
   grading: { instantSeconds: number };   // latency below this counts as instant
   motion: Motion;
   views: Record<string, "cards" | "list">;   // prompt quizzes: last view, by quiz id
+  groupBy: "status" | "topic";             // Library and Watering Hole lists
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   grading: { instantSeconds: 1.5 },
   motion: DEFAULT_MOTION,
   views: {},
+  groupBy: "status",
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -35,6 +37,7 @@ export async function loadSettings(): Promise<Settings> {
         speed: raw.motion?.speed ?? DEFAULT_MOTION.speed,
       },
       views: raw.views ?? {},
+      groupBy: raw.groupBy === "topic" ? "topic" : "status",
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);

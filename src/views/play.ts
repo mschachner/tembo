@@ -1,4 +1,6 @@
-import { app, persistSettings, recordAttempt, stateOf } from "../app";
+import { app, attemptsOf, persistSettings, recordAttempt, stateOf } from "../app";
+import { tembo } from "../banner";
+import { celebrate } from "../celebrate";
 import { makeAttempt, type Attempt, type ItemTiming } from "../attempt";
 import { formatClock, h } from "../dom";
 import { bucketOf, gradeOf } from "../grade";
@@ -20,6 +22,7 @@ interface Session {
   foundOrder: number[];
   timing: ItemTiming[];
   rejected: number;
+  everFound: Set<string>;   // answers found in any earlier attempt of this quiz
   finished: boolean;
   timer: number;
   clock: HTMLElement;
@@ -33,7 +36,7 @@ function startSession(quiz: Quiz, order: number[], onFinish: (attempt: Attempt) 
   const session: Session = {
     quiz, order, startedAt: new Date(), foundOrder: [],
     timing: quiz.items.map(() => ({ wrong: 0 })),
-    rejected: 0, finished: false, timer: 0,
+    rejected: 0, everFound: new Set(attemptsOf(quiz).flatMap((a) => a.found)), finished: false, timer: 0,
     clock: h("span", { class: "clock mono" }, "0:00"),
     score: h("span", { class: "score mono" }, `0 / ${quiz.items.length}`),
     giveUp: h("button", { class: "quiet give-up", onclick: () => session.finish(true) }, h("kbd", {}, "esc esc"), " Give up"),
@@ -56,7 +59,9 @@ function startSession(quiz: Quiz, order: number[], onFinish: (attempt: Attempt) 
   return session;
 }
 
-function markFound(session: Session, idx: number, typed: string): void {
+// Records the find and says whether it was the first time ever for this item.
+function markFound(session: Session, idx: number, typed: string): boolean {
+  const first = !session.everFound.has(session.quiz.items[idx].canonical);
   session.foundOrder.push(idx);
   session.timing[idx].acceptedMs = session.elapsedMs();
   session.timing[idx].typedChars = typed.length;
@@ -65,10 +70,30 @@ function markFound(session: Session, idx: number, typed: string): void {
   void session.score.offsetWidth; // restart the animation
   session.score.classList.add("bump");
   if (session.foundOrder.length === session.quiz.items.length) session.finish(false);
+  else if (first) sounds.firstFind();
   else sounds.accept();
+  return first;
+}
+
+// Marks an answer found for the first time ever.
+function firstMark(): HTMLElement {
+  return h("span", { class: "first-mark", title: "first time" }, "\u2726");
 }
 
 type AnswerBox = HTMLInputElement | HTMLTextAreaElement;
+
+// Browsers scroll a newly focused box into view only once it is off screen,
+// which on a long quiz means working at the very bottom of the window. Keep
+// the current box out of the bottom (and top) eighth instead.
+function focusBox(el: HTMLElement | null | undefined): void {
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  const r = el.getBoundingClientRect();
+  const wh = window.innerHeight;
+  if (r.bottom <= wh * 0.875 && r.top >= wh * 0.125) return;
+  const smooth = document.documentElement.dataset.motion === "on";
+  window.scrollBy({ top: r.top + r.height / 2 - wh * 0.45, behavior: smooth ? "smooth" : "auto" });
+}
 
 function reject(session: Session, input: AnswerBox, idx?: number): void {
   session.rejected++;
@@ -221,11 +246,12 @@ function playDiagram(quiz: Quiz): void {
       const idx = findMatch(input.value, quiz.items);
       if (idx >= 0 && !found(idx)) {
         const node = display.nodeOf.get(idx)!;
-        node.querySelector(".dnode-answer")!.replaceWith(answer(idx));
+        const shown = answer(idx);
+        node.querySelector(".dnode-answer")!.replaceWith(shown);
         node.classList.add("found");
         const typed = input.value;
         input.value = "";
-        markFound(session, idx, typed);
+        if (markFound(session, idx, typed)) shown.append(firstMark());
       } else {
         reject(session, input);
       }
@@ -252,15 +278,16 @@ function playDiagram(quiz: Quiz): void {
 
   function submit(idx: number): void {
     const input = inputs.get(idx)!;
-    if (input.value.trim() === "") { nextOpen(idx)?.focus(); return; }
+    if (input.value.trim() === "") { focusBox(nextOpen(idx)); return; }
     if (matchesItem(input.value, quiz.items[idx])) {
       const typed = input.value;
-      input.replaceWith(answer(idx));
+      const shown = answer(idx);
+      input.replaceWith(shown);
       inputs.delete(idx);
       display.nodeOf.get(idx)!.classList.add("found");
       const next = nextOpen(idx);
-      markFound(session, idx, typed);
-      next?.focus();
+      if (markFound(session, idx, typed)) shown.append(firstMark());
+      focusBox(next);
     } else {
       reject(session, input, idx);
     }
@@ -280,7 +307,7 @@ function playDiagram(quiz: Quiz): void {
       if (dir && (vertical || e.altKey || input.value === "")) {
         e.preventDefault();
         const to = nearestInDirection(quiz, idx, dir, open());
-        if (to !== null) inputs.get(to)?.focus();
+        if (to !== null) focusBox(inputs.get(to));
       }
     });
     // A click anywhere on the node goes to its box.
@@ -292,8 +319,8 @@ function playDiagram(quiz: Quiz): void {
   });
 
   renderScreen(h("div", {}, playHeader(session), display.el), { wide: true });
-  playKeys(session, () => inputs.get(open()[0])?.focus());
-  inputs.get(order[0])?.focus();
+  playKeys(session, () => focusBox(inputs.get(open()[0])));
+  focusBox(inputs.get(order[0]));
 }
 
 function playList(quiz: Quiz): void {
@@ -312,7 +339,7 @@ function playList(quiz: Quiz): void {
       slots[idx].classList.add("found");
       const typed = input.value;
       input.value = "";
-      markFound(session, idx, typed);
+      if (markFound(session, idx, typed)) slots[idx].append(" ", firstMark());
     } else {
       reject(session, input);
     }
@@ -356,16 +383,17 @@ function playPrompt(quiz: Quiz): void {
 
   function submit(idx: number): void {
     const input = inputs.get(idx)!;
-    if (input.value.trim() === "") { nextUnanswered(idx)?.focus(); return; }
+    if (input.value.trim() === "") { focusBox(nextUnanswered(idx)); return; }
     if (matchesItem(input.value, quiz.items[idx])) {
       const typed = input.value;
       drafts.delete(idx);
       // Swap the box for the answer as text, which wraps freely.
-      input.replaceWith(h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical));
+      const shown = h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical);
+      input.replaceWith(shown);
       inputs.delete(idx);
       const next = nextUnanswered(idx);
-      markFound(session, idx, typed);
-      next?.focus();
+      if (markFound(session, idx, typed)) shown.append(" ", firstMark());
+      focusBox(next);
     } else {
       reject(session, input, idx);
     }
@@ -416,17 +444,24 @@ function playPrompt(quiz: Quiz): void {
     current = next;
     fitAll();
     switching = true;
-    (active !== undefined ? inputs.get(active) : firstUnanswered())?.focus();
+    focusBox(active !== undefined ? inputs.get(active) : firstUnanswered());
     switching = false;
   });
 
   renderScreen(h("div", {}, playHeader(session, toggle), current), { wide: true });
-  playKeys(session, () => firstUnanswered()?.focus(), () => flip(toggle));
-  inputs.get(order[0])?.focus();
+  playKeys(session, () => focusBox(firstUnanswered()), () => flip(toggle));
+  focusBox(inputs.get(order[0]));
 }
 
 export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void {
-  const tag = (idx: number) => attempt.items[idx].found ? h("span", { class: "muted seconds mono" }, bucketOf(attempt, idx, app.cps)) : null;
+  // Earlier attempts of this quiz: for first-ever finds and a first clear.
+  const prior = attemptsOf(quiz).filter((a) => a.endedAt < attempt.endedAt);
+  const before = new Set(prior.flatMap((a) => a.found));
+  const firstFinds = new Set(attempt.found.filter((ans) => !before.has(ans)));
+  const firstClear = attempt.cleared && quiz.kind === "normal" && !prior.some((a) => a.cleared);
+  const tag = (idx: number) => attempt.items[idx].found
+    ? h("span", { class: "muted seconds mono" }, bucketOf(attempt, idx, app.cps), firstFinds.has(attempt.items[idx].answer) ? firstMark() : null)
+    : null;
 
   function listing(view: View): HTMLElement {
     if (quiz.diagram) {
@@ -469,7 +504,10 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
     h("span", { class: "muted mono" }, formatClock(attempt.durationSeconds)),
   ];
   if (quiz.kind === "normal") {
-    status.push(h("span", { class: attempt.cleared ? "cleared stamp" : "muted" }, attempt.cleared ? "cleared" : "not cleared"));
+    status.push(firstClear
+      ? h("span", { class: "cleared stamp first-clear" }, tembo(18), "First clear")
+      : h("span", { class: attempt.cleared ? "cleared stamp" : "muted" }, attempt.cleared ? "cleared" : "not cleared"));
+    if (firstFinds.size) status.push(h("span", { class: "muted first-count" }, firstMark(), ` ${firstFinds.size} first-time`));
     status.push(h("span", { class: "muted mono" }, `grade ${gradeOf(attempt, app.cps).toFixed(2)}`));
     status.push(h("span", { class: "muted" }, `next ${dueLabel(state)}`));
   }
@@ -483,10 +521,11 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
     ...(toggle ? [{ keys: ["v"], hint: "v", label: "", run: () => flip(toggle) }] : []),
   ];
 
+  if (firstClear) { sounds.firstClear(); celebrate(); }
   renderScreen(
     h(
       "div",
-      {},
+      { class: firstClear ? "first-clear-page" : "" },
       h("header", {}, h("h1", {}, quiz.title), h("div", { class: "status" }, ...status)),
       current,
       h("div", { class: "actions keys" }, ...actions.filter((a) => a.label).map((a) =>

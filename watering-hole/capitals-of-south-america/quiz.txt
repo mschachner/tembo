@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Country
 answer-label: Capital
+tags: geography, capitals
 ---
 Argentina :: Buenos Aires
 Bolivia :: Sucre | La Paz

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Body
 answer-label: Largest moon
+tags: science, astronomy
 ---
 Earth :: Moon | The Moon | Luna
 Mars :: Phobos

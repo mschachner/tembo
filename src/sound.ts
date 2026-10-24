@@ -28,5 +28,9 @@ export const sounds = {
   accept: () => tone(880, 70, "sine"),
   reject: () => tone(160, 110, "triangle", 0, 0.8),
   complete: () => { tone(523, 90, "sine"); tone(659, 90, "sine", 0.09); tone(784, 160, "sine", 0.18); },
+  // An item found for the first time ever: the accept tone with a bright second note.
+  firstFind: () => { tone(880, 60, "sine"); tone(1320, 110, "sine", 0.06, 0.7); },
+  // A quiz cleared for the first time: a longer rising figure.
+  firstClear: () => { tone(523, 100, "sine"); tone(659, 100, "sine", 0.1); tone(784, 100, "sine", 0.2); tone(1047, 260, "sine", 0.3); tone(1319, 420, "sine", 0.42, 0.6); },
   giveUp: () => { tone(392, 120, "sine"); tone(311, 200, "sine", 0.12, 0.8); },
 };

@@ -3,6 +3,7 @@ mode: prompt
 layout: diagram
 diagram-scale: 30
 pass: 100
+tags: mathematics, set theory
 ---
 # Transcribed from the Chart of Cardinals in Kanamori, The Higher Infinite.
 # Arrows: direct implications or relative consistency implications, often both.

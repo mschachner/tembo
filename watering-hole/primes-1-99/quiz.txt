@@ -1,6 +1,7 @@
 title: Primes, 1–99
 mode: list
 pass: 100
+tags: mathematics, primes
 ---
 2
 3

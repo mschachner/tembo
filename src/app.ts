@@ -124,10 +124,33 @@ export function stateOf(quiz: Quiz): QuizState {
   return own.length ? replay(own, (a) => gradeOf(a, app.cps)) : NEW_STATE;
 }
 
+// The quiz a harder variant builds on (its `after:` header), if it exists.
+export function baseOf(quiz: Quiz): Quiz | null {
+  return quiz.after ? app.quizzes.find((q) => q.id === quiz.after) ?? null : null;
+}
+
+// A harder variant is locked until its base quiz is proficient. A quiz
+// that is not a variant is never locked; a variant whose base is missing
+// stays locked.
+export function locked(quiz: Quiz): boolean {
+  if (!quiz.after) return false;
+  const base = baseOf(quiz);
+  return !base || stateOf(base).status !== "proficient";
+}
+
 // Your quizzes: the ones imported from the Watering Hole, plus the typing
-// calibration, which everyone has.
+// calibration, which everyone has, plus unlocked variants of quizzes in
+// the library, which join on their own.
 export function inLibrary(quiz: Quiz): boolean {
-  return quiz.kind === "calibration" || app.library.includes(quiz.id);
+  if (quiz.kind === "calibration" || app.library.includes(quiz.id)) return true;
+  if (!quiz.after || locked(quiz)) return false;
+  const base = baseOf(quiz);
+  return !!base && inLibrary(base);
+}
+
+// Variants waiting on a quiz in the library to become proficient.
+export function lockedVariants(): Quiz[] {
+  return app.quizzes.filter((q) => q.after && locked(q) && !!baseOf(q) && inLibrary(baseOf(q)!));
 }
 
 export function entries(): Entry[] {
@@ -149,7 +172,7 @@ export async function removeQuiz(quiz: Quiz): Promise<void> {
 
 export function playable(quiz: Quiz, state: QuizState, today = localDate(new Date())): boolean {
   if (quiz.kind === "calibration") return true;
-  if (quiz.retired || !inLibrary(quiz)) return false;
+  if (quiz.retired || !inLibrary(quiz) || locked(quiz)) return false;
   return isDue(state, today);
 }
 

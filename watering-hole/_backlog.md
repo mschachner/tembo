@@ -3,6 +3,26 @@
 The daily quiz task takes the first unchecked line, builds it, and checks it
 off with the date. Reorder, add or delete lines freely.
 
+## Standing rules for the daily task
+
+- Every quiz gets a `tags:` header; the first tag is its topic and is used
+  for grouping in the app. Reuse existing topics where one fits (geography,
+  history, literature, science, mathematics, music, language, mythology,
+  sport, film, art) and add a narrower second tag (capitals, flags, primes,
+  shakespeare, ...). Tag the flag quizzes `geography, flags`.
+- Alongside each new quiz, build at least one harder variant in its own
+  folder with an `after: <base-id>` header: the other direction (capital →
+  country), the same prompts without the data columns (`-bare`), or list
+  mode where prompt mode gave the order away. Variants are not added to
+  `data/library.txt`: Tembo hides a variant until its base quiz is
+  proficient and then brings it into the library on its own. Also check
+  the existing quizzes once in a while and add variants for any that have
+  none.
+- A variant of an already-built quiz can also be queued as its own line
+  ("..., reversed, after <base-id>").
+
+## Queue
+
 - [x] US presidents in order, 1–24 (prompt: "16th" → Lincoln) — added 2026-10-08 as us-presidents-1-24
 - [x] US presidents in order, 25–47 (prompt) — added 2026-10-08 as us-presidents-25-47
 - [x] Element symbols, 1–20 (prompt: symbol → element) — added 2026-10-09 as element-symbols-1-20
@@ -20,6 +40,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Planets and their largest moons (prompt) — added 2026-10-24 as planets-largest-moons
 - [x] Primes, 300–399 (list) — added 2026-10-25 as primes-300-399
 - [ ] Wives of Henry VIII (prompt: order → name)
+- [ ] Planets and their largest moons, reversed (prompt: moon → planet), after planets-largest-moons
 - [ ] Author of the novel, set 1 (prompt)
 - [ ] Primes, 400–499 (list)
 - [ ] US state capitals N–W (prompt)
@@ -30,6 +51,7 @@ off with the date. Reorder, add or delete lines freely.
 - [ ] Primes, 600–699 (list)
 - [ ] Capitals of Europe (prompt)
 - [ ] Greek alphabet (list)
+- [ ] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet
 - [ ] Primes, 700–799 (list)
 - [ ] English/British monarchs since 1066 (prompt)
 - [ ] Animal group names (prompt: "a murder of" → crows)

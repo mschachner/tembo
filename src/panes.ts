@@ -109,9 +109,10 @@ export function mountPanes(opts: {
   const remembered = focused.get(opts.scope);
   const start = ctl.panes.find((p) => p.id === remembered) ?? ctl.panes.find((p) => p.rows.length) ?? ctl.panes[0];
   if (start) ctl.focus = start.id;
+  // Only a remembered cursor scrolls into view; a fresh screen opens at the top.
   for (const pane of ctl.panes) {
     const cur = cursorRow(pane);
-    if (cur) { cur.el.scrollIntoView({ block: "nearest" }); pane.onCursor?.(cur); }
+    if (cur) { if (cursors.has(cursorKey(pane))) cur.el.scrollIntoView({ block: "nearest" }); pane.onCursor?.(cur); }
   }
   paint();
   setKeys(onKey);

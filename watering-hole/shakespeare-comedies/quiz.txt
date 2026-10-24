@@ -1,6 +1,7 @@
 title: Shakespeare's comedies (First Folio)
 mode: list
 pass: 100
+tags: literature, shakespeare
 ---
 The Tempest | Tempest
 The Two Gentlemen of Verona | Two Gentlemen of Verona

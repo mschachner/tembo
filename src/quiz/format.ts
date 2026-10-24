@@ -6,6 +6,8 @@
 //   pass: 100             # percent required to count as a clear
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
 //   retired: true         # optional; drop the quiz from the schedule
+//   tags: geography, capitals   # optional; the first tag is the quiz's topic, used for grouping
+//   after: capitals-of-europe   # optional; a harder variant, hidden until that quiz is proficient
 //   image-height: 72      # px, for image prompts (default 72)
 //   columns: Years, Party # optional; names of per-item data columns
 //   prompt-label: Order   # optional; table heading over the prompts
@@ -18,7 +20,12 @@
 // In prompt mode each line is  prompt :: answer | alias | alias
 // A prompt may be an image:    ![France](flags/fr.svg) :: France
 // with an optional height:     ![France](flags/fr.svg){height=120} :: France
-// Image paths are relative to the quiz file. Blank lines are ignored, and
+// Image paths are relative to the quiz file.
+//
+// Harder variants. A quiz with `after: <id>` is a harder version of that
+// quiz (the other direction, fewer data columns, list mode instead of
+// prompts). It is not shown or playable until the base quiz is proficient,
+// and then it joins the library on its own if the base quiz is in it. Blank lines are ignored, and
 // so is everything from a # that starts a line or follows a space.
 //
 // Per-item data, one value per name in `columns`, follows `;;`:
@@ -85,6 +92,8 @@ export interface Quiz {
   mode: Mode;
   kind: Kind;
   retired: boolean;
+  tags: string[];        // the first is the topic ("" when untagged)
+  after: string | null;  // id of the quiz this is a harder variant of
   passPercent: number;
   imageHeight: number;   // px, default 72
   columns: string[];     // names of the per-item data columns
@@ -153,6 +162,8 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     mode,
     kind,
     retired: (header.retired ?? "false").toLowerCase() === "true",
+    tags: (header.tags ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => s !== ""),
+    after: header.after?.trim() || null,
     passPercent: header.pass ? Number(header.pass) : 100,
     imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
     columns,
@@ -277,3 +288,8 @@ function stripComment(line: string): string {
   return m ? line.slice(0, m.index) : line;
 }
 
+
+// A quiz's topic: its first tag, or "" when it has none.
+export function topicOf(quiz: Pick<Quiz, "tags">): string {
+  return quiz.tags[0] ?? "";
+}

@@ -1,0 +1,35 @@
+title: Roman gods and their Greek names
+mode: prompt
+pass: 100
+prompt-label: Roman
+answer-label: Greek
+tags: mythology
+after: greek-gods-roman-names
+---
+Jupiter :: Zeus
+Juno :: Hera
+Neptune :: Poseidon
+Ceres :: Demeter
+Minerva :: Athena | Athene
+Apollo :: Apollo
+Diana :: Artemis
+Mars :: Ares
+Venus :: Aphrodite
+Vulcan :: Hephaestus | Hephaistos
+Mercury :: Hermes
+Bacchus :: Dionysus | Dionysos
+Vesta :: Hestia
+Pluto :: Hades | Haides
+Proserpina :: Persephone
+Cupid :: Eros
+Saturn :: Cronus | Kronos
+Ops :: Rhea
+Terra :: Gaia | Gaea | Ge
+Sol :: Helios | Helius
+Luna :: Selene
+Aurora :: Eos
+Victoria :: Nike
+Fortuna :: Tyche
+Somnus :: Hypnos
+Faunus :: Pan
+Aesculapius :: Asclepius | Asklepios

@@ -8,7 +8,7 @@ import { showAttempt, showItem, showQuiz } from "./views/detail";
 import { showHome } from "./views/home";
 import { showPlay } from "./views/play";
 import { settingsView } from "./views/settings";
-import { mountSettingsNav } from "./views/settingsNav";
+import { setKeys, typing } from "./keys";
 
 const isSettingsWindow = location.hash === "#settings";
 
@@ -22,9 +22,13 @@ if (isSettingsWindow) {
   // Settings window: renders only the settings page; its changes are
   // written to disk and broadcast to the main window.
   nav.home = () => {
-    const view = settingsView() as HTMLElement;
-    renderSettingsWindow(view);
-    mountSettingsNav(view, () => void toggleSettingsWindow(() => {}));
+    renderSettingsWindow(settingsView());
+    // Escape (outside a text field) closes the window.
+    setKeys((e) => {
+      if (e.key !== "Escape" || typing(e)) return false;
+      void toggleSettingsWindow(() => {});
+      return true;
+    });
   };
   bindSettingsShortcut(() => {});
   loadAll()
@@ -35,7 +39,7 @@ if (isSettingsWindow) {
         if (msg.kind === "themes") { await loadThemes(); nav.home(); }
         // The main window saves the quiz views; keep them, so this window's
         // next save doesn't write back stale ones.
-        if (msg.kind === "settings") app.settings.views = msg.settings.views ?? {};
+        if (msg.kind === "settings") { app.settings.views = msg.settings.views ?? {}; app.settings.groupBy = msg.settings.groupBy; }
       });
     })
     .catch(fail);
