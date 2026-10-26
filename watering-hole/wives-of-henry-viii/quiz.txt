@@ -1,0 +1,13 @@
+title: Wives of Henry VIII in order
+mode: prompt
+pass: 100
+columns: Married, Fate
+answer-label: Wife
+tags: history, tudors
+---
+1st :: Catherine of Aragon | Katherine of Aragon | Katharine of Aragon | Catalina of Aragon | Aragon ;; 1509–1533 ;; Annulled
+2nd :: Anne Boleyn | Anne Bullen | Boleyn ;; 1533–1536 ;; Executed
+3rd :: Jane Seymour | Seymour ;; 1536–1537 ;; Died
+4th :: Anne of Cleves | Anna of Cleves | Cleves ;; 1540 ;; Annulled
+5th :: Catherine Howard | Katherine Howard | Kathryn Howard | Howard ;; 1540–1542 ;; Executed
+6th :: Catherine Parr | Katherine Parr | Kateryn Parr | Katharine Parr | Parr ;; 1543–1547 ;; Survived

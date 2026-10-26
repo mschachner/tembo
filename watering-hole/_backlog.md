@@ -39,7 +39,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Seven Wonders of the Ancient World (list) — added 2026-10-23 as seven-wonders-ancient-world
 - [x] Planets and their largest moons (prompt) — added 2026-10-24 as planets-largest-moons
 - [x] Primes, 300–399 (list) — added 2026-10-25 as primes-300-399
-- [ ] Wives of Henry VIII (prompt: order → name)
+- [x] Wives of Henry VIII (prompt: order → name) — added 2026-10-26 as wives-of-henry-viii
 - [ ] Planets and their largest moons, reversed (prompt: moon → planet), after planets-largest-moons
 - [ ] Author of the novel, set 1 (prompt)
 - [ ] Primes, 400–499 (list)
