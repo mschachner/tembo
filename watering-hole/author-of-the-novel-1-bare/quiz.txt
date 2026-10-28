@@ -1,0 +1,30 @@
+title: Author of the novel, set 1, no clues
+mode: prompt
+pass: 100
+prompt-label: Novel
+answer-label: Author
+tags: literature, novels
+after: author-of-the-novel-1
+---
+Don Quixote :: Miguel de Cervantes | Cervantes | Miguel de Cervantes Saavedra
+Robinson Crusoe :: Daniel Defoe | Defoe
+Gulliver's Travels :: Jonathan Swift | Swift
+Pride and Prejudice :: Jane Austen | Austen
+Frankenstein :: Mary Shelley | Shelley | Mary Wollstonecraft Shelley
+Jane Eyre :: Charlotte Brontë | Currer Bell
+Wuthering Heights :: Emily Brontë | Ellis Bell
+Moby-Dick :: Herman Melville | Melville
+Great Expectations :: Charles Dickens | Dickens
+Crime and Punishment :: Fyodor Dostoevsky | Dostoevsky | Dostoyevsky | Fyodor Dostoyevsky | Dostoevskii | Dostoevski
+War and Peace :: Leo Tolstoy | Tolstoy | Lev Tolstoy | Tolstoi | Leo Tolstoi
+Middlemarch :: George Eliot | Eliot | Mary Ann Evans
+Adventures of Huckleberry Finn :: Mark Twain | Twain | Samuel Clemens | Samuel Langhorne Clemens
+Dracula :: Bram Stoker | Stoker
+Ulysses :: James Joyce | Joyce
+The Great Gatsby :: F. Scott Fitzgerald | Scott Fitzgerald | Fitzgerald | Francis Scott Fitzgerald
+Brave New World :: Aldous Huxley | Huxley
+Nineteen Eighty-Four :: George Orwell | Orwell | Eric Blair | Eric Arthur Blair
+The Catcher in the Rye :: J. D. Salinger | Salinger | Jerome David Salinger
+Lord of the Flies :: William Golding | Golding
+To Kill a Mockingbird :: Harper Lee | Nelle Harper Lee
+One Hundred Years of Solitude :: Gabriel García Márquez | García Márquez | Márquez

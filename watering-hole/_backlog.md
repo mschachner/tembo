@@ -41,7 +41,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Primes, 300–399 (list) — added 2026-10-25 as primes-300-399
 - [x] Wives of Henry VIII (prompt: order → name) — added 2026-10-26 as wives-of-henry-viii
 - [x] Planets and their largest moons, reversed (prompt: moon → planet), after planets-largest-moons — added 2026-10-27 as planets-largest-moons-reversed
-- [ ] Author of the novel, set 1 (prompt)
+- [x] Author of the novel, set 1 (prompt) — added 2026-10-28 as author-of-the-novel-1
 - [ ] Primes, 400–499 (list)
 - [ ] US state capitals N–W (prompt)
 - [ ] Element symbols, 21–40 (prompt)
