@@ -688,6 +688,9 @@ input, textarea,
 .panes.today.with-bottom { grid-template-rows: minmax(0, 1fr) minmax(0, auto); }
 .panes .right { min-height: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
 .panes .right > .detail { flex: 1; min-height: 0; }
+/* When the window is too short for the head, figures and tables, the detail
+   scrolls inside its own cell instead of painting over the panes below it. */
+.panes > .detail, .panes .right > .detail { overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
 .bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); gap: calc(var(--u) * 1.25); min-height: 0; max-height: 34vh; }
 /* Done state: the done pane takes its natural height; the tables below get the rest. */
 .panes.today.done { grid-template-rows: auto minmax(0, 1fr); }
