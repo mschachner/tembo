@@ -10,7 +10,7 @@ import { isCalibration, type AnyAttempt } from "../log";
 import { nav, type Tab } from "../nav";
 import { mountPanes, paneEl, setPanes, tablePane, type KeyAction, type Pane, type Row } from "../panes";
 import { topicOf, type Quiz } from "../quiz/format";
-import { localDate } from "../schedule";
+import { localDate, type QuizState } from "../schedule";
 import { openSettingsWindow } from "../bus";
 import { itemStats, median, trouble, type ItemStats } from "../stats";
 import { dueLabel, fmtDate } from "./common";
@@ -206,9 +206,17 @@ function forecastFigure(today: string, days = 7): HTMLElement {
     `${fc.reduce((a, f) => a + f.due, 0)} this week`);
 }
 
-// Items that went badly in their last few appearances, across the library.
-function needsWorkPane(limit = 12, perQuiz = 3): Pane | null {
-  const items = troubleItems(entries().map((e) => e.quiz).filter((q) => q.kind === "normal" && !q.retired), attemptsOf, app.cps, limit, perQuiz);
+// A quiz that is due today and hasn't been played yet today: its answers stay
+// hidden until it has been played, so they don't spoil the attempt.
+function awaitingToday(e: { quiz: Quiz; state: QuizState }, today: string): boolean {
+  return playable(e.quiz, e.state, today) && !attemptsOf(e.quiz).some((a) => dayOf(a) === today);
+}
+
+// Items that went badly in their last few appearances, across the library,
+// leaving out quizzes still waiting to be played today.
+function needsWorkPane(today: string, limit = 12, perQuiz = 3): Pane | null {
+  const quizzes = entries().filter((e) => e.quiz.kind === "normal" && !e.quiz.retired && !awaitingToday(e, today)).map((e) => e.quiz);
+  const items = troubleItems(quizzes, attemptsOf, app.cps, limit, perQuiz);
   if (!items.length) return null;
   const dots = (recent: string[]) => h("span", { class: "dots" }, ...recent.map((b) => h("i", { class: `c-${bucketFill(b) ?? "muted"}`, title: b })));
   return tablePane({
@@ -336,7 +344,7 @@ function statsContent(root: HTMLElement): Pane[] {
     cells: (t) => [t.topic, String(t.quizzes), String(t.proficient), String(t.attempts), String(t.cleared), pct(t.buckets.instant, t.buckets.instant + t.buckets.slow + t.buckets.missed),
       segments([{ value: t.buckets.instant, fill: "instant", label: "instant" }, { value: t.buckets.slow, fill: "slow", label: "slow" }, { value: t.buckets.missed, fill: "missed", label: "missed" }], { legend: false })],
   });
-  const needs = needsWorkPane(24, 5);
+  const needs = needsWorkPane(today, 24, 5);
   const recent = tablePane({
     id: "recent", title: "Recent attempts", entries: normal.slice().reverse(), key: (a) => a.endedAt,
     cols: "17ch minmax(0, 1fr) 7ch 6ch 6ch 8ch", head: ["when", "quiz", "score", "time", "grade", ""],
@@ -447,7 +455,7 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
 
   // Bottom (Today): items that need work, and today's results.
   if (tab === "today") {
-    const needs = needsWorkPane();
+    const needs = needsWorkPane(today);
     const results = todays.length ? todaysResultsPane(todays, tab) : null;
     if (needs || results) {
       root.append(h("div", { class: `bottom-row ${needs && results ? "two" : ""}` }, needs?.el ?? null, results?.el ?? null));
