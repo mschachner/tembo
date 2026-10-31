@@ -39,7 +39,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Planets and their largest moons, reversed (prompt: moon → planet), after planets-largest-moons — added 2026-10-27 as planets-largest-moons-reversed
 - [x] Author of the novel, set 1 (prompt) — added 2026-10-28 as author-of-the-novel-1
 - [x] US state capitals N–W (prompt) — added 2026-10-30 as us-state-capitals-n-w
-- [ ] Element symbols, 21–40 (prompt)
+- [x] Element symbols, 21–40 (prompt) — added 2026-10-31 as element-symbols-21-40
 - [ ] Muses and their domains (prompt)
 - [ ] Wedding anniversary gifts (prompt: "25th" → Silver)
 - [ ] Capitals of Europe (prompt)
