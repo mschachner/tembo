@@ -1,0 +1,15 @@
+title: The nine Muses
+mode: list
+pass: 100
+tags: mythology, muses
+after: muses-and-their-domains
+---
+Clio | Kleio | Cleio
+Euterpe
+Thalia | Thaleia
+Melpomene
+Terpsichore | Terpsikhore
+Erato
+Polyhymnia | Polymnia
+Urania | Ourania
+Calliope | Kalliope
