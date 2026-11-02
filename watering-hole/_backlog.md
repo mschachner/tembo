@@ -41,7 +41,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] US state capitals N–W (prompt) — added 2026-10-30 as us-state-capitals-n-w
 - [x] Element symbols, 21–40 (prompt) — added 2026-10-31 as element-symbols-21-40
 - [x] Muses and their domains (prompt) — added 2026-11-01 as muses-and-their-domains
-- [ ] Wedding anniversary gifts (prompt: "25th" → Silver)
+- [x] Wedding anniversary gifts (prompt: "25th" → Silver) — added 2026-11-02 as wedding-anniversary-gifts
 - [ ] Capitals of Europe (prompt)
 - [ ] Greek alphabet (list)
 - [ ] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet
