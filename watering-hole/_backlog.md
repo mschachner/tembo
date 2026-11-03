@@ -42,7 +42,8 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Element symbols, 21–40 (prompt) — added 2026-10-31 as element-symbols-21-40
 - [x] Muses and their domains (prompt) — added 2026-11-01 as muses-and-their-domains
 - [x] Wedding anniversary gifts (prompt: "25th" → Silver) — added 2026-11-02 as wedding-anniversary-gifts
-- [ ] Capitals of Europe (prompt)
+- [x] Capitals of Europe (prompt) — added 2026-11-03 as capitals-of-europe-a-l
+- [ ] Capitals of Europe, M–Z (prompt)
 - [ ] Greek alphabet (list)
 - [ ] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet
 - [ ] English/British monarchs since 1066 (prompt)

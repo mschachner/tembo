@@ -1,0 +1,31 @@
+title: Capitals of Europe, A–L, reversed
+mode: prompt
+pass: 100
+prompt-label: Capital
+answer-label: Country
+tags: geography, capitals
+after: capitals-of-europe-a-l
+---
+Tirana :: Albania
+Andorra la Vella :: Andorra
+Vienna :: Austria
+Minsk :: Belarus
+Brussels :: Belgium
+Sarajevo :: Bosnia and Herzegovina | Bosnia | Bosnia-Herzegovina
+Sofia :: Bulgaria
+Zagreb :: Croatia
+Prague :: Czech Republic | Czechia
+Copenhagen :: Denmark
+Tallinn :: Estonia
+Helsinki :: Finland
+Paris :: France
+Berlin :: Germany
+Athens :: Greece
+Budapest :: Hungary
+Reykjavík :: Iceland
+Dublin :: Ireland | Republic of Ireland | Éire
+Rome :: Italy
+Riga :: Latvia
+Vaduz :: Liechtenstein
+Vilnius :: Lithuania
+Luxembourg City :: Luxembourg
