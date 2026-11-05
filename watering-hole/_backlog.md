@@ -44,7 +44,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Wedding anniversary gifts (prompt: "25th" → Silver) — added 2026-11-02 as wedding-anniversary-gifts
 - [x] Capitals of Europe (prompt) — added 2026-11-03 as capitals-of-europe-a-l
 - [x] Capitals of Europe, M–Z (prompt) — added 2026-11-04 as capitals-of-europe-m-z
-- [ ] Greek alphabet (list)
+- [x] Greek alphabet (list) — added 2026-11-05 as greek-alphabet
 - [ ] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet
 - [ ] English/British monarchs since 1066 (prompt)
 - [ ] Animal group names (prompt: "a murder of" → crows)
