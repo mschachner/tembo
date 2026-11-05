@@ -14,7 +14,7 @@ Brussels :: Belgium
 Sarajevo :: Bosnia and Herzegovina | Bosnia | Bosnia-Herzegovina
 Sofia :: Bulgaria
 Zagreb :: Croatia
-Prague :: Czech Republic | Czechia
+Prague :: Czechia | Czech Republic
 Copenhagen :: Denmark
 Tallinn :: Estonia
 Helsinki :: Finland
@@ -28,4 +28,4 @@ Rome :: Italy
 Riga :: Latvia
 Vaduz :: Liechtenstein
 Vilnius :: Lithuania
-Luxembourg City :: Luxembourg
+Luxembourg :: Luxembourg
