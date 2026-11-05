@@ -685,13 +685,28 @@ input, textarea,
 
 /* ---- home: today, stats, rich details ---- */
 .panes.today { grid-template-rows: minmax(0, 1fr); }
-.panes.today.with-bottom { grid-template-rows: minmax(0, 1fr) minmax(0, auto); }
+/* Floors for Today in a short window. The panes area keeps a minimum
+   height and the window scrolls instead of squeezing a row to nothing.
+   contain: size makes a cell contribute only its min-height to the
+   intrinsic size, so the minimum propagates up to the page as the sum of
+   the floors rather than the full height of every list. */
+.page.panes-page:has(.panes.today), .panes-wrap:has(> .panes.today), .panes.today { min-height: auto; }
+.panes.today > .list-pane, .panes.today > .right { contain: size; min-height: var(--today-top-min); }
+.panes.today { --today-top-min: 14rem; --today-bottom-min: 10rem; }
+/* The bottom row takes its content height (up to 34vh) and gives it back
+   down to its floor before the window starts scrolling. */
+.panes.today.with-bottom:not(.done) {
+  grid-template-rows: minmax(var(--today-top-min), 1fr) minmax(var(--today-bottom-min), auto);
+  contain: size; min-height: calc(var(--today-top-min) + var(--today-bottom-min) + var(--u) * 1.25);
+}
+/* Done: the done pane keeps its natural height; the tables get the rest, down to the floor. */
+.panes.today.done > .bottom-row { contain: size; min-height: var(--today-bottom-min); }
 .panes .right { min-height: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
 .panes .right > .detail { flex: 1; min-height: 0; }
 /* When the window is too short for the head, figures and tables, the detail
    scrolls inside its own cell instead of painting over the panes below it. */
 .panes > .detail, .panes .right > .detail { overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
-.bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); gap: calc(var(--u) * 1.25); min-height: 0; max-height: 34vh; }
+.bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: calc(var(--u) * 1.25); min-height: 0; max-height: 34vh; }
 /* Done state: the done pane takes its natural height; the tables below get the rest. */
 .panes.today.done { grid-template-rows: auto minmax(0, 1fr); }
 .panes.done .bottom-row, .panes.done .bottom-row > .pane { max-height: none; }
