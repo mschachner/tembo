@@ -45,7 +45,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Capitals of Europe (prompt) — added 2026-11-03 as capitals-of-europe-a-l
 - [x] Capitals of Europe, M–Z (prompt) — added 2026-11-04 as capitals-of-europe-m-z
 - [x] Greek alphabet (list) — added 2026-11-05 as greek-alphabet
-- [ ] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet
+- [x] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet — added 2026-11-06 as nato-phonetic-alphabet-reversed
 - [ ] English/British monarchs since 1066 (prompt)
 - [ ] Animal group names (prompt: "a murder of" → crows)
 - [ ] Flags of South America (prompt, images)
