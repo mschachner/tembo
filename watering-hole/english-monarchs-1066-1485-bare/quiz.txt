@@ -1,0 +1,25 @@
+title: English monarchs in order, no clues, 1066–1485
+mode: prompt
+pass: 100
+answer-label: Monarch
+tags: history, monarchs
+after: english-monarchs-1066-1485
+---
+1st :: William I | William 1 | William the Conqueror
+2nd :: William II | William 2 | William Rufus
+3rd :: Henry I | Henry 1 | Henry Beauclerc
+4th :: Stephen | Stephen of Blois | King Stephen
+5th :: Henry II | Henry 2
+6th :: Richard I | Richard 1 | Richard the Lionheart | Richard Coeur de Lion
+7th :: John | King John | John Lackland
+8th :: Henry III | Henry 3
+9th :: Edward I | Edward 1 | Edward Longshanks
+10th :: Edward II | Edward 2
+11th :: Edward III | Edward 3
+12th :: Richard II | Richard 2
+13th :: Henry IV | Henry 4
+14th :: Henry V | Henry 5
+15th :: Henry VI | Henry 6
+16th :: Edward IV | Edward 4
+17th :: Edward V | Edward 5
+18th :: Richard III | Richard 3
