@@ -1,0 +1,30 @@
+chunk: 1–24
+level: no clues
+mode: prompt
+pass: 100
+answer-label: President
+---
+1st :: George Washington | Washington
+2nd :: John Adams
+3rd :: Thomas Jefferson | Jefferson
+4th :: James Madison | Madison
+5th :: James Monroe | Monroe
+6th :: John Quincy Adams | John Q. Adams | J. Q. Adams
+7th :: Andrew Jackson | Jackson
+8th :: Martin Van Buren | Van Buren
+9th :: William Henry Harrison | William Harrison | W. H. Harrison
+10th :: John Tyler | Tyler
+11th :: James K. Polk | James Polk | Polk
+12th :: Zachary Taylor | Taylor
+13th :: Millard Fillmore | Fillmore
+14th :: Franklin Pierce | Pierce
+15th :: James Buchanan | Buchanan
+16th :: Abraham Lincoln | Lincoln
+17th :: Andrew Johnson | Johnson
+18th :: Ulysses S. Grant | Ulysses Grant | Grant
+19th :: Rutherford B. Hayes | Rutherford Hayes | Hayes
+20th :: James A. Garfield | James Garfield | Garfield
+21st :: Chester A. Arthur | Chester Arthur | Arthur
+22nd :: Grover Cleveland | Cleveland
+23rd :: Benjamin Harrison
+24th :: Grover Cleveland | Cleveland

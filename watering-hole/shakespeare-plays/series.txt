@@ -1,0 +1,3 @@
+title: Shakespeare's plays (First Folio)
+tags: literature, shakespeare
+chunks: comedies, histories, tragedies

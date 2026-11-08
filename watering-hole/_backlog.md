@@ -5,21 +5,36 @@ off with the date. Reorder, add or delete lines freely.
 
 ## Standing rules for the daily task
 
-- Every quiz gets a `tags:` header; the first tag is its topic and is used
-  for grouping in the app. Reuse existing topics where one fits (geography,
-  history, literature, science, mathematics, music, language, mythology,
-  sport, film, art) and add a narrower second tag (capitals, flags, primes,
-  shakespeare, ...). Tag the flag quizzes `geography, flags`.
-- Alongside each new quiz, build at least one harder variant in its own
-  folder with an `after: <base-id>` header: the other direction (capital →
-  country), the same prompts without the data columns (`-bare`), or list
-  mode where prompt mode gave the order away. Variants are not added to
-  `data/library.txt`: Tembo hides a variant until its base quiz is
-  proficient and then brings it into the library on its own. Also check
-  the existing quizzes once in a while and add variants for any that have
-  none.
-- A variant of an already-built quiz can also be queued as its own line
-  ("..., reversed, after <base-id>").
+- The Watering Hole is organized by series: `watering-hole/<series>/series.txt`
+  plus one `<series>/<cell>/quiz.txt` per quiz. A series is a grid of chunks
+  (parts of the material: `A–M`, `N–W`; `1–20`, `21–40`; `comedies`,
+  `histories`) by levels (hardness: `standard`, then `reversed`, `no clues`,
+  `list`, ...). Both file formats are documented at the top of
+  `src/quiz/format.ts`; `npm run check` validates everything.
+- A queue line is either a new series or a new chunk of an existing one
+  ("Element symbols, 41–60" goes into `element-symbols` as chunk `41–60`;
+  "Capitals of Africa, set 1" starts `capitals-of-africa` with chunk
+  `set 1`). Adding a chunk means a new quiz folder with `chunk: ...` at
+  the first level, and the chunk appended to `chunks:` in series.txt when
+  that header is present.
+- Every series gets a `tags:` header in series.txt; the first tag is its
+  topic and is used for grouping in the app. Reuse existing topics where one
+  fits (geography, history, literature, science, mathematics, music, language,
+  mythology, culture, sport, film, art) and add a narrower second tag
+  (capitals, flags, shakespeare, ...). Tag the flag quizzes `geography, flags`.
+- Alongside each new chunk, build at least one harder level in its own
+  folder (`level: reversed`, `level: no clues`, `level: list`): the other
+  direction (capital → country), the same prompts without the data columns,
+  or list mode where prompt mode gave the order away. List the levels in
+  order in the series' `levels:` header. Tembo hides a level until the
+  previous level of that chunk is proficient, then brings it into rotation
+  on its own; only series ids go in `data/library.txt`. Also look over the
+  existing series once in a while and add levels to chunks that have only
+  one.
+- A new level for an already-built chunk can also be queued as its own
+  line ("..., reversed").
+- Quiz titles are computed (series title, chunk, level); set `title:` in a
+  quiz.txt only when the computed one reads badly.
 
 ## Queue
 
@@ -55,27 +70,27 @@ off with the date. Reorder, add or delete lines freely.
 - [ ] US state nicknames (prompt)
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)
-- [ ] Capitals of Africa, set 1 (prompt)
+- [ ] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa
 - [ ] Phobias (prompt)
 - [ ] Olympic host cities, Summer (prompt: year → city)
-- [ ] Element symbols, 41–60 (prompt)
-- [ ] Shakespeare characters → play (prompt)
+- [ ] Element symbols, 41–60 (prompt) — new chunk of element-symbols
+- [ ] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays
 - [ ] Longest rivers (list)
 - [ ] Chinese zodiac in order (prompt)
 - [ ] Roman emperors, Julio-Claudian to Severan (list)
 - [ ] Flags of Europe (prompt, images)
-- [ ] Capitals of Asia, set 1 (prompt)
+- [ ] Capitals of Asia, set 1 (prompt) — starts capitals-of-asia
 - [ ] Best Picture winners, 2000s and 2010s (prompt: year → film)
 - [ ] Bones of the body (list)
 - [ ] Seven summits (prompt: continent → mountain)
 - [ ] Currencies of the world, set 1 (prompt)
 - [ ] Vice presidents (prompt: president → VP)
-- [ ] Author of the novel, set 2 (prompt)
-- [ ] Capitals of Africa, set 2 (prompt)
+- [ ] Author of the novel, set 2 (prompt) — new chunk of author-of-the-novel
+- [ ] Capitals of Africa, set 2 (prompt) — new chunk of capitals-of-africa
 - [ ] Landlocked countries (list)
 - [ ] Painter of the painting (prompt, images)
-- [ ] Element symbols, 61–86 (prompt)
-- [ ] Capitals of Asia, set 2 (prompt)
+- [ ] Element symbols, 61–86 (prompt) — new chunk of element-symbols
+- [ ] Capitals of Asia, set 2 (prompt) — new chunk of capitals-of-asia
 - [ ] NBA teams by city (prompt)
 - [ ] Flags of Africa (prompt, images)
 - [ ] Capitals of North America and the Caribbean (prompt)

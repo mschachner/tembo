@@ -1,0 +1,4 @@
+title: Element symbols
+tags: science, chemistry
+levels: standard, reversed
+chunks: 1–20, 21–40

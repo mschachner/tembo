@@ -1,0 +1,30 @@
+chunk: A–L
+level: reversed
+mode: prompt
+pass: 100
+prompt-label: Capital
+answer-label: Country
+---
+Tirana :: Albania
+Andorra la Vella :: Andorra
+Vienna :: Austria
+Minsk :: Belarus
+Brussels :: Belgium
+Sarajevo :: Bosnia and Herzegovina | Bosnia | Bosnia-Herzegovina
+Sofia :: Bulgaria
+Zagreb :: Croatia
+Prague :: Czechia | Czech Republic
+Copenhagen :: Denmark
+Tallinn :: Estonia
+Helsinki :: Finland
+Paris :: France
+Berlin :: Germany
+Athens :: Greece
+Budapest :: Hungary
+Reykjavík :: Iceland
+Dublin :: Ireland | Republic of Ireland | Éire
+Rome :: Italy
+Riga :: Latvia
+Vaduz :: Liechtenstein
+Vilnius :: Lithuania
+Luxembourg :: Luxembourg

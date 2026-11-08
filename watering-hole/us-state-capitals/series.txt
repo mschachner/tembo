@@ -1,0 +1,4 @@
+title: US state capitals
+tags: geography, capitals
+levels: standard, reversed
+chunks: A–M, N–W

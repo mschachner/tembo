@@ -758,6 +758,28 @@ input, textarea,
 }
 .pane-meta { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--fg-3); }
 
+/* A series' chunk × level grid: chunks down, levels across. */
+.series-grid { display: grid; grid-template-columns: var(--cols, 1fr); gap: 4px; font-size: 0.9em; }
+.series-grid .grid-row { display: contents; }
+.series-grid .grid-cell {
+  padding: calc(var(--u) * 0.45) calc(var(--u) * 0.75); border-radius: 4px; background: var(--bg-2);
+  min-width: 0; overflow-wrap: break-word; text-align: center;
+}
+.series-grid .head .grid-cell, .series-grid .grid-cell.chunk { background: none; color: var(--fg-3); font-size: 0.85em; }
+.series-grid .grid-cell.chunk { text-align: left; }
+.series-grid .head .grid-cell { letter-spacing: var(--label-tracking, 0.06em); text-transform: uppercase; padding-top: 0; padding-bottom: 2px; }
+.series-grid .grid-cell.corner { padding: 0; }
+.series-grid .grid-cell.none { background: none; color: var(--fg-3); }
+.series-grid .grid-cell.locked { color: var(--fg-3); background: color-mix(in srgb, var(--bg-2) 50%, transparent); }
+.series-grid .grid-cell.available { color: var(--fg-2); }
+.series-grid .grid-cell.new { color: var(--fg-2); }
+.series-grid .grid-cell.learning { color: var(--fg-2); }
+.series-grid .grid-cell.playable { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--bg-2)); }
+.series-grid .grid-cell.proficient { color: var(--instant); background: color-mix(in srgb, var(--instant) 14%, var(--bg-2)); }
+.detail-grid.rich > .figures.one { grid-template-columns: minmax(0, 1fr); }
+[data-pane="quizzes"] .row.locked .cell { color: var(--fg-3); }
+[data-pane="quizzes"] .row.instant .cell { color: var(--instant); }
+
 .panes.stats-scroll { display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
 .stats-scroll > * { flex: none; }
 .stats-scroll .fig-row { display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); }

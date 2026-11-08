@@ -1,0 +1,27 @@
+chunk: 1–20
+mode: prompt
+pass: 100
+columns: Atomic number
+prompt-label: Symbol
+answer-label: Element
+---
+H :: Hydrogen ;; 1
+He :: Helium ;; 2
+Li :: Lithium ;; 3
+Be :: Beryllium ;; 4
+B :: Boron ;; 5
+C :: Carbon ;; 6
+N :: Nitrogen ;; 7
+O :: Oxygen ;; 8
+F :: Fluorine ;; 9
+Ne :: Neon ;; 10
+Na :: Sodium ;; 11
+Mg :: Magnesium ;; 12
+Al :: Aluminium | Aluminum ;; 13
+Si :: Silicon ;; 14
+P :: Phosphorus ;; 15
+S :: Sulfur | Sulphur ;; 16
+Cl :: Chlorine ;; 17
+Ar :: Argon ;; 18
+K :: Potassium ;; 19
+Ca :: Calcium ;; 20

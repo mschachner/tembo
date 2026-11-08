@@ -1,10 +1,10 @@
 // Application state: quizzes, the attempt log, calibration, settings, theme.
-import { listQuizzes, listThemes, readAsset, readAttempts, readLibrary, rootDir, writeLibrary, type ThemeFile } from "./backend";
+import { listSeries, listThemes, readAsset, readAttempts, readLibrary, rootDir, writeLibrary, type ThemeFile } from "./backend";
 import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
 import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
 import { belongsTo, parseLog, type AnyAttempt } from "./log";
-import { parseQuiz, type Quiz } from "./quiz/format";
+import { assembleSeries, parseQuiz, parseSeries, previousLevel, type Quiz, type Series } from "./quiz/format";
 import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
 import { loadSettings, saveSettings, type Settings } from "./settings";
 import { configureSound } from "./sound";
@@ -25,8 +25,9 @@ export const app = {
   settings: null as unknown as Settings,
   presets: new Map<string, Theme>(),
   customPresets: new Set<string>(),
-  quizzes: [] as Quiz[],      // every quiz in the Watering Hole
-  library: [] as string[],    // ids of the ones imported, in import order
+  series: [] as Series[],     // every series in the Watering Hole
+  quizzes: [] as Quiz[],      // every quiz, across the series
+  library: [] as string[],    // ids of the series imported, in import order
   quizErrors: [] as string[],
 };
 
@@ -66,13 +67,32 @@ export async function loadThemes(): Promise<void> {
   }
 }
 
+// Reads the Watering Hole. A quiz that fails to parse is left out of its
+// series; a series that fails as a whole (no series.txt, a quiz outside the
+// grid) is left out entirely. Either is reported in quizErrors.
 export async function loadQuizzes(): Promise<void> {
   app.library = (await readLibrary()).split(/\r?\n/).map((s) => s.trim()).filter((s) => s !== "" && !s.startsWith("#"));
+  app.series = [];
   app.quizzes = [];
   app.quizErrors = [];
-  for (const f of await listQuizzes()) {
+  for (const f of await listSeries()) {
+    if (f.source === null) {
+      app.quizErrors.push(`${f.dir}: no series.txt`);
+      continue;
+    }
     try {
-      app.quizzes.push(parseQuiz(f.source, f.path, f.dir));
+      const meta = parseSeries(f.source, f.path, f.dir);
+      const quizzes: Quiz[] = [];
+      for (const q of f.quizzes) {
+        try {
+          quizzes.push(parseQuiz(q.source, q.path, q.dir, meta));
+        } catch (e) {
+          app.quizErrors.push(`${q.path}: ${(e as Error).message}`);
+        }
+      }
+      const series = assembleSeries(meta, quizzes);
+      app.series.push(series);
+      app.quizzes.push(...series.quizzes);
     } catch (e) {
       app.quizErrors.push(`${f.path}: ${(e as Error).message}`);
     }
@@ -124,33 +144,41 @@ export function stateOf(quiz: Quiz): QuizState {
   return own.length ? replay(own, (a) => gradeOf(a, app.cps)) : NEW_STATE;
 }
 
-// The quiz a harder variant builds on (its `after:` header), if it exists.
-export function baseOf(quiz: Quiz): Quiz | null {
-  return quiz.after ? app.quizzes.find((q) => q.id === quiz.after) ?? null : null;
+export function seriesOf(quiz: Quiz): Series | undefined {
+  return app.series.find((s) => s.id === quiz.series);
 }
 
-// A harder variant is locked until its base quiz is proficient. A quiz
-// that is not a variant is never locked; a variant whose base is missing
-// stays locked.
+// The quiz this one builds on: the previous level of its chunk, or null at
+// the first level.
+export function previousOf(quiz: Quiz): Quiz | null {
+  const s = seriesOf(quiz);
+  return s ? previousLevel(s, quiz) : null;
+}
+
+// A quiz beyond the first level is locked until the previous level of its
+// chunk is proficient.
 export function locked(quiz: Quiz): boolean {
-  if (!quiz.after) return false;
-  const base = baseOf(quiz);
-  return !base || stateOf(base).status !== "proficient";
+  const prev = previousOf(quiz);
+  return !!prev && stateOf(prev).status !== "proficient";
 }
 
-// Your quizzes: the ones imported from the Watering Hole, plus the typing
-// calibration, which everyone has, plus unlocked variants of quizzes in
-// the library, which join on their own.
+// Your series: the ones imported from the Watering Hole, plus the typing
+// calibration, which everyone has.
+export function seriesInLibrary(series: Series): boolean {
+  return app.library.includes(series.id) || series.quizzes.some((q) => q.kind === "calibration");
+}
+
+// Your quizzes: the unlocked quizzes of the series in your library. A
+// level joins on its own as the previous one becomes proficient.
 export function inLibrary(quiz: Quiz): boolean {
-  if (quiz.kind === "calibration" || app.library.includes(quiz.id)) return true;
-  if (!quiz.after || locked(quiz)) return false;
-  const base = baseOf(quiz);
-  return !!base && inLibrary(base);
+  if (quiz.kind === "calibration") return true;
+  const s = seriesOf(quiz);
+  return !!s && seriesInLibrary(s) && !locked(quiz);
 }
 
-// Variants waiting on a quiz in the library to become proficient.
-export function lockedVariants(): Quiz[] {
-  return app.quizzes.filter((q) => q.after && locked(q) && !!baseOf(q) && inLibrary(baseOf(q)!));
+// Quizzes in your series still waiting on the level before them.
+export function lockedQuizzes(): Quiz[] {
+  return app.quizzes.filter((q) => locked(q) && app.library.includes(q.series));
 }
 
 export function entries(): Entry[] {
@@ -158,16 +186,37 @@ export function entries(): Entry[] {
 }
 
 // Importing and removing only change data/library.txt; history is kept by
-// quiz id, so a quiz removed and imported again picks up where it left off.
-export async function importQuiz(quiz: Quiz): Promise<void> {
-  if (inLibrary(quiz)) return;
-  app.library = [...app.library, quiz.id];
-  await writeLibrary(app.library, `Import quiz: ${quiz.title}`);
+// quiz id, so a series removed and imported again picks up where it left off.
+export async function importSeries(series: Series): Promise<void> {
+  if (seriesInLibrary(series)) return;
+  app.library = [...app.library, series.id];
+  await writeLibrary(app.library, `Import series: ${series.title}`);
 }
 
-export async function removeQuiz(quiz: Quiz): Promise<void> {
-  app.library = app.library.filter((id) => id !== quiz.id);
-  await writeLibrary(app.library, `Remove quiz: ${quiz.title}`);
+export async function removeSeries(series: Series): Promise<void> {
+  app.library = app.library.filter((id) => id !== series.id);
+  await writeLibrary(app.library, `Remove series: ${series.title}`);
+}
+
+export type SeriesStatus = "due" | "new" | "upcoming" | "proficient" | "retired" | "calibration";
+
+// A series stands where its most pressing quiz stands: due if any unlocked
+// quiz is due, new if any is unplayed, upcoming while any is learning,
+// proficient once every quiz in the grid is; retired once every quiz is.
+export function seriesStatus(series: Series, today = localDate(new Date())): SeriesStatus {
+  if (series.quizzes.some((q) => q.kind === "calibration")) return "calibration";
+  const live = series.quizzes.filter((q) => !q.retired);
+  if (!live.length) return "retired";
+  const open = live.filter((q) => !locked(q)).map((q) => ({ quiz: q, state: stateOf(q) }));
+  if (open.some((e) => e.state.status !== "new" && isDue(e.state, today))) return "due";
+  if (open.some((e) => e.state.status === "new")) return "new";
+  if (live.every((q) => stateOf(q).status === "proficient")) return "proficient";
+  return "upcoming";
+}
+
+// The earliest due date among a series' unlocked quizzes ("" when none).
+export function seriesDue(series: Series): string {
+  return series.quizzes.filter((q) => !q.retired && !locked(q)).map((q) => stateOf(q).dueDate ?? "").filter(Boolean).sort()[0] ?? "";
 }
 
 export function playable(quiz: Quiz, state: QuizState, today = localDate(new Date())): boolean {

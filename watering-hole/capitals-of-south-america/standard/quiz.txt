@@ -1,0 +1,17 @@
+mode: prompt
+pass: 100
+prompt-label: Country
+answer-label: Capital
+---
+Argentina :: Buenos Aires
+Bolivia :: Sucre | La Paz
+Brazil :: Brasília
+Chile :: Santiago | Santiago de Chile
+Colombia :: Bogotá | Bogotá, D.C. | Santa Fe de Bogotá
+Ecuador :: Quito | San Francisco de Quito
+Guyana :: Georgetown
+Paraguay :: Asunción
+Peru :: Lima
+Suriname :: Paramaribo
+Uruguay :: Montevideo
+Venezuela :: Caracas

@@ -1,0 +1,14 @@
+mode: prompt
+pass: 100
+prompt-label: Domain
+answer-label: Muse
+---
+History :: Clio | Kleio | Cleio
+Music and lyric poetry :: Euterpe
+Comedy :: Thalia | Thaleia
+Tragedy :: Melpomene
+Dance :: Terpsichore | Terpsikhore
+Love poetry :: Erato
+Sacred hymns :: Polyhymnia | Polymnia
+Astronomy :: Urania | Ourania
+Epic poetry :: Calliope | Kalliope

@@ -1,0 +1,3 @@
+title: Muses and their domains
+tags: mythology, muses
+levels: standard, list

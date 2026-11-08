@@ -1,0 +1,4 @@
+title: Author of the novel
+tags: literature, novels
+levels: standard, no clues
+chunks: set 1

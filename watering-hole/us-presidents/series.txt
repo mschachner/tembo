@@ -1,0 +1,4 @@
+title: US presidents in order
+tags: history, us presidents
+levels: standard, no clues
+chunks: 1–24, 25–47

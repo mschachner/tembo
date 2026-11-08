@@ -1,4 +1,4 @@
-import { entries, loadQuizzes, locked, lockedVariants, stateOf, type Entry } from "../app";
+import { entries, loadQuizzes, locked, type Entry } from "../app";
 import { h } from "../dom";
 import { type Tab } from "../nav";
 import { isDue } from "../schedule";
@@ -14,7 +14,6 @@ export function alertLine(msg: string): void {
 
 export function groups(today: string) {
   const all = entries();
-  // Locked variants (explicitly imported or not) wait in their own group.
   const normal = all.filter((e) => e.quiz.kind === "normal" && !e.quiz.retired && !locked(e.quiz));
   const byDue = (a: Entry, b: Entry) => a.state.dueDate!.localeCompare(b.state.dueDate!);
   return {
@@ -22,7 +21,6 @@ export function groups(today: string) {
     fresh: normal.filter((e) => e.state.status === "new"),
     upcoming: normal.filter((e) => e.state.status === "learning" && !isDue(e.state, today)).sort(byDue),
     proficient: normal.filter((e) => e.state.status === "proficient" && !isDue(e.state, today)).sort(byDue),
-    locked: lockedVariants().map((quiz) => ({ quiz, state: stateOf(quiz) })),
     retired: all.filter((e) => e.quiz.kind === "normal" && e.quiz.retired),
     calibration: all.filter((e) => e.quiz.kind === "calibration"),
   };

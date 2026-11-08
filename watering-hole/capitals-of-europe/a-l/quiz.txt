@@ -1,0 +1,29 @@
+chunk: A–L
+mode: prompt
+pass: 100
+prompt-label: Country
+answer-label: Capital
+---
+Albania :: Tirana | Tiranë
+Andorra :: Andorra la Vella
+Austria :: Vienna | Wien
+Belarus :: Minsk
+Belgium :: Brussels | Bruxelles | Brussel
+Bosnia and Herzegovina :: Sarajevo
+Bulgaria :: Sofia
+Croatia :: Zagreb
+Czechia :: Prague | Praha
+Denmark :: Copenhagen | København
+Estonia :: Tallinn
+Finland :: Helsinki
+France :: Paris
+Germany :: Berlin
+Greece :: Athens | Athina
+Hungary :: Budapest
+Iceland :: Reykjavík
+Ireland :: Dublin
+Italy :: Rome | Roma
+Latvia :: Riga
+Liechtenstein :: Vaduz
+Lithuania :: Vilnius
+Luxembourg :: Luxembourg | Luxembourg City

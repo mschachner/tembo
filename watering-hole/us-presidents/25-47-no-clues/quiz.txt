@@ -1,0 +1,29 @@
+chunk: 25–47
+level: no clues
+mode: prompt
+pass: 100
+answer-label: President
+---
+25th :: William McKinley | McKinley
+26th :: Theodore Roosevelt | Teddy Roosevelt
+27th :: William Howard Taft | William Taft | Taft
+28th :: Woodrow Wilson | Wilson
+29th :: Warren G. Harding | Warren Harding | Harding
+30th :: Calvin Coolidge | Coolidge
+31st :: Herbert Hoover | Hoover
+32nd :: Franklin D. Roosevelt | Franklin Delano Roosevelt | Franklin Roosevelt | FDR
+33rd :: Harry S. Truman | Harry Truman | Truman
+34th :: Dwight D. Eisenhower | Dwight Eisenhower | Eisenhower | Ike
+35th :: John F. Kennedy | John Kennedy | Kennedy | JFK
+36th :: Lyndon B. Johnson | Lyndon Johnson | Johnson | LBJ
+37th :: Richard Nixon | Richard M. Nixon | Nixon
+38th :: Gerald Ford | Gerald R. Ford | Ford
+39th :: Jimmy Carter | Carter
+40th :: Ronald Reagan | Reagan
+41st :: George H. W. Bush
+42nd :: Bill Clinton | William Jefferson Clinton | William Clinton | Clinton
+43rd :: George W. Bush
+44th :: Barack Obama | Obama
+45th :: Donald Trump | Donald J. Trump | Trump
+46th :: Joe Biden | Joseph R. Biden | Joseph Biden | Biden
+47th :: Donald Trump | Donald J. Trump | Trump

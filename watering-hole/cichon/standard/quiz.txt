@@ -1,0 +1,24 @@
+mode: prompt
+layout: diagram
+pass: 100
+---
+given @0,0 :: ℵ₁
+given @5,2 :: 𝔠
+
+@1,0 :: add(𝒩) | add N | add null
+@2,0 :: add(ℳ) | add M | add meager
+@3,0 :: cov(ℳ) | cov M | cov meager
+@4,0 :: non(𝒩) | non N | non null
+@2,1 :: 𝔟 | bounding number
+@3,1 :: 𝔡 | dominating number
+@1,2 :: cov(𝒩) | cov N | cov null
+@2,2 :: non(ℳ) | non M | non meager
+@3,2 :: cof(ℳ) | cof M | cof meager
+@4,2 :: cof(𝒩) | cof N | cof null
+
+ℵ₁ -> add(𝒩) -> add(ℳ) -> cov(ℳ) -> non(𝒩) -> cof(𝒩)
+cov(𝒩) -> non(ℳ) -> cof(ℳ) -> cof(𝒩) -> 𝔠
+add(𝒩) -> cov(𝒩)
+add(ℳ) -> 𝔟 -> non(ℳ)
+cov(ℳ) -> 𝔡 -> cof(ℳ)
+𝔟 -> 𝔡

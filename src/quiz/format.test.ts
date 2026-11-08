@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseQuiz, QuizFormatError, topicOf } from "./format";
+import { assembleSeries, defaultTitle, parseQuiz, parseSeries, previousLevel, QuizFormatError, topicOf, type Quiz } from "./format";
 
 describe("parseQuiz", () => {
   it("parses a list-mode quiz with aliases and comments", () => {
@@ -151,16 +151,73 @@ A -> B
   });
 });
 
-describe("tags and variants", () => {
+describe("tags", () => {
   it("reads tags lower-cased with the first as the topic", () => {
     const q = parseQuiz("title: T\ntags: Geography, Capitals\n---\nParis\n");
     expect(q.tags).toEqual(["geography", "capitals"]);
     expect(topicOf(q)).toBe("geography");
-    expect(q.after).toBeNull();
   });
-  it("reads the base quiz of a harder variant", () => {
-    const q = parseQuiz("title: T\nafter: capitals-of-europe\n---\nParis\n");
-    expect(q.after).toBe("capitals-of-europe");
-    expect(topicOf(q)).toBe("");
+});
+
+describe("series", () => {
+  const meta = parseSeries("title: US state capitals\ntags: Geography, capitals\nlevels: standard, reversed\nchunks: A–M, N–W\n", "/h/caps/series.txt", "/h/caps");
+  const cell = (folder: string, header: string, m = meta): Quiz => parseQuiz(`${header}\n---\nAlabama :: Montgomery\n`, `/h/caps/${folder}/quiz.txt`, `/h/caps/${folder}`, m);
+
+  it("reads series.txt", () => {
+    expect(meta.id).toBe("caps");
+    expect(meta.title).toBe("US state capitals");
+    expect(meta.tags).toEqual(["geography", "capitals"]);
+    expect(meta.levels).toEqual(["standard", "reversed"]);
+    expect(meta.chunks).toEqual(["A–M", "N–W"]);
+    const bare = parseSeries("title: Greek alphabet\n", "/h/greek/series.txt", "/h/greek");
+    expect(bare.levels).toEqual(["standard"]);
+    expect(bare.chunks).toBeNull();
+  });
+
+  it("places a quiz in its series", () => {
+    const q = cell("a-m-reversed", "chunk: A–M\nlevel: reversed\nmode: prompt");
+    expect(q.id).toBe("caps/a-m-reversed");
+    expect(q.series).toBe("caps");
+    expect(q.chunk).toBe("A–M");
+    expect(q.level).toBe("reversed");
+    expect(q.tags).toEqual(["geography", "capitals"]);
+    expect(q.title).toBe("");
+    expect(cell("a-m", "chunk: A–M\nmode: prompt").level).toBe("standard");
+    expect(() => cell("x", "chunk: A–M\nlevel: hard\nmode: prompt")).toThrow(/level "hard"/);
+  });
+
+  it("assembles the grid and titles the quizzes", () => {
+    const am = cell("a-m", "chunk: A–M\nmode: prompt");
+    const amr = cell("a-m-reversed", "chunk: A–M\nlevel: reversed\nmode: prompt");
+    const nw = cell("n-w", "chunk: N–W\nmode: prompt");
+    const s = assembleSeries(meta, [am, amr, nw]);
+    expect(am.title).toBe("US state capitals, A–M");
+    expect(amr.title).toBe("US state capitals, A–M, reversed");
+    expect(nw.title).toBe("US state capitals, N–W");
+    expect(previousLevel(s, amr)).toBe(am);
+    expect(previousLevel(s, am)).toBeNull();
+    expect(previousLevel(s, nw)).toBeNull();
+    expect(() => assembleSeries(meta, [am, amr])).toThrow(/chunk "N–W" has no quiz at the first level/);
+    expect(() => assembleSeries(meta, [am, nw, cell("dup", "chunk: A–M\nmode: prompt")])).toThrow(/same chunk and level/);
+    expect(() => assembleSeries(meta, [am, nw, cell("x", "chunk: Z\nmode: prompt")])).toThrow(/chunk "Z" is not one/);
+  });
+
+  it("derives chunks when series.txt leaves them out, in quiz order", () => {
+    const m = parseSeries("title: Element symbols\nlevels: standard, reversed\n", "/h/el/series.txt", "/h/el");
+    const a = cell("1-20", "chunk: 1–20\nmode: prompt", m), b = cell("21-40", "chunk: 21–40\nmode: prompt", m);
+    expect(assembleSeries(m, [a, b]).chunks).toEqual(["1–20", "21–40"]);
+    const one = cell("standard", "mode: prompt", parseSeries("title: Greek alphabet\n", "/h/g/series.txt", "/h/g"));
+    const s = assembleSeries(parseSeries("title: Greek alphabet\n", "/h/g/series.txt", "/h/g"), [one]);
+    expect(s.chunks).toEqual([""]);
+    expect(one.title).toBe("Greek alphabet");
+    expect(defaultTitle(s, { chunk: "", level: "reversed" })).toBe("Greek alphabet, reversed");
+    expect(() => assembleSeries(m, [a, cell("x", "mode: prompt", m)])).toThrow(/no `chunk:` header/);
+  });
+
+  it("keeps a quiz's own title and a series-wide retirement", () => {
+    const m = parseSeries("title: Greek gods\nlevels: standard, reversed\nretired: true\n", "/h/g/series.txt", "/h/g");
+    const q = cell("reversed", "level: reversed\ntitle: Roman gods and their Greek names\nmode: prompt", m);
+    expect(q.title).toBe("Roman gods and their Greek names");
+    expect(q.retired).toBe(true);
   });
 });

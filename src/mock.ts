@@ -1,8 +1,9 @@
 // Dev-only stand-in for the Rust commands, used when the page runs in a
 // browser rather than in Tauri. Quizzes and themes come from the repo via
 // Vite globs; attempts and settings live in memory for the session.
-const quizSources = import.meta.glob(["../watering-hole/*/quiz.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
-const quizImages = import.meta.glob("../watering-hole/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
+const seriesSources = import.meta.glob(["../watering-hole/*/series.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
+const quizSources = import.meta.glob(["../watering-hole/*/*/quiz.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
+const quizImages = import.meta.glob("../watering-hole/*/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
 const librarySource = Object.values(import.meta.glob("../data/library.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>)[0] ?? "";
 const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { query: "?url", import: "default" });
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
@@ -25,13 +26,21 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       return { remote: null, last_ok: null, error: null } as T;
     case "root_dir":
       return "/mock" as T;
-    case "list_quizzes": {
-      const out = [];
+    case "list_series": {
+      const byDir = new Map<string, { dir: string; path: string; source: string | null; quizzes: { dir: string; path: string; source: string }[] }>();
+      const seriesOf = (dir: string) => {
+        if (!byDir.has(dir)) byDir.set(dir, { dir, path: `${dir}/series.txt`, source: null, quizzes: [] });
+        return byDir.get(dir)!;
+      };
+      for (const [file, load] of Object.entries(seriesSources)) {
+        seriesOf(file.replace(/\/series\.txt$/, "").replace(/^\.\.\//, "/mock/")).source = (await load()) as string;
+      }
       for (const [file, load] of Object.entries(quizSources)) {
         const dir = file.replace(/\/quiz\.txt$/, "").replace(/^\.\.\//, "/mock/");
-        out.push({ dir, path: `${dir}/quiz.txt`, source: (await load()) as string });
+        seriesOf(dir.replace(/\/[^/]+$/, "")).quizzes.push({ dir, path: `${dir}/quiz.txt`, source: (await load()) as string });
       }
-      return out.sort((a, b) => a.path.localeCompare(b.path)) as T;
+      for (const s of byDir.values()) s.quizzes.sort((a, b) => a.path.localeCompare(b.path));
+      return [...byDir.values()].sort((a, b) => a.dir.localeCompare(b.dir)) as T;
     }
     case "open_path":
       return undefined as T;

@@ -16,8 +16,16 @@ export interface QuizFile {
   source: string;
 }
 
-export function listQuizzes(): Promise<QuizFile[]> {
-  return invoke<QuizFile[]>("list_quizzes");
+// A series folder: series.txt (null when missing) and its quiz folders.
+export interface SeriesFile {
+  dir: string;
+  path: string;
+  source: string | null;
+  quizzes: QuizFile[];
+}
+
+export function listSeries(): Promise<SeriesFile[]> {
+  return invoke<SeriesFile[]>("list_series");
 }
 
 // Image inside a quiz directory, as a data URL.
@@ -65,7 +73,7 @@ export function writeSettings(json: string): Promise<void> {
   return invoke("write_settings", { json });
 }
 
-// Ids of the quizzes imported from the Watering Hole (data/library.txt).
+// Ids of the series imported from the Watering Hole (data/library.txt).
 export function readLibrary(): Promise<string> {
   return invoke<string>("read_library");
 }

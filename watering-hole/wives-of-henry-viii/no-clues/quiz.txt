@@ -1,0 +1,11 @@
+level: no clues
+mode: prompt
+pass: 100
+answer-label: Wife
+---
+1st :: Catherine of Aragon | Katherine of Aragon | Katharine of Aragon | Catalina of Aragon | Aragon
+2nd :: Anne Boleyn | Anne Bullen | Boleyn
+3rd :: Jane Seymour | Seymour
+4th :: Anne of Cleves | Anna of Cleves | Cleves
+5th :: Catherine Howard | Katherine Howard | Kathryn Howard | Howard
+6th :: Catherine Parr | Katherine Parr | Kateryn Parr | Katharine Parr | Parr

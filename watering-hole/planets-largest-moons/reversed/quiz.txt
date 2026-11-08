@@ -1,0 +1,15 @@
+level: reversed
+mode: prompt
+pass: 100
+prompt-label: Largest moon
+answer-label: Body
+---
+The Moon :: Earth
+Phobos :: Mars
+Ganymede :: Jupiter
+Titan :: Saturn
+Titania :: Uranus
+Triton :: Neptune
+Charon :: Pluto
+Hiʻiaka :: Haumea
+Dysnomia :: Eris

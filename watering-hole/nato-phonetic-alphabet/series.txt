@@ -1,0 +1,3 @@
+title: NATO phonetic alphabet
+tags: language
+levels: standard, reversed

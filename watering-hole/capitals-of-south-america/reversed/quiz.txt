@@ -1,0 +1,18 @@
+level: reversed
+mode: prompt
+pass: 100
+prompt-label: Capital
+answer-label: Country
+---
+Buenos Aires :: Argentina
+Sucre :: Bolivia
+Brasília :: Brazil
+Santiago :: Chile
+Bogotá :: Colombia
+Quito :: Ecuador
+Georgetown :: Guyana
+Asunción :: Paraguay
+Lima :: Peru
+Paramaribo :: Suriname
+Montevideo :: Uruguay
+Caracas :: Venezuela

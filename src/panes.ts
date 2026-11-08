@@ -124,6 +124,12 @@ export function mountPanes(opts: {
   setKeys(onKey);
 }
 
+// Move focus to the pane with this id, if it is on screen.
+export function focusPane(id: string): void {
+  const pane = ctl?.panes.find((p) => p.id === id);
+  if (pane) setFocus(pane, true);
+}
+
 // Replace the panes with these ids (they may be gone or rebuilt) and add
 // the new ones; used when a detail area is redrawn for a new cursor row.
 export function setPanes(removeIds: string[], add: Pane[]): void {

@@ -7,10 +7,11 @@ use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-/// Repository root: the Watering Hole (every quiz) is
-/// `<root>/watering-hole/<name>/quiz.txt`; the attempt log and the list of
-/// imported quizzes are in `<root>/data`. Override with TEMBO_ROOT; defaults to the
-/// directory containing `src-tauri`, which is right for `tauri dev`.
+/// Repository root: the Watering Hole is `<root>/watering-hole`, one folder
+/// per series holding `series.txt` and one `<cell>/quiz.txt` per quiz; the
+/// attempt log and the list of imported series are in `<root>/data`.
+/// Override with TEMBO_ROOT; defaults to the directory containing
+/// `src-tauri`, which is right for `tauri dev`.
 fn root() -> PathBuf {
     if let Ok(p) = std::env::var("TEMBO_ROOT") {
         return PathBuf::from(p);
@@ -26,37 +27,73 @@ struct QuizFile {
     source: String,
 }
 
-fn list_in(quizzes: &Path) -> Result<Vec<QuizFile>, String> {
+#[derive(Serialize)]
+struct SeriesFile {
+    /// Directory holding series.txt and the quiz folders.
+    dir: String,
+    path: String,
+    /// series.txt, or None when the folder has none (reported by the app).
+    source: Option<String>,
+    quizzes: Vec<QuizFile>,
+}
+
+/// Subfolders of `dir` in name order, skipping scratch folders (`_...`).
+fn subdirs(dir: &Path) -> Result<Vec<PathBuf>, String> {
     let mut out = Vec::new();
-    if !quizzes.exists() {
+    if !dir.exists() {
         return Ok(out);
     }
-    let entries = fs::read_dir(quizzes).map_err(|e| format!("{}: {e}", quizzes.display()))?;
-    for entry in entries {
-        let dir = entry.map_err(|e| e.to_string())?.path();
-        let path = dir.join("quiz.txt");
-        // Folders starting with "_" (scratch) are ignored.
-        let hidden = dir.file_name().and_then(|n| n.to_str()).map_or(true, |n| n.starts_with('_'));
-        if hidden || !dir.is_dir() || !path.is_file() {
+    for entry in fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        let hidden = path.file_name().and_then(|n| n.to_str()).map_or(true, |n| n.starts_with('_') || n.starts_with('.'));
+        if !hidden && path.is_dir() {
+            out.push(path);
+        }
+    }
+    out.sort();
+    Ok(out)
+}
+
+fn read_text(path: &Path) -> Result<String, String> {
+    fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+fn list_in(hole: &Path) -> Result<Vec<SeriesFile>, String> {
+    let mut out = Vec::new();
+    for dir in subdirs(hole)? {
+        let path = dir.join("series.txt");
+        let mut quizzes = Vec::new();
+        for cell in subdirs(&dir)? {
+            let quiz = cell.join("quiz.txt");
+            if !quiz.is_file() {
+                continue;
+            }
+            quizzes.push(QuizFile {
+                dir: cell.to_string_lossy().into_owned(),
+                path: quiz.to_string_lossy().into_owned(),
+                source: read_text(&quiz)?,
+            });
+        }
+        // A folder with neither series.txt nor quizzes is not a series.
+        if !path.is_file() && quizzes.is_empty() {
             continue;
         }
-        let source = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        out.push(QuizFile {
+        out.push(SeriesFile {
             dir: dir.to_string_lossy().into_owned(),
             path: path.to_string_lossy().into_owned(),
-            source,
+            source: if path.is_file() { Some(read_text(&path)?) } else { None },
+            quizzes,
         });
     }
-    out.sort_by(|a, b| a.path.cmp(&b.path));
     Ok(out)
 }
 
 #[tauri::command]
-fn list_quizzes() -> Result<Vec<QuizFile>, String> {
+fn list_series() -> Result<Vec<SeriesFile>, String> {
     list_in(&root().join("watering-hole"))
 }
 
-/// Ids of the quizzes imported from the Watering Hole, one per line
+/// Ids of the series imported from the Watering Hole, one per line
 /// (data/library.txt; empty string if absent).
 #[tauri::command]
 fn read_library() -> Result<String, String> {
@@ -67,11 +104,11 @@ fn read_library() -> Result<String, String> {
     fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Replace the list of imported quiz ids, then commit and push it.
+/// Replace the list of imported series ids, then commit and push it.
 #[tauri::command]
 fn write_library(app: tauri::AppHandle, ids: Vec<String>, message: String) -> Result<(), String> {
     if let Some(bad) = ids.iter().find(|id| id.trim().is_empty() || id.contains('\n')) {
-        return Err(format!("bad quiz id: {bad:?}"));
+        return Err(format!("bad series id: {bad:?}"));
     }
     let dir = root().join("data");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -342,7 +379,7 @@ fn set_dock_icon(app: tauri::AppHandle, png: String) -> Result<(), String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            list_quizzes, read_asset, read_attempts, append_attempt,
+            list_series, read_asset, read_attempts, append_attempt,
             root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
             read_library, write_library, open_path, clear_attempts,
             sync_now, sync_status, set_dock_icon

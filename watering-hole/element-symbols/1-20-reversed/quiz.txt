@@ -1,0 +1,27 @@
+chunk: 1–20
+level: reversed
+mode: prompt
+pass: 100
+prompt-label: Element
+answer-label: Symbol
+---
+Hydrogen :: H
+Helium :: He
+Lithium :: Li
+Beryllium :: Be
+Boron :: B
+Carbon :: C
+Nitrogen :: N
+Oxygen :: O
+Fluorine :: F
+Neon :: Ne
+Sodium :: Na
+Magnesium :: Mg
+Aluminium :: Al
+Silicon :: Si
+Phosphorus :: P
+Sulfur :: S
+Chlorine :: Cl
+Argon :: Ar
+Potassium :: K
+Calcium :: Ca

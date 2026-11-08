@@ -1,0 +1,3 @@
+title: Capitals of South America
+tags: geography, capitals
+levels: standard, reversed

@@ -1,0 +1,26 @@
+mode: prompt
+pass: 100
+prompt-label: Anniversary
+answer-label: Gift
+---
+1st :: Paper
+2nd :: Cotton
+3rd :: Leather
+5th :: Wood
+8th :: Bronze
+10th :: Tin | Aluminium | Aluminum
+11th :: Steel
+12th :: Silk
+13th :: Lace
+14th :: Ivory
+15th :: Crystal
+20th :: China | Porcelain
+25th :: Silver
+30th :: Pearl | Pearls
+35th :: Coral
+40th :: Ruby | Rubies
+45th :: Sapphire | Sapphires
+50th :: Gold
+55th :: Emerald | Emeralds
+60th :: Diamond | Diamonds
+70th :: Platinum

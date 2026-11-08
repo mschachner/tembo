@@ -1,0 +1,19 @@
+mode: prompt
+kind: calibration
+---
+Peru :: Peru
+Chad :: Chad
+Japan :: Japan
+Kenya :: Kenya
+Norway :: Norway
+Uruguay :: Uruguay
+Montevideo :: Montevideo
+Kazakhstan :: Kazakhstan
+Burkina Faso :: Burkina Faso
+Papua New Guinea :: Papua New Guinea
+Trinidad and Tobago :: Trinidad and Tobago
+Antigua and Barbuda :: Antigua and Barbuda
+Democratic Republic of the Congo :: Democratic Republic of the Congo
+Edinburgh :: Edinburgh
+Ouagadougou :: Ouagadougou
+Thessaloniki :: Thessaloniki

@@ -1,0 +1,27 @@
+mode: list
+pass: 100
+---
+Alpha
+Beta
+Gamma
+Delta
+Epsilon
+Zeta
+Eta
+Theta
+Iota
+Kappa
+Lambda | Lamda | Labda
+Mu | My
+Nu | Ny
+Xi | Ksi
+Omicron | Omikron
+Pi
+Rho
+Sigma
+Tau
+Upsilon | Ypsilon
+Phi
+Chi | Khi
+Psi
+Omega

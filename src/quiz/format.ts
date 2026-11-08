@@ -1,13 +1,30 @@
-// Quiz file format.
+// Quiz files.
 //
-//   title: Countries of Africa
-//   id: africa            # optional; stable key for history (default: the folder name)
+// The Watering Hole holds series: `watering-hole/<series>/series.txt`, with
+// one quiz per subfolder, `watering-hole/<series>/<cell>/quiz.txt`. A series
+// is a grid of quizzes along two dimensions: chunks (which part of the
+// material: A–M, N–W; 1–20, 21–40) and levels (how hard: standard, reversed,
+// no clues). Every chunk starts at the first level; the next level of a
+// chunk unlocks when the previous one is proficient.
+//
+// series.txt:
+//
+//   title: US state capitals
+//   id: us-state-capitals         # optional; stable key (default: the folder name)
+//   tags: geography, capitals     # the first tag is the topic, used for grouping
+//   levels: standard, reversed    # in order, easiest first (default: one level, "standard")
+//   chunks: A–M, N–W              # in order (default: the chunks the quizzes name, in folder order)
+//   retired: true                 # optional; drop the whole series from the schedule
+//
+// quiz.txt:
+//
+//   chunk: A–M            # one of the series' chunks (omit when the series has one chunk)
+//   level: reversed       # one of the series' levels (default: the first)
+//   title: US state capitals, A–M   # optional; default: series title, chunk, level
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   pass: 100             # percent required to count as a clear
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
-//   retired: true         # optional; drop the quiz from the schedule
-//   tags: geography, capitals   # optional; the first tag is the quiz's topic, used for grouping
-//   after: capitals-of-europe   # optional; a harder variant, hidden until that quiz is proficient
+//   retired: true         # optional; drop this quiz from the schedule
 //   image-height: 72      # px, for image prompts (default 72)
 //   columns: Years, Party # optional; names of per-item data columns
 //   prompt-label: Order   # optional; table heading over the prompts
@@ -17,16 +34,14 @@
 //   Algeria
 //   Côte d'Ivoire | Ivory Coast        # canonical answer, then aliases
 //
+// A quiz's id is `<series id>/<cell folder>`; the attempt log is keyed by
+// it. Blank lines are ignored, and so is everything from a # that starts a
+// line or follows a space.
+//
 // In prompt mode each line is  prompt :: answer | alias | alias
 // A prompt may be an image:    ![France](flags/fr.svg) :: France
 // with an optional height:     ![France](flags/fr.svg){height=120} :: France
 // Image paths are relative to the quiz file.
-//
-// Harder variants. A quiz with `after: <id>` is a harder version of that
-// quiz (the other direction, fewer data columns, list mode instead of
-// prompts). It is not shown or playable until the base quiz is proficient,
-// and then it joins the library on its own if the base quiz is in it. Blank lines are ignored, and
-// so is everything from a # that starts a line or follows a space.
 //
 // Per-item data, one value per name in `columns`, follows `;;`:
 //   1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
@@ -87,13 +102,15 @@ export interface Diagram {
 export interface Quiz {
   path: string;
   dir: string;         // directory holding quiz.txt and its images
-  id: string;          // stable key for the attempt log
+  id: string;          // stable key for the attempt log: `<series id>/<cell folder>`
+  series: string;      // id of the series this quiz belongs to ("" when parsed alone)
+  chunk: string;       // the series' chunk this quiz covers ("" for a series of one chunk)
+  level: string;       // the series' level this quiz is at
   title: string;
   mode: Mode;
   kind: Kind;
   retired: boolean;
-  tags: string[];        // the first is the topic ("" when untagged)
-  after: string | null;  // id of the quiz this is a harder variant of
+  tags: string[];        // the series' tags; the first is the topic ("" when untagged)
   passPercent: number;
   imageHeight: number;   // px, default 72
   columns: string[];     // names of the per-item data columns
@@ -111,11 +128,11 @@ export class QuizFormatError extends Error {
 
 const IMAGE_PROMPT = /^!\[([^\]]*)\]\(([^)]+)\)(?:\{height=(\d+)\})?$/;
 
-export function parseQuiz(source: string, path = "", dir = ""): Quiz {
-  const lines = source.split(/\r?\n/);
+// The header, as `key: value` lines, and the index of the first line after
+// `---` (or past the end when there is no body).
+function parseHeader(lines: string[]): { header: Record<string, string>; body: number } {
   const header: Record<string, string> = {};
   let i = 0;
-
   for (; i < lines.length; i++) {
     const line = stripComment(lines[i]).trim();
     if (line === "---") { i++; break; }
@@ -123,6 +140,118 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     const colon = line.indexOf(":");
     if (colon < 0) throw new QuizFormatError(i + 1, "expected `key: value` in header");
     header[line.slice(0, colon).trim().toLowerCase()] = line.slice(colon + 1).trim();
+  }
+  return { header, body: i };
+}
+
+const list = (value: string | undefined) => (value ?? "").split(",").map((s) => s.trim()).filter((s) => s !== "");
+const folderName = (dir: string, path: string) => dir.split("/").filter(Boolean).pop() ?? path;
+
+// What series.txt says: the series and the shape of its grid. `chunks` is
+// null when the file leaves them to the quizzes.
+export interface SeriesMeta {
+  path: string;
+  dir: string;
+  id: string;
+  title: string;
+  tags: string[];
+  levels: string[];        // easiest first
+  chunks: string[] | null;
+  retired: boolean;
+}
+
+// A series with its quizzes: the chunks are settled and the quizzes titled.
+export interface Series extends Omit<SeriesMeta, "chunks"> {
+  chunks: string[];
+  quizzes: Quiz[];
+}
+
+export function parseSeries(source: string, path = "", dir = ""): SeriesMeta {
+  const { header } = parseHeader(source.split(/\r?\n/));
+  const levels = list(header.levels);
+  if (new Set(levels).size !== levels.length) throw new QuizFormatError(0, "a level is listed twice");
+  const chunks = header.chunks === undefined ? null : list(header.chunks);
+  if (chunks && new Set(chunks).size !== chunks.length) throw new QuizFormatError(0, "a chunk is listed twice");
+  if (chunks && chunks.length === 0) throw new QuizFormatError(0, "`chunks:` names no chunks");
+  return {
+    path,
+    dir,
+    id: header.id ?? folderName(dir, path),
+    title: header.title ?? folderName(dir, path),
+    tags: list(header.tags).map((t) => t.toLowerCase()),
+    levels: levels.length ? levels : ["standard"],
+    chunks,
+    retired: (header.retired ?? "false").toLowerCase() === "true",
+  };
+}
+
+// A quiz's default title: the series, then the chunk when the series has
+// several, then the level unless it is the first.
+export function defaultTitle(series: Series, quiz: Pick<Quiz, "chunk" | "level">): string {
+  const parts = [series.title];
+  if (series.chunks.length > 1 && quiz.chunk) parts.push(quiz.chunk);
+  if (quiz.level !== series.levels[0]) parts.push(quiz.level);
+  return parts.join(", ");
+}
+
+// Puts a series together from its file and its quizzes: settles the chunk
+// order, checks each quiz has a place in the grid and no two share one,
+// and fills in missing titles. The quizzes stay in the order given.
+export function assembleSeries(meta: SeriesMeta, quizzes: Quiz[]): Series {
+  let chunks: string[];
+  if (meta.chunks) {
+    chunks = meta.chunks;
+    for (const q of quizzes) {
+      if (!chunks.includes(q.chunk)) {
+        throw new Error(`${q.path}: chunk "${q.chunk || "(none)"}" is not one of the series' chunks (${chunks.join(", ")})`);
+      }
+    }
+  } else {
+    chunks = [...new Set(quizzes.map((q) => q.chunk))];
+    if (chunks.length > 1 && chunks.includes("")) {
+      const bare = quizzes.find((q) => q.chunk === "")!;
+      throw new Error(`${bare.path}: no \`chunk:\` header, but the series has chunks (${chunks.filter(Boolean).join(", ")})`);
+    }
+    if (chunks.length === 0) chunks = [""];
+  }
+  const series: Series = { ...meta, chunks, quizzes };
+  const seen = new Map<string, Quiz>();
+  for (const q of quizzes) {
+    const key = `${q.chunk}\u0000${q.level}`;
+    const other = seen.get(key);
+    if (other) throw new Error(`${q.path}: same chunk and level as ${other.path}`);
+    seen.set(key, q);
+    if (q.title === "") q.title = defaultTitle(series, q);
+  }
+  for (const chunk of chunks) {
+    if (!quizzes.some((q) => q.chunk === chunk && q.level === series.levels[0])) {
+      throw new Error(`${meta.path}: chunk "${chunk || "(the only one)"}" has no quiz at the first level (${series.levels[0]})`);
+    }
+  }
+  return series;
+}
+
+// The quiz the given one builds on: the previous level of its chunk that
+// has a quiz, or null at the first level.
+export function previousLevel(series: Series, quiz: Quiz): Quiz | null {
+  for (let k = series.levels.indexOf(quiz.level) - 1; k >= 0; k--) {
+    const q = series.quizzes.find((x) => x.chunk === quiz.chunk && x.level === series.levels[k]);
+    if (q) return q;
+  }
+  return null;
+}
+
+// Parses quiz.txt. With `series`, the quiz is placed in that series: its
+// id, tags, chunk and level follow from it, and the title may be left to
+// assembleSeries.
+export function parseQuiz(source: string, path = "", dir = "", series?: SeriesMeta): Quiz {
+  const lines = source.split(/\r?\n/);
+  const { header, body } = parseHeader(lines);
+  let i = body;
+
+  const level = header.level ?? (series ? series.levels[0] : "standard");
+  if (series && !series.levels.includes(level)) {
+    throw new QuizFormatError(0, `level "${level}" is not one of the series' levels (${series.levels.join(", ")})`);
   }
 
   const mode = (header.mode ?? "list") as Mode;
@@ -139,7 +268,7 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
     throw new QuizFormatError(0, `unknown layout "${header.layout}"`);
   }
 
-  const columns = (header.columns ?? "").split(",").map((s) => s.trim()).filter((s) => s !== "");
+  const columns = list(header.columns);
   const items: Item[] = [];
   let diagram: Diagram | undefined;
   if (layout === "diagram") {
@@ -157,13 +286,15 @@ export function parseQuiz(source: string, path = "", dir = ""): Quiz {
   return {
     path,
     dir,
-    id: header.id ?? dir.split("/").filter(Boolean).pop() ?? path,
-    title: header.title ?? path,
+    id: series ? `${series.id}/${folderName(dir, path)}` : header.id ?? folderName(dir, path),
+    series: series?.id ?? "",
+    chunk: header.chunk ?? "",
+    level,
+    title: header.title ?? (series ? "" : path),
     mode,
     kind,
-    retired: (header.retired ?? "false").toLowerCase() === "true",
-    tags: (header.tags ?? "").split(",").map((s) => s.trim().toLowerCase()).filter((s) => s !== ""),
-    after: header.after?.trim() || null,
+    retired: (header.retired ?? "false").toLowerCase() === "true" || (series?.retired ?? false),
+    tags: series ? series.tags : list(header.tags).map((t) => t.toLowerCase()),
     passPercent: header.pass ? Number(header.pass) : 100,
     imageHeight: header["image-height"] ? Number(header["image-height"]) : 72,
     columns,
