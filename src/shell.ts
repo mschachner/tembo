@@ -215,6 +215,9 @@ export function renderHome(tab: Tab, content: Node): void {
   root.dataset.layout = "panes";
   panTo(tab);
   root.append(...(keep ? [] : [backdropNode()]), bannerNode(tab), tabBarNode(tab), h("main", { class: "page panes-page" }, content), statusLine(), gearButton());
+  // A new screen opens at the top; the window keeps its scroll position
+  // across redraws otherwise (a remembered cursor scrolls into view later).
+  window.scrollTo(0, 0);
   scheduleContrast();
   indexForStagger(document.getElementById("app")!);
 }
@@ -234,5 +237,6 @@ export function renderScreen(content: Node, opts: { wide?: boolean; panes?: bool
     statusLine(),
     gearButton(),
   );
+  window.scrollTo(0, 0);
   indexForStagger(document.getElementById("app")!);
 }

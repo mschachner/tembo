@@ -305,10 +305,10 @@ button.give-up.armed { color: var(--missed); background: color-mix(in srgb, var(
   margin-right: 0.45em; vertical-align: 0.1em;
 }
 .page.panes-page {
-  max-width: none; min-height: 0; display: flex; flex-direction: column;
+  max-width: none; min-height: auto; display: flex; flex-direction: column;
   padding: calc(var(--u) * 1.25) calc(var(--u) * 5) calc(var(--u) * 1.5);
 }
-.panes-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
+.panes-wrap { flex: 1; min-height: auto; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); container: panes / inline-size; }
 .page.panes-page > .panes-wrap > * { margin: 0; padding: 0; border-radius: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
 
 .keys { display: flex; flex-wrap: wrap; gap: 2px calc(var(--u) * 0.5); font-size: 0.85em; }
@@ -319,11 +319,24 @@ kbd {
   padding: 0 0.35em; border: 1px solid var(--line); border-radius: 4px; background: var(--bg-2);
 }
 
+/* A row is at least as tall as its content (1fr's minimum is auto), and the
+   page is at least as tall as its rows, so a short window scrolls the whole
+   page rather than any pane scrolling by itself. Lists and tables are the
+   exception: a pane of rows has a floor and a cap (contain: size keeps its
+   rows out of the intrinsic height) and scrolls inside that. */
 .panes {
-  flex: 1; min-height: 0; display: grid; gap: calc(var(--u) * 1.25);
-  grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr); grid-template-rows: minmax(0, 1fr);
+  flex: 1; min-height: auto; display: grid; gap: calc(var(--u) * 1.25);
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); grid-template-rows: 1fr;
 }
-.panes.with-bottom { grid-template-rows: minmax(0, 1fr) minmax(0, auto); }
+/* Too narrow for the list beside the detail: the list sits above it. */
+@container panes (width < 740px) {
+  .panes { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .panes.today.with-bottom:not(.done) { grid-template-rows: auto 1fr minmax(var(--bottom-min), auto); }
+}
+.panes.with-bottom { grid-template-rows: 1fr auto; }
+.panes > .list-pane { contain: size; min-height: var(--list-min); }
+.panes > .detail, .panes > .right { min-height: auto; }
+.pane { scroll-margin-top: calc(var(--titlebar) + var(--u)); }
 .pane {
   min-height: 0; display: flex; flex-direction: column;
   border: 1px solid var(--line); border-radius: var(--plate-radius);
@@ -352,7 +365,8 @@ kbd {
   display: grid; grid-template-columns: var(--cols, 1fr); column-gap: calc(var(--u) * 1.5); align-items: baseline;
   padding: calc(var(--u) * 0.3 * var(--row-pad)) calc(var(--u) * 1.25); cursor: default;
 }
-.row .cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Text is never cut off: a cell, title or label that doesn't fit wraps. */
+.row .cell { min-width: 0; overflow-wrap: break-word; }
 /* Same font size as the rows (the grid is in ch); only the labels shrink. */
 .row.head .cell { font-size: 0.8em; }
 .row.head { color: var(--fg-3); position: sticky; top: 0; background: var(--bg); z-index: 1; }
@@ -366,7 +380,7 @@ kbd {
   font-size: 0.75em; letter-spacing: var(--label-tracking, 0.06em); text-transform: uppercase; color: var(--fg-3);
 }
 .quiz-row { grid-template-columns: 1.1em minmax(0, 1fr) auto auto; }
-.quiz-row .row-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quiz-row .row-title { min-width: 0; overflow-wrap: break-word; }
 .quiz-row .row-meta { color: var(--fg-3); font-size: 0.85em; white-space: nowrap; }
 .quiz-row:not(.playable) .row-title { color: var(--fg-2); }
 .quiz-row .marker::before { content: "○"; color: var(--fg-3); font-size: 0.8em; }
@@ -380,8 +394,8 @@ kbd {
 .detail-grid { flex: 1; min-height: 0; display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: minmax(0, 1fr); }
 .detail-grid.two { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
 .detail-grid:empty { display: none; }
-/* quiz, attempt and item screens: the whole screen scrolls, tables capped */
-.detail.screen-detail { flex: 1; overflow: auto; padding-right: 2px; }
+/* quiz, attempt and item screens: the window scrolls, tables capped */
+.detail.screen-detail { flex: 1; }
 .screen-detail .detail-grid.rich > .tables { flex: none; max-height: 60vh; min-height: 280px; }
 .screen-detail .figure-body .heatmap { max-height: none; }
 .screen-detail > .detail-grid:not(.rich) { flex: 1; }
@@ -491,7 +505,7 @@ details.group[open] > summary { color: var(--fg-2); }
 /* settings tabs */
 .page > div > nav.settings-tabs { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; margin: 0 0 calc(var(--u) * 1.5); }
 .settings-tabs { display: flex; gap: 2px; }
-.settings .path { overflow-wrap: anywhere; color: var(--fg-2); }
+.settings .path { overflow-wrap: break-word; color: var(--fg-2); }
 .danger-zone { border: 1px solid color-mix(in srgb, var(--missed) 45%, transparent); }
 .danger-zone > details > summary, .danger-zone > details[open] > summary { color: var(--missed); }
 button.danger { color: var(--missed); border-color: color-mix(in srgb, var(--missed) 50%, transparent); }
@@ -542,7 +556,7 @@ input, textarea,
 }
 .preset-actions { display: none; gap: var(--u); margin-top: calc(var(--u) * 1.25); }
 .settings.modified .preset-actions { display: flex; }
-.preset-actions button { white-space: nowrap; max-width: 50%; overflow: hidden; text-overflow: ellipsis; }
+.preset-actions button { max-width: 50%; overflow-wrap: break-word; }
 
 /* ================= motion =================
    Each kind is gated on an attribute set by motion.ts; --dur scales every
@@ -603,7 +617,7 @@ input, textarea,
 }
 .control.disabled { opacity: 0.45; }
 
-.sync-error { color: var(--missed); margin: calc(var(--u) * 0.5) 0 0; overflow-wrap: anywhere; }
+.sync-error { color: var(--missed); margin: calc(var(--u) * 0.5) 0 0; overflow-wrap: break-word; }
 .sync-error[hidden] { display: none; }
 
 /* ---- first-time finds and a first clear ---- */
@@ -659,8 +673,8 @@ input, textarea,
 .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: currentColor; }
 .segments { display: flex; gap: 2px; height: 10px; border-radius: 3px; overflow: hidden; }
 .segments i { display: block; background: currentColor; min-width: 2px; }
-.heatmap { display: grid; grid-template-columns: minmax(6ch, 14ch) 1fr; gap: 2px calc(var(--u) * 1); align-items: center; font-size: 0.8em; }
-.heat-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg-2); }
+.heatmap { display: grid; grid-template-columns: minmax(6ch, 16ch) 1fr; gap: 2px calc(var(--u) * 1); align-items: center; font-size: 0.8em; }
+.heat-label { min-width: 0; overflow-wrap: break-word; color: var(--fg-2); }
 .heat-cells { display: grid; grid-template-columns: repeat(var(--n), minmax(4px, 18px)); gap: 2px; }
 .heat-cells i { display: block; aspect-ratio: 1; border-radius: 2px; background: currentColor; }
 .heat-cells i.empty { background: var(--line); opacity: 0.5; }
@@ -675,43 +689,38 @@ input, textarea,
 .cal-months span { white-space: nowrap; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: calc(var(--u) * 0.75) calc(var(--u) * 1.5); }
 .tile { min-width: 0; }
-.tile-value { font-size: 1.35em; font-weight: 600; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-value { font-size: 1.35em; font-weight: 600; line-height: 1.15; overflow-wrap: break-word; }
 .tile-value .unit { font-size: 0.65em; font-weight: 500; color: var(--fg-2); margin-left: 0.15em; }
-.tile-label { font-size: 0.75em; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile-sub { font-size: 0.72em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-label { font-size: 0.75em; color: var(--fg-3); overflow-wrap: break-word; }
+.tile-sub { font-size: 0.72em; overflow-wrap: break-word; }
 .pane.figure { flex: none; }
 .figure-body { padding: 0 calc(var(--u) * 1.25) calc(var(--u) * 1); min-width: 0; }
 .figure-body .heatmap { max-height: 240px; overflow: auto; }
 
 /* ---- home: today, stats, rich details ---- */
-.panes.today { grid-template-rows: minmax(0, 1fr); }
-/* Floors for Today in a short window. The panes area keeps a minimum
-   height and the window scrolls instead of squeezing a row to nothing.
-   contain: size makes a cell contribute only its min-height to the
-   intrinsic size, so the minimum propagates up to the page as the sum of
-   the floors rather than the full height of every list. */
-.page.panes-page:has(.panes.today), .panes-wrap:has(> .panes.today), .panes.today { min-height: auto; }
-.panes.today > .list-pane, .panes.today > .right { contain: size; min-height: var(--today-top-min); }
-.panes.today { --today-top-min: 14rem; --today-bottom-min: 10rem; }
+.panes { --list-min: 14rem; --bottom-min: 10rem; }
 /* The bottom row takes its content height (up to 34vh) and gives it back
    down to its floor before the window starts scrolling. */
-.panes.today.with-bottom:not(.done) {
-  grid-template-rows: minmax(var(--today-top-min), 1fr) minmax(var(--today-bottom-min), auto);
-  contain: size; min-height: calc(var(--today-top-min) + var(--today-bottom-min) + var(--u) * 1.25);
-}
+.panes.today.with-bottom:not(.done) { grid-template-rows: 1fr minmax(var(--bottom-min), auto); }
 /* Done: the done pane keeps its natural height; the tables get the rest, down to the floor. */
-.panes.today.done > .bottom-row { contain: size; min-height: var(--today-bottom-min); }
-.panes .right { min-height: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
+.panes.today.done > .bottom-row { contain: size; min-height: var(--bottom-min); }
+.panes .right { min-height: auto; display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
 .panes .right > .detail { flex: 1; min-height: 0; }
-/* When the window is too short for the head, figures and tables, the detail
-   scrolls inside its own cell instead of painting over the panes below it. */
-.panes > .detail, .panes .right > .detail { overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+/* The detail's tables have a floor and fill what is left of the row, so a
+   long quiz scrolls inside its table rather than stretching the page. */
+.panes .detail-grid.rich > .tables { contain: size; min-height: 200px; grid-template-rows: minmax(0, 1fr); }
 .bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: calc(var(--u) * 1.25); min-height: 0; max-height: 34vh; }
 /* Done state: the done pane takes its natural height; the tables below get the rest. */
-.panes.today.done { grid-template-rows: auto minmax(0, 1fr); }
+.panes.today.done { grid-template-rows: auto 1fr; }
 .panes.done .bottom-row, .panes.done .bottom-row > .pane { max-height: none; }
 .bottom-row.two { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
 .bottom-row > .pane { max-height: 34vh; }
+/* Tables never scroll sideways: two tables sit side by side only where
+   both fit at their column widths, and stack otherwise. */
+@container panes (width < 980px) {
+  .bottom-row.two { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; max-height: none; }
+  .panes.done .bottom-row.two { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); min-height: calc(var(--bottom-min) * 2 + var(--u) * 1.25); }
+}
 .pane.bottom { grid-column: auto; }
 .panes.done > .detail-empty { grid-column: 1 / -1; }
 .detail-empty.done {
@@ -735,19 +744,23 @@ input, textarea,
 .row .cell .segments { height: 7px; margin-top: 2px; }
 
 .detail-head .tiles { margin-top: calc(var(--u) * 0.75); }
-.detail-grid.rich { display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
+.detail-grid.rich { display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); container: detail / inline-size; }
 .detail-grid.rich > .figures { flex: none; display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .detail-grid.rich > .figure { flex: none; }
 .detail-grid.rich > .tables { flex: 1; min-height: 160px; display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: minmax(0, 1fr); }
 .detail-grid.rich > .tables.two { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+@container detail (width < 1040px) {
+  .panes .detail-grid.rich > .tables.two { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); min-height: calc(400px + var(--u) * 1.25); }
+}
+@container detail (width < 1040px) {
+  .screen-detail .detail-grid.rich > .tables.two { grid-template-columns: minmax(0, 1fr); max-height: none; min-height: auto; }
+  .screen-detail .detail-grid.rich > .tables.two > .pane { max-height: 50vh; }
+}
 .pane-meta { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--fg-3); }
 
-.panes.stats-scroll {
-  display: flex; flex-direction: column; gap: calc(var(--u) * 1.25);
-  overflow: auto; padding-right: 2px;
-}
+.panes.stats-scroll { display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); }
 .stats-scroll > * { flex: none; }
-.stats-scroll .fig-row { display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.stats-scroll .fig-row.tables-row { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.stats-scroll .fig-row { display: grid; gap: calc(var(--u) * 1.25); grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); }
+.stats-scroll .fig-row.tables-row { grid-template-columns: repeat(auto-fit, minmax(min(100%, 640px), 1fr)); }
 .stats-scroll .fig-row.tables-row > .pane { max-height: 320px; }
 .stats-scroll .fig-row > .pane { min-width: 0; }

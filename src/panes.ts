@@ -83,9 +83,15 @@ function setCursor(pane: Pane, row: Row, scroll = true): void {
   paint();
 }
 
-function setFocus(pane: Pane): void {
+// Focus from the keyboard also brings the pane on screen when the page is
+// scrolled (a short window scrolls the whole home screen).
+function setFocus(pane: Pane, reveal = false): void {
   ctl!.focus = pane.id;
   focused.set(ctl!.scope, pane.id);
+  if (reveal) {
+    const r = pane.el.getBoundingClientRect();
+    pane.el.scrollIntoView({ block: r.top < 0 || r.height > window.innerHeight ? "start" : "nearest" });
+  }
   paint();
 }
 
@@ -141,7 +147,7 @@ function move(delta: number): void {
 function cycle(delta: number): void {
   if (!ctl || !ctl.panes.length) return;
   const i = ctl.panes.findIndex((p) => p.id === ctl!.focus);
-  setFocus(ctl.panes[(i + delta + ctl.panes.length) % ctl.panes.length]);
+  setFocus(ctl.panes[(i + delta + ctl.panes.length) % ctl.panes.length], true);
 }
 
 // The nearest pane to the left or right of the focused one, preferring
@@ -160,7 +166,7 @@ function sideways(dir: -1 | 1): void {
     const score = gap + (overlap > 0 ? 0 : 10_000 - overlap);
     if (score < bestScore) { bestScore = score; best = p; }
   }
-  if (best) setFocus(best);
+  if (best) setFocus(best, true);
 }
 
 function onKey(e: KeyboardEvent): boolean {

@@ -169,14 +169,14 @@ export function detailPanes(q: Quiz, back: () => void, today: string, full = fal
       rowClass: (s) => s.last ?? "",
       activate: (s) => () => nav.item(q, s.answer, back),
       ...(full
-        ? { cols: "minmax(0, 1fr) 5ch 8ch 5ch 7ch 7ch 8ch", head: ["answer", "seen", "instant", "slow", "missed", "median", "last"],
+        ? { cols: "minmax(0, 1fr) 5ch 7ch 5ch 6ch 6ch 7ch", head: ["answer", "seen", "instant", "slow", "missed", "median", "last"],
             cells: (s) => [rich(s.answer), String(s.seen), String(s.instant), String(s.slow), String(s.missed), med(s), s.last ?? ""] }
-        : { cols: "minmax(0, 1fr) 7ch 5ch 7ch 8ch", head: ["answer", "missed", "slow", "median", "last"],
+        : { cols: "minmax(0, 1fr) 6ch 5ch 6ch 7ch", head: ["answer", "missed", "slow", "median", "last"],
             cells: (s) => [rich(s.answer), String(s.missed), String(s.slow), med(s), s.last ?? ""] }),
     }));
     panes.push(tablePane({
       id: "attempts", title: "Attempts", entries: own.slice().reverse(), key: (a) => a.endedAt,
-      cols: "17ch 7ch 6ch 6ch minmax(0, 1fr)", head: ["when", "score", "time", "grade", ""],
+      cols: "17ch 6ch 5ch 5ch minmax(7ch, 1fr)", head: ["when", "score", "time", "grade", ""],
       cells: (a) => [fmtDate(a.endedAt), `${a.score}/${a.total}`, formatClock(a.durationSeconds), gradeOf(a, app.cps).toFixed(2), a.cleared ? "cleared" : ""],
       activate: (a) => () => nav.attempt(q, a, back),
     }));
@@ -340,14 +340,14 @@ function statsContent(root: HTMLElement): Pane[] {
   const topics = byTopic(lib, attemptsOf, app.cps);
   const topicPane = tablePane({
     id: "topics", title: "By topic", entries: topics, key: (t) => t.topic,
-    cols: "minmax(0, 1fr) 7ch 10ch 8ch 7ch 8ch minmax(60px, 0.6fr)", head: ["topic", "quizzes", "proficient", "attempts", "cleared", "instant", ""],
+    cols: "minmax(0, 1fr) 6ch 8ch 7ch 6ch 6ch minmax(60px, 0.6fr)", head: ["topic", "quizzes", "proficient", "attempts", "cleared", "instant", ""],
     cells: (t) => [t.topic, String(t.quizzes), String(t.proficient), String(t.attempts), String(t.cleared), pct(t.buckets.instant, t.buckets.instant + t.buckets.slow + t.buckets.missed),
       segments([{ value: t.buckets.instant, fill: "instant", label: "instant" }, { value: t.buckets.slow, fill: "slow", label: "slow" }, { value: t.buckets.missed, fill: "missed", label: "missed" }], { legend: false })],
   });
   const needs = needsWorkPane(today, 24, 5);
   const recent = tablePane({
     id: "recent", title: "Recent attempts", entries: normal.slice().reverse(), key: (a) => a.endedAt,
-    cols: "17ch minmax(0, 1fr) 7ch 6ch 6ch 8ch", head: ["when", "quiz", "score", "time", "grade", ""],
+    cols: "17ch minmax(0, 1fr) 6ch 5ch 5ch 7ch", head: ["when", "quiz", "score", "time", "grade", ""],
     cells: (a) => [fmtDate(a.endedAt), a.title, `${a.score}/${a.total}`, formatClock(a.durationSeconds), gradeOf(a, app.cps).toFixed(2), a.cleared ? "cleared" : ""],
     activate: (a) => { const q = attemptQuiz(a); return q ? () => nav.attempt(q, a, () => nav.home("stats")) : undefined; },
   });
