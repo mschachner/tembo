@@ -604,6 +604,8 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
         out.push({ keys: ["Enter"], hint: "enter", label: next ? "Play" : only ? "Open" : "Quizzes", run: () => activate(s.id) });
         if (next) out.push({ keys: ["p"], hint: "p", label: "Play", run: () => nav.play(next) });
         out.push({ keys: ["o"], hint: "o", label: next ? (only ? "Open" : "Quizzes") : "", run: () => { if (only) nav.quiz(only); else focusPane("quizzes"); } });
+        // Back to the Watering Hole, out of rotation; history is kept.
+        if (app.library.includes(s.id)) out.push({ keys: ["x"], hint: "x", label: "To Watering Hole", run: () => act(() => removeSeries(s)) });
       }
     } else if (p?.id === "quizzes" && row) {
       const q = quizById(row.id);
