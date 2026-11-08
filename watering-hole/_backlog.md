@@ -47,7 +47,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Greek alphabet (list) — added 2026-11-05 as greek-alphabet
 - [x] NATO phonetic alphabet, reversed (prompt: letter → word), after nato-phonetic-alphabet — added 2026-11-06 as nato-phonetic-alphabet-reversed
 - [x] English/British monarchs since 1066 (prompt) — added 2026-11-07 as english-monarchs-1066-1485
-- [ ] English/British monarchs, 1485–present (prompt)
+- [x] English/British monarchs, 1485–present (prompt) — added 2026-11-08 as english-british-monarchs-1485-present
 - [ ] Animal group names (prompt: "a murder of" → crows)
 - [ ] Flags of South America (prompt, images)
 - [ ] Composers of famous works (prompt)
