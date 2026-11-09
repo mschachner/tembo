@@ -1,0 +1,3 @@
+title: Animal group names
+tags: language, collective nouns
+levels: standard, reversed

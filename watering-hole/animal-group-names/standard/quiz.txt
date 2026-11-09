@@ -1,0 +1,33 @@
+mode: prompt
+pass: 100
+prompt-label: Group
+answer-label: Animal
+---
+An ambush of :: Tigers | Tiger
+A bask of :: Crocodiles | Crocodile
+A bloat of :: Hippopotamuses | Hippopotami | Hippopotamus | Hippos | Hippo
+A business of :: Ferrets | Ferret
+A cackle of :: Hyenas | Hyena | Hyaenas
+A charm of :: Goldfinches | Goldfinch | Finches | Finch
+A clowder of :: Cats | Cat
+A convocation of :: Eagles | Eagle
+A crash of :: Rhinoceroses | Rhinoceros | Rhinoceri | Rhinos | Rhino
+A dazzle of :: Zebras | Zebra
+An exaltation of :: Larks | Lark
+A flamboyance of :: Flamingos | Flamingoes | Flamingo
+A gaggle of :: Geese | Goose
+A kindle of :: Kittens | Kitten
+A knot of :: Toads | Toad
+A labour of :: Moles | Mole
+A leap of :: Leopards | Leopard
+A murder of :: Crows | Crow
+A murmuration of :: Starlings | Starling
+A parliament of :: Owls | Owl | Rooks | Rook
+A pride of :: Lions | Lion
+A prickle of :: Porcupines | Porcupine
+A shrewdness of :: Apes | Ape
+A siege of :: Herons | Heron | Cranes | Crane
+A skulk of :: Foxes | Fox
+A sleuth of :: Bears | Bear
+A tower of :: Giraffes | Giraffe
+An unkindness of :: Ravens | Raven

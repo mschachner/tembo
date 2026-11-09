@@ -1,0 +1,34 @@
+level: reversed
+mode: prompt
+pass: 100
+prompt-label: Animal
+answer-label: Group
+---
+Apes :: Shrewdness | Troop
+Bears :: Sleuth | Sloth
+Cats :: Clowder | Clutter | Glaring | Nuisance
+Crocodiles :: Bask | Float | Congregation
+Crows :: Murder
+Eagles :: Convocation
+Ferrets :: Business | Busyness
+Flamingos :: Flamboyance | Stand
+Foxes :: Skulk | Leash | Earth
+Geese :: Gaggle | Skein | Wedge
+Giraffes :: Tower
+Goldfinches :: Charm
+Herons :: Siege | Sedge
+Hippopotamuses :: Bloat
+Hyenas :: Cackle | Clan
+Kittens :: Kindle | Litter
+Larks :: Exaltation
+Leopards :: Leap | Lepe
+Lions :: Pride
+Moles :: Labour | Labor
+Owls :: Parliament
+Porcupines :: Prickle
+Ravens :: Unkindness | Conspiracy
+Rhinoceroses :: Crash
+Starlings :: Murmuration | Chattering
+Tigers :: Ambush | Streak
+Toads :: Knot
+Zebras :: Dazzle | Zeal
