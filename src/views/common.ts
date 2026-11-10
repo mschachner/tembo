@@ -7,7 +7,7 @@ export function imageFor(quiz: Quiz, item: Item): HTMLImageElement | null {
   const rel = item.prompt?.image;
   if (!rel) return null;
   const height = item.prompt?.imageHeight ?? quiz.imageHeight;
-  const img = h("img", { class: "prompt-image", alt: item.prompt?.text ?? "", style: `height: ${height}px` });
+  const img = h("img", { class: "prompt-image", alt: item.prompt?.text ?? "", style: `--image-height: ${height}px` });
   asset(quiz.dir, rel).then(
     (url) => { img.src = url; },
     (e) => { img.replaceWith(h("span", { class: "error" }, String(e))); },

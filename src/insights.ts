@@ -6,7 +6,7 @@ import { bucketOf, gradeOf, INSTANT_SECONDS, itemLatency, type Bucket } from "./
 import { isCalibration, type AnyAttempt } from "./log";
 import { topicOf, type Quiz } from "./quiz/format";
 import { addDays, daysBetween, localDate, type QuizState } from "./schedule";
-import { itemStats, median, trouble, type ItemStats } from "./stats";
+import { itemStats, median, type ItemStats } from "./stats";
 
 export const dayOf = (a: AnyAttempt) => localDate(new Date(a.endedAt));
 
@@ -170,8 +170,14 @@ export function forecast(entries: { quiz: Quiz; state: QuizState }[], today: str
 }
 
 // Items across the library that have gone worst recently: misses and slow
-// answers in the last few appearances, newest weighted most.
+// answers in the last few appearances, newest weighted most. The score adds
+// up rather than averages, so an item missed in several attempts ranks above
+// one missed in its only attempt.
+const TROUBLE_WINDOW = 4;
 export interface TroubleItem { quiz: Quiz; stats: ItemStats; score: number; recent: (Bucket | "untimed")[] }
+
+// Ties go to the item with more misses and slow answers over its whole history.
+const totalTrouble = (st: ItemStats) => 2 * st.missed + st.slow;
 
 // At most `perQuiz` items from any one quiz, so one bad quiz doesn't fill the list.
 export function troubleItems(quizzes: Quiz[], attemptsOf: (q: Quiz) => AnyAttempt[], cps: number, limit: number, perQuiz = Infinity): TroubleItem[] {
@@ -179,20 +185,19 @@ export function troubleItems(quizzes: Quiz[], attemptsOf: (q: Quiz) => AnyAttemp
   for (const quiz of quizzes) {
     const own = attemptsOf(quiz).filter((a) => !isCalibration(a));
     if (!own.length) continue;
-    const recentAttempts = own.slice(-4);
+    const recentAttempts = own.slice(-TROUBLE_WINDOW);
     const hist = itemHistory(recentAttempts, cps, quiz.items.map((it) => it.canonical));
     const stats = itemStats(quiz, own, cps);
     quiz.items.forEach((_it, i) => {
       const recent = hist[i].filter((b): b is Bucket | "untimed" => b !== null);
       if (!recent.length) return;
-      // Weights 1, 2, 3, 4 from oldest to newest; a miss costs 2, slow 1.
-      let score = 0, weight = 0;
-      recent.forEach((b, k) => { const w = k + 1; weight += w; score += w * (b === "missed" ? 2 : b === "slow" ? 1 : 0); });
-      score /= weight;
+      // Weights 4, 3, 2, 1 from newest to oldest; a miss costs 2, slow 1.
+      let score = 0;
+      recent.forEach((b, k) => { score += (TROUBLE_WINDOW - (recent.length - 1 - k)) * (b === "missed" ? 2 : b === "slow" ? 1 : 0); });
       if (score > 0) out.push({ quiz, stats: stats[i], score, recent });
     });
   }
-  out.sort((a, b) => b.score - a.score || trouble(b.stats) - trouble(a.stats) || a.stats.answer.localeCompare(b.stats.answer));
+  out.sort((a, b) => b.score - a.score || totalTrouble(b.stats) - totalTrouble(a.stats) || a.stats.answer.localeCompare(b.stats.answer));
   const taken = new Map<string, number>();
   return out.filter((x) => {
     const n = taken.get(x.quiz.id) ?? 0;

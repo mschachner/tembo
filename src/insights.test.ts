@@ -67,4 +67,19 @@ describe("troubleItems", () => {
     expect(items.map((x) => x.stats.answer)).toEqual(["p", "r", "q"]);
     expect(troubleItems([a, b], (q) => log[q.id as "a" | "b"], 5, 10, 1).map((x) => x.stats.answer)).toEqual(["p"]);
   });
+  it("ranks repeated misses above a miss in an item's only attempt", () => {
+    const a = quiz("a", ["once"]);
+    const b = quiz("b", ["often", "lately", "fine"]);
+    const log = {
+      a: [attempt(a, "2026-10-21T10:00:00Z", ["once"])],
+      b: [
+        attempt(b, "2026-10-18T10:00:00Z", ["often"]),
+        attempt(b, "2026-10-19T10:00:00Z", ["often"]),
+        attempt(b, "2026-10-20T10:00:00Z", ["often", "lately"]),
+        attempt(b, "2026-10-21T10:00:00Z", ["lately"]),
+      ],
+    };
+    const items = troubleItems([a, b], (q) => log[q.id as "a" | "b"], 5, 10);
+    expect(items.map((x) => x.stats.answer)).toEqual(["lately", "often", "once"]);
+  });
 });
