@@ -19,3 +19,6 @@ Banner photos in `banners/` are from [Unsplash](https://unsplash.com), used unde
 
 The title font, Carter One by Vernon Adams, is bundled in `src/fonts/` under the
 SIL Open Font License 1.1 (`src/fonts/CarterOne-OFL.txt`).
+
+Flag images in `watering-hole/` are from [flag-icons](https://github.com/lipis/flag-icons)
+by Panayiotis Lipiridis, used under the MIT License.

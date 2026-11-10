@@ -1,0 +1,3 @@
+title: Flags of South America
+tags: geography, flags
+levels: standard, list

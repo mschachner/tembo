@@ -64,7 +64,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] English/British monarchs since 1066 (prompt) — added 2026-11-07 as english-monarchs-1066-1485
 - [x] English/British monarchs, 1485–present (prompt) — added 2026-11-08 as english-british-monarchs-1485-present
 - [x] Animal group names (prompt: "a murder of" → crows) — added 2026-11-09 as animal-group-names
-- [ ] Flags of South America (prompt, images)
+- [x] Flags of South America (prompt, images) — added 2026-11-10 as flags-of-south-america
 - [ ] Composers of famous works (prompt)
 - [ ] World Cup winners by year (prompt)
 - [ ] US state nicknames (prompt)

@@ -1,0 +1,17 @@
+mode: prompt
+pass: 100
+prompt-label: Flag
+answer-label: Country
+---
+![Argentina](flags/ar.svg) :: Argentina
+![Bolivia](flags/bo.svg) :: Bolivia | Plurinational State of Bolivia
+![Brazil](flags/br.svg) :: Brazil | Brasil
+![Chile](flags/cl.svg) :: Chile
+![Colombia](flags/co.svg) :: Colombia
+![Ecuador](flags/ec.svg) :: Ecuador
+![Guyana](flags/gy.svg) :: Guyana
+![Paraguay](flags/py.svg) :: Paraguay
+![Peru](flags/pe.svg) :: Peru
+![Suriname](flags/sr.svg) :: Suriname | Surinam
+![Uruguay](flags/uy.svg) :: Uruguay
+![Venezuela](flags/ve.svg) :: Venezuela | Bolivarian Republic of Venezuela

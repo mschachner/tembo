@@ -1,0 +1,17 @@
+level: list
+title: Countries of South America
+mode: list
+pass: 100
+---
+Argentina
+Bolivia | Plurinational State of Bolivia
+Brazil | Brasil
+Chile
+Colombia
+Ecuador
+Guyana
+Paraguay
+Peru
+Suriname | Surinam
+Uruguay
+Venezuela | Bolivarian Republic of Venezuela
