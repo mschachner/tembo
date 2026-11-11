@@ -336,7 +336,7 @@ function needsWorkPane(today: string, limit = 12, perQuiz = 3): Pane | null {
   const dots = (recent: string[]) => h("span", { class: "dots" }, ...recent.map((b) => h("i", { class: `c-${bucketFill(b) ?? "muted"}`, title: b })));
   return tablePane({
     id: "needs-work", title: "Needs work", entries: items, key: (x) => `${x.quiz.id}:${x.stats.answer}`, extra: "bottom",
-    cols: "minmax(0, 1.2fr) minmax(0, 1fr) 6ch 7ch 5ch", head: ["item", "quiz", "recent", "missed", "slow"],
+    fit: true, cols: "fit-content(45%) minmax(0, 1fr) max-content max-content max-content", head: ["item", "quiz", "recent", "missed", "slow"],
     rowClass: (x) => x.stats.last ?? "",
     cells: (x) => [rich(x.stats.answer), x.quiz.title, dots(x.recent), String(x.stats.missed), String(x.stats.slow)],
     activate: (x) => () => nav.item(x.quiz, x.stats.answer, () => nav.home("today")),
@@ -347,7 +347,7 @@ function needsWorkPane(today: string, limit = 12, perQuiz = 3): Pane | null {
 function todaysResultsPane(todays: AnyAttempt[], tab: Tab): Pane {
   return tablePane({
     id: "results", title: "Today's results", entries: todays, key: (a) => a.endedAt, extra: "bottom",
-    cols: "7ch minmax(0, 1fr) 7ch 6ch 6ch 8ch", head: ["when", "quiz", "score", "time", "grade", ""],
+    fit: true, cols: "max-content minmax(0, 1fr) max-content max-content max-content max-content", head: ["when", "quiz", "score", "time", "grade", ""],
     cells: (a) => [fmtDate(a.endedAt).slice(11), a.title, `${a.score}/${a.total}`, formatClock(a.durationSeconds), gradeOf(a, app.cps).toFixed(2), a.cleared ? "cleared" : ""],
     activate: (a) => { const q = attemptQuiz(a); return q ? () => nav.attempt(q, a, () => nav.home(tab)) : undefined; },
   });

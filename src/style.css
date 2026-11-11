@@ -377,6 +377,10 @@ kbd {
 /* Same font size as the rows (the grid is in ch); only the labels shrink. */
 .row.head .cell { font-size: 0.8em; }
 .row.head { color: var(--fg-3); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+/* A fitted table: the rows share the body's grid, so a column can be as
+   wide as its widest cell and the text columns get everything else. */
+.pane-body.fit { display: grid; grid-template-columns: var(--cols, 1fr); column-gap: calc(var(--u) * 1.5); align-content: start; }
+.pane-body.fit > .row { grid-column: 1 / -1; grid-template-columns: subgrid; }
 .row:not(.head):hover { background: color-mix(in srgb, var(--bg-3) 60%, transparent); }
 .row.cursor { background: color-mix(in srgb, var(--bg-3) 70%, transparent); }
 .pane.focused .row.cursor { background: var(--bg-3); box-shadow: inset 2px 0 0 var(--accent); }
@@ -720,7 +724,7 @@ input, textarea,
 /* Done state: the done pane takes its natural height; the tables below get the rest. */
 .panes.today.done { grid-template-rows: auto 1fr; }
 .panes.done .bottom-row, .panes.done .bottom-row > .pane { max-height: none; }
-.bottom-row.two { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.bottom-row.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
 .bottom-row > .pane { max-height: 34vh; }
 /* Tables never scroll sideways: two tables sit side by side only where
    both fit at their column widths, and stack otherwise. */

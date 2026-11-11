@@ -209,7 +209,9 @@ export function cells(...xs: (string | Node | null)[]): HTMLElement[] {
   return xs.map((x) => h("span", { class: "cell" }, x ?? ""));
 }
 
-// A pane of table rows: a sticky header row, then one row per entry.
+// A pane of table rows: a sticky header row, then one row per entry. With
+// `fit`, the rows share one grid, so `cols` may size a column to its widest
+// cell (max-content, fit-content) and leave the rest to the text columns.
 export function tablePane<T>(opts: {
   id: string;
   title: string;
@@ -222,8 +224,9 @@ export function tablePane<T>(opts: {
   activate?: (t: T) => (() => void) | undefined;
   extra?: string;
   meta?: string;
+  fit?: boolean;
 }): Pane {
-  const body = h("div", { class: "pane-body" }, h("div", { class: "row head" }, ...cells(...opts.head)));
+  const body = h("div", { class: `pane-body ${opts.fit ? "fit" : ""}` }, h("div", { class: "row head" }, ...cells(...opts.head)));
   const rows: Row[] = opts.entries.map((t, i) => {
     const el = h("div", { class: `row ${opts.rowClass?.(t) ?? ""}` }, ...cells(...opts.cells(t, i)));
     body.append(el);
