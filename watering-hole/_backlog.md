@@ -76,21 +76,29 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
 - [ ] World Cup winners by year (prompt)
 - [ ] US state nicknames (prompt)
+- [ ] Playwright of the play (prompt)
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)
+- [ ] Sculptor of the sculpture (prompt)
 - [ ] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa
 - [ ] Phobias (prompt)
+- [ ] Composer of the opera (prompt)
 - [ ] Olympic host cities, Summer (prompt: year → city)
 - [ ] Element symbols, 41–60 (prompt) — new chunk of element-symbols
+- [ ] Architect of the building (prompt)
 - [ ] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays
 - [ ] Longest rivers (list)
+- [ ] Poet of the poem (prompt)
 - [ ] Chinese zodiac in order (prompt)
 - [ ] Roman emperors, Julio-Claudian to Severan (list)
+- [ ] Composers of famous works, set 2 (prompt) — new chunk of composers-of-famous-works
 - [ ] Flags of Europe (prompt, images)
 - [ ] Capitals of Asia, set 1 (prompt) — starts capitals-of-asia
+- [ ] Composer of the musical (prompt)
 - [ ] Best Picture winners, 2000s and 2010s (prompt: year → film)
 - [ ] Bones of the body (list)
 - [ ] Seven summits (prompt: continent → mountain)
+- [ ] Director of the film (prompt)
 - [ ] Currencies of the world, set 1 (prompt)
 - [ ] Vice presidents (prompt: president → VP)
 - [ ] Author of the novel, set 2 (prompt) — new chunk of author-of-the-novel
