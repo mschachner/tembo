@@ -1,0 +1,34 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Work
+answer-label: Composer
+---
+The Four Seasons :: Antonio Vivaldi | Vivaldi
+Brandenburg Concertos :: Johann Sebastian Bach | Bach | J. S. Bach
+Messiah :: George Frideric Handel | Handel | George Frederick Handel | Georg Friedrich Händel
+The Magic Flute :: Wolfgang Amadeus Mozart | Mozart
+The Creation :: Joseph Haydn | Haydn | Franz Joseph Haydn
+Moonlight Sonata :: Ludwig van Beethoven | Beethoven
+The Barber of Seville :: Gioachino Rossini | Rossini | Gioacchino Rossini
+Symphonie fantastique :: Hector Berlioz | Berlioz
+The Ring of the Nibelung :: Richard Wagner | Wagner
+A German Requiem :: Johannes Brahms | Brahms
+The Blue Danube :: Johann Strauss II | Johann Strauss | Strauss | Strauss II | Johann Strauss Jr | Johann Strauss the Younger
+Aida :: Giuseppe Verdi | Verdi
+Carmen :: Georges Bizet | Bizet
+Pictures at an Exhibition :: Modest Mussorgsky | Mussorgsky | Musorgsky | Moussorgsky | Modest Musorgsky
+Peer Gynt (incidental music) :: Edvard Grieg | Grieg
+Swan Lake :: Pyotr Ilyich Tchaikovsky | Tchaikovsky | Pyotr Tchaikovsky | Peter Tchaikovsky | Tchaikowsky | Tschaikowsky | Chaikovsky
+Clair de lune :: Claude Debussy | Debussy
+New World Symphony :: Antonín Dvořák | Dvořák
+La bohème :: Giacomo Puccini | Puccini
+The Rite of Spring :: Igor Stravinsky | Stravinsky | Stravinski
+The Planets :: Gustav Holst | Holst
+Rhapsody in Blue :: George Gershwin | Gershwin
+Boléro :: Maurice Ravel | Ravel
+Carmina Burana :: Carl Orff | Orff
+Peter and the Wolf :: Sergei Prokofiev | Prokofiev | Sergey Prokofiev | Prokofieff
+Adagio for Strings :: Samuel Barber | Barber
+Appalachian Spring :: Aaron Copland | Copland
