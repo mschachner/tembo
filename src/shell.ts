@@ -167,6 +167,7 @@ export function refreshBanner(): void {
   document.querySelector(".backdrop")?.replaceWith(backdropNode());
   document.querySelector(".banner")?.replaceWith(bannerNode(currentTab));
   document.querySelector(".tabs-wrap")?.replaceWith(tabBarNode(currentTab));
+  anchored = anchorHome();
   scheduleContrast();
 }
 
@@ -184,6 +185,7 @@ export function renderSettingsWindow(content: Node): void {
   setKeys(null);
   const root = document.getElementById("app")!;
   clear(root);
+  root.style.removeProperty("--anchor");
   root.append(
     h("div", { class: "drag-strip", "data-tauri-drag-region": "" }),
     h("main", { class: "page settings-window" }, content),
@@ -203,6 +205,35 @@ function statusLine(): HTMLElement {
   return h("footer", { class: "status-line" }, ...parts.map((p) => h("span", {}, p)));
 }
 
+// A home page needs about this much window below the banner to show whole.
+const HOME_ROOM = 600;
+// Where the title sits in a shorter window: just under the traffic lights.
+const TITLE_TOP = 36;
+
+// In a window too short to show a home page whole, the page is one window
+// taller than the distance from its top to the title, and opens scrolled
+// down to the title: the content below fills the window, and the rest of
+// the banner is a scroll up. Returns the scroll position the page opens at
+// (0 in a tall window).
+function anchorHome(): number {
+  const root = document.getElementById("app")!;
+  const title = root.querySelector<HTMLElement>(".banner-title");
+  const short = window.innerHeight - Number(activeTheme().bannerHeight) < HOME_ROOM;
+  const anchor = title && short ? Math.max(0, Math.round(title.getBoundingClientRect().top + window.scrollY - TITLE_TOP)) : 0;
+  root.style.setProperty("--anchor", `${anchor}px`);
+  return anchor;
+}
+
+// Resizing between a short and a tall window moves the home page to its
+// new opening position.
+let anchored = 0;
+window.addEventListener("resize", () => {
+  if (!onHome()) return;
+  const anchor = anchorHome();
+  if (anchor !== anchored) window.scrollTo(0, anchor);
+  anchored = anchor;
+});
+
 export function renderHome(tab: Tab, content: Node): void {
   currentTab = tab;
   setKeys(null);
@@ -215,9 +246,11 @@ export function renderHome(tab: Tab, content: Node): void {
   root.dataset.layout = "panes";
   panTo(tab);
   root.append(...(keep ? [] : [backdropNode()]), bannerNode(tab), tabBarNode(tab), h("main", { class: "page panes-page" }, content), statusLine(), gearButton());
-  // A new screen opens at the top; the window keeps its scroll position
-  // across redraws otherwise (a remembered cursor scrolls into view later).
-  window.scrollTo(0, 0);
+  // A new screen opens at the top, or at the title in a short window; the
+  // window keeps its scroll position across redraws otherwise (a
+  // remembered cursor scrolls into view later).
+  anchored = anchorHome();
+  window.scrollTo(0, anchored);
   scheduleContrast();
   indexForStagger(document.getElementById("app")!);
 }
@@ -229,6 +262,7 @@ export function renderScreen(content: Node, opts: { wide?: boolean; panes?: bool
   setKeys(null);
   const root = document.getElementById("app")!;
   clear(root);
+  root.style.removeProperty("--anchor");
   root.dataset.layout = opts.panes ? "panes" : "page";
   const cls = opts.panes ? "page panes-page" : `page ${opts.wide ? "wide" : ""}`;
   root.append(

@@ -305,7 +305,9 @@ button.give-up.armed { color: var(--missed); background: color-mix(in srgb, var(
 /* ---- home: panes layout ----
    The window below the banner is filled with bordered panes; the focused
    pane's border takes the accent and its cursor row is highlighted. */
-#app[data-layout="panes"] { height: 100%; min-height: 0; }
+/* --anchor: extra page height in a short window, where the home page opens
+   scrolled down to its title (see anchorHome in shell.ts). */
+#app[data-layout="panes"] { height: calc(100% + var(--anchor, 0px)); min-height: 0; }
 [data-layout="panes"] .tabs-wrap { max-width: none; padding-left: calc(var(--u) * 5); padding-right: calc(var(--u) * 5); }
 [data-layout="panes"] .tab::before {
   content: attr(data-key); font-family: var(--font-mono); font-size: 0.75em; color: var(--fg-3);
