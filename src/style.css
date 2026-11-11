@@ -335,7 +335,7 @@ kbd {
    rows out of the intrinsic height) and scrolls inside that. */
 .panes {
   flex: 1; min-height: auto; display: grid; gap: calc(var(--u) * 1.25);
-  grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); grid-template-rows: 1fr;
+  grid-template-columns: clamp(240px, 44%, 580px) minmax(0, 1fr); grid-template-rows: 1fr;
 }
 /* Too narrow for the list beside the detail: the list sits above it. */
 @container panes (width < 740px) {
