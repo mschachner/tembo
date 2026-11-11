@@ -1,0 +1,15 @@
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Muse
+answer-label: Domain
+---
+Clio :: History
+Euterpe :: Music and lyric poetry | Music | Lyric poetry
+Thalia :: Comedy | Comedy and pastoral poetry
+Melpomene :: Tragedy
+Terpsichore :: Dance | Dancing | Choral dance | Dance and chorus
+Erato :: Love poetry | Erotic poetry | Love
+Polyhymnia :: Sacred hymns | Hymns | Sacred hymn | Hymn | Sacred poetry | Sacred song
+Urania :: Astronomy
+Calliope :: Epic poetry | Epic | Epics
