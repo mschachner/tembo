@@ -10,7 +10,7 @@ The Watering Hole: every quiz series, one folder each under `watering-hole/`,
 holding `series.txt` plus one subfolder per quiz with `quiz.txt` and any
 images it references (both formats are documented at the top of
 `src/quiz/format.ts`). A series is a grid: chunks (which part of the material:
-A–M, N–W) by levels (how hard: standard, reversed, no clues). `series.txt`
+A–M, N–W) by levels (how hard: standard, flipped, no clues). `series.txt`
 carries the title, the `tags:` (the first tag is the topic the Library and
 Watering Hole can group by, with `t`), the `levels:` in order and, when
 there are several, the `chunks:` in order; each `quiz.txt` names its

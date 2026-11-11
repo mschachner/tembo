@@ -1,4 +1,4 @@
 title: Capitals of Europe
 tags: geography, capitals
-levels: standard, reversed
+levels: standard, flipped
 chunks: A–L, M–Z

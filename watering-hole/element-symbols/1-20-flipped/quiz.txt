@@ -1,5 +1,5 @@
 chunk: 1–20
-level: reversed
+level: flipped
 mode: prompt
 pass: 100
 prompt-label: Element

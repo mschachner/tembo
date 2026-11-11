@@ -3,23 +3,25 @@
 // The Watering Hole holds series: `watering-hole/<series>/series.txt`, with
 // one quiz per subfolder, `watering-hole/<series>/<cell>/quiz.txt`. A series
 // is a grid of quizzes along two dimensions: chunks (which part of the
-// material: A–M, N–W; 1–20, 21–40) and levels (how hard: standard, reversed,
+// material: A–M, N–W; 1–20, 21–40) and levels (how hard: standard, flipped,
 // no clues). Every chunk starts at the first level; the next level of a
-// chunk unlocks when the previous one is proficient.
+// chunk unlocks when the previous one is proficient. Level names are free
+// text; by convention a flipped level swaps prompts and answers (capital →
+// country). Order is not a level: a prompt quiz is shuffled once proficient.
 //
 // series.txt:
 //
 //   title: US state capitals
 //   id: us-state-capitals         # optional; stable key (default: the folder name)
 //   tags: geography, capitals     # the first tag is the topic, used for grouping
-//   levels: standard, reversed    # in order, easiest first (default: one level, "standard")
+//   levels: standard, flipped     # in order, easiest first (default: one level, "standard")
 //   chunks: A–M, N–W              # in order (default: the chunks the quizzes name, in folder order)
 //   retired: true                 # optional; drop the whole series from the schedule
 //
 // quiz.txt:
 //
 //   chunk: A–M            # one of the series' chunks (omit when the series has one chunk)
-//   level: reversed       # one of the series' levels (default: the first)
+//   level: flipped        # one of the series' levels (default: the first)
 //   title: US state capitals, A–M   # optional; default: series title, chunk, level
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   pass: 100             # percent required to count as a clear

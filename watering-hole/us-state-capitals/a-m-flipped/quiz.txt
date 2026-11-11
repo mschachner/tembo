@@ -1,5 +1,5 @@
 chunk: A–M
-level: reversed
+level: flipped
 mode: prompt
 pass: 100
 prompt-label: Capital

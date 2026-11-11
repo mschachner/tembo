@@ -1,4 +1,4 @@
-level: reversed
+level: flipped
 title: Roman gods and their Greek names
 mode: prompt
 pass: 100
