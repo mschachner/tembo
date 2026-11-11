@@ -8,7 +8,7 @@ off with the date. Reorder, add or delete lines freely.
 - The Watering Hole is organized by series: `watering-hole/<series>/series.txt`
   plus one `<series>/<cell>/quiz.txt` per quiz. A series is a grid of chunks
   (parts of the material: `A–M`, `N–W`; `1–20`, `21–40`; `comedies`,
-  `histories`) by levels (hardness: `standard`, then `reversed`, `no clues`,
+  `histories`) by levels (hardness: `standard`, then `flipped`, `no clues`,
   `list`, ...). Both file formats are documented at the top of
   `src/quiz/format.ts`; `npm run check` validates everything.
 - A queue line is either a new series or a new chunk of an existing one
@@ -23,16 +23,24 @@ off with the date. Reorder, add or delete lines freely.
   mythology, culture, sport, film, art) and add a narrower second tag
   (capitals, flags, shakespeare, ...). Tag the flag quizzes `geography, flags`.
 - Alongside each new chunk, build at least one harder level in its own
-  folder (`level: reversed`, `level: no clues`, `level: list`): the other
-  direction (capital → country), the same prompts without the data columns,
-  or list mode where prompt mode gave the order away. List the levels in
-  order in the series' `levels:` header. Tembo hides a level until the
+  folder. Where the items are pairs, the harder level is `level: flipped`:
+  prompts and answers trade places (capital → country). Otherwise it is
+  `level: no clues` (the same prompts without the data columns) or
+  `level: list` (list mode where prompt mode gave the order away). A level
+  never just presents the same items in reverse order. Tembo already
+  shuffles a prompt quiz once it is proficient, so no level is needed for
+  random order. List the levels in order in the series' `levels:` header. Tembo hides a level until the
   previous level of that chunk is proficient, then brings it into rotation
   on its own; only series ids go in `data/library.txt`. Also look over the
   existing series once in a while and add levels to chunks that have only
   one.
+- Which direction comes first: when one side of a pair is a name being
+  learned (the Muses, phobias) and the other is a plain description, the
+  first level shows the name and asks for the description (Clio → history),
+  and the flipped level asks for the name. Producing an unfamiliar name is
+  the harder direction.
 - A new level for an already-built chunk can also be queued as its own
-  line ("..., reversed").
+  line ("..., flipped").
 - Quiz titles are computed (series title, chunk, level); set `title:` in a
   quiz.txt only when the computed one reads badly.
 
