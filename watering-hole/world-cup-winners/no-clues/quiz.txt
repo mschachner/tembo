@@ -1,0 +1,28 @@
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Year
+answer-label: Winner
+---
+1930 :: Uruguay
+1934 :: Italy | Italia
+1938 :: Italy | Italia
+1950 :: Uruguay
+1954 :: West Germany
+1958 :: Brazil | Brasil
+1962 :: Brazil | Brasil
+1966 :: England
+1970 :: Brazil | Brasil
+1974 :: West Germany
+1978 :: Argentina
+1982 :: Italy | Italia
+1986 :: Argentina
+1990 :: West Germany
+1994 :: Brazil | Brasil
+1998 :: France
+2002 :: Brazil | Brasil
+2006 :: Italy | Italia
+2010 :: Spain | España
+2014 :: Germany
+2018 :: France
+2022 :: Argentina

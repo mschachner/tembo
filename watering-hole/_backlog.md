@@ -74,7 +74,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Animal group names (prompt: "a murder of" → crows) — added 2026-11-09 as animal-group-names
 - [x] Flags of South America (prompt, images) — added 2026-11-10 as flags-of-south-america
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
-- [ ] World Cup winners by year (prompt)
+- [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
 - [ ] US state nicknames (prompt)
 - [ ] Playwright of the play (prompt)
 - [ ] SI base units (prompt: quantity → unit)

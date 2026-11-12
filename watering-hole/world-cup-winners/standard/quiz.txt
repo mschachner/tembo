@@ -1,0 +1,28 @@
+mode: prompt
+pass: 100
+columns: Host
+prompt-label: Year
+answer-label: Winner
+---
+1930 :: Uruguay ;; Uruguay
+1934 :: Italy | Italia ;; Italy
+1938 :: Italy | Italia ;; France
+1950 :: Uruguay ;; Brazil
+1954 :: West Germany ;; Switzerland
+1958 :: Brazil | Brasil ;; Sweden
+1962 :: Brazil | Brasil ;; Chile
+1966 :: England ;; England
+1970 :: Brazil | Brasil ;; Mexico
+1974 :: West Germany ;; West Germany
+1978 :: Argentina ;; Argentina
+1982 :: Italy | Italia ;; Spain
+1986 :: Argentina ;; Mexico
+1990 :: West Germany ;; Italy
+1994 :: Brazil | Brasil ;; United States
+1998 :: France ;; France
+2002 :: Brazil | Brasil ;; South Korea and Japan
+2006 :: Italy | Italia ;; Germany
+2010 :: Spain | España ;; South Africa
+2014 :: Germany ;; Brazil
+2018 :: France ;; Russia
+2022 :: Argentina ;; Qatar

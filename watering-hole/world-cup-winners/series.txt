@@ -1,0 +1,3 @@
+title: FIFA World Cup winners by year
+tags: sport, football
+levels: standard, no clues
