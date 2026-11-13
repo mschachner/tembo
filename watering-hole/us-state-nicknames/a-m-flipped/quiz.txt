@@ -1,0 +1,33 @@
+chunk: A–M
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Nickname
+answer-label: State
+---
+Yellowhammer State :: Alabama
+Last Frontier :: Alaska
+Grand Canyon State :: Arizona
+Natural State :: Arkansas
+Golden State :: California
+Centennial State :: Colorado
+Constitution State :: Connecticut
+First State :: Delaware
+Sunshine State :: Florida
+Peach State :: Georgia
+Aloha State :: Hawaii
+Gem State :: Idaho
+Prairie State :: Illinois
+Hoosier State :: Indiana
+Hawkeye State :: Iowa
+Sunflower State :: Kansas
+Bluegrass State :: Kentucky
+Pelican State :: Louisiana
+Pine Tree State :: Maine
+Old Line State :: Maryland
+Bay State :: Massachusetts
+Great Lakes State :: Michigan
+North Star State :: Minnesota
+Magnolia State :: Mississippi
+Show Me State :: Missouri
+Treasure State :: Montana

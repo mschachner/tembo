@@ -75,7 +75,8 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Flags of South America (prompt, images) — added 2026-11-10 as flags-of-south-america
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
 - [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
-- [ ] US state nicknames (prompt)
+- [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
+- [ ] US state nicknames, N–W (prompt) — new chunk of us-state-nicknames
 - [ ] Playwright of the play (prompt)
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)
