@@ -38,7 +38,10 @@ off with the date. Reorder, add or delete lines freely.
   learned (the Muses, phobias) and the other is a plain description, the
   first level shows the name and asks for the description (Clio → history),
   and the flipped level asks for the name. Producing an unfamiliar name is
-  the harder direction.
+  the harder direction. Likewise, when one side is already familiar (states,
+  countries) and the other is what's being learned (nicknames, mottos), the
+  first level shows what's being learned and asks for the familiar side
+  (Hoosier State → Indiana), and the flipped level asks the reverse.
 - A new level for an already-built chunk can also be queued as its own
   line ("..., flipped").
 - Quiz titles are computed (series title, chunk, level); set `title:` in a
@@ -76,7 +79,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
 - [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
 - [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
-- [ ] US state nicknames, N–W (prompt) — new chunk of us-state-nicknames
+- [ ] US state nicknames, N–W (prompt: nickname → state, flipped level state → nickname) — new chunk of us-state-nicknames
 - [ ] Playwright of the play (prompt)
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)

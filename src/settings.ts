@@ -10,6 +10,7 @@ export interface Settings {
   motion: Motion;
   views: Record<string, "cards" | "list">;   // prompt quizzes: last view, by quiz id
   groupBy: "status" | "topic";             // Library and Watering Hole lists
+  play: { lockoutGuesses: number };        // prompt quizzes: wrong guesses that lock an item (0: never)
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
   motion: DEFAULT_MOTION,
   views: {},
   groupBy: "status",
+  play: { lockoutGuesses: 1 },
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -38,6 +40,7 @@ export async function loadSettings(): Promise<Settings> {
       },
       views: raw.views ?? {},
       groupBy: raw.groupBy === "topic" ? "topic" : "status",
+      play: { ...DEFAULT_SETTINGS.play, ...(raw.play ?? {}) },
     };
   } catch (e) {
     console.warn("bad settings.json, using defaults", e);

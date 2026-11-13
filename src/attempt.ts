@@ -10,6 +10,7 @@ export interface ItemResult {
   focusedMs?: number;    // prompt mode: last time the card's box took focus before accept
   typedChars?: number;   // length of the accepted input
   wrong: number;         // rejected submissions on this item (always 0 in list mode)
+  locked?: boolean;      // prompt mode: locked out after too many wrong guesses
 }
 
 export interface Attempt {
@@ -37,6 +38,7 @@ export interface ItemTiming {
   focusedMs?: number;
   typedChars?: number;
   wrong: number;
+  locked?: boolean;
 }
 
 export function makeAttempt(

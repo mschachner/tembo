@@ -1,32 +1,32 @@
 chunk: A–M
 mode: prompt
 pass: 100
-prompt-label: State
-answer-label: Nickname
+prompt-label: Nickname
+answer-label: State
 ---
-Alabama :: Yellowhammer State | Heart of Dixie
-Alaska :: Last Frontier
-Arizona :: Grand Canyon State
-Arkansas :: Natural State
-California :: Golden State
-Colorado :: Centennial State
-Connecticut :: Constitution State | Nutmeg State
-Delaware :: First State | Diamond State
-Florida :: Sunshine State
-Georgia :: Peach State | Empire State of the South
-Hawaii :: Aloha State
-Idaho :: Gem State
-Illinois :: Prairie State | Land of Lincoln
-Indiana :: Hoosier State
-Iowa :: Hawkeye State
-Kansas :: Sunflower State
-Kentucky :: Bluegrass State
-Louisiana :: Pelican State | Bayou State
-Maine :: Pine Tree State | Vacationland
-Maryland :: Old Line State | Free State
-Massachusetts :: Bay State
-Michigan :: Great Lakes State | Wolverine State | Mitten State
-Minnesota :: North Star State | Land of 10,000 Lakes | Gopher State
-Mississippi :: Magnolia State
-Missouri :: Show Me State
-Montana :: Treasure State | Big Sky Country
+Yellowhammer State :: Alabama
+Last Frontier :: Alaska
+Grand Canyon State :: Arizona
+Natural State :: Arkansas
+Golden State :: California
+Centennial State :: Colorado
+Constitution State :: Connecticut
+First State :: Delaware
+Sunshine State :: Florida
+Peach State :: Georgia
+Aloha State :: Hawaii
+Gem State :: Idaho
+Prairie State :: Illinois
+Hoosier State :: Indiana
+Hawkeye State :: Iowa
+Sunflower State :: Kansas
+Bluegrass State :: Kentucky
+Pelican State :: Louisiana
+Pine Tree State :: Maine
+Old Line State :: Maryland
+Bay State :: Massachusetts
+Great Lakes State :: Michigan
+North Star State :: Minnesota
+Magnolia State :: Mississippi
+Show Me State :: Missouri
+Treasure State :: Montana

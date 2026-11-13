@@ -22,6 +22,8 @@ interface Session {
   foundOrder: number[];
   timing: ItemTiming[];
   rejected: number;
+  locked: Map<number, string>;   // prompt mode: items locked out, with the last wrong guess
+  lockoutAfter: number;          // wrong guesses that lock an item; 0 for never
   everFound: Set<string>;   // answers found in any earlier attempt of this quiz
   finished: boolean;
   timer: number;
@@ -32,11 +34,23 @@ interface Session {
   finish: (gaveUp: boolean) => void;
 }
 
+// Prompt quizzes lock an item after the configured number of wrong
+// guesses. The calibration quiz never does: it measures typing.
+function lockoutOf(quiz: Quiz): number {
+  if (quiz.mode !== "prompt" || quiz.kind !== "normal") return 0;
+  return Math.max(0, Math.round(app.settings.play?.lockoutGuesses ?? 1));
+}
+
+// Every item found or locked out: nothing left to answer.
+function allSettled(session: Session): boolean {
+  return session.foundOrder.length + session.locked.size === session.quiz.items.length;
+}
+
 function startSession(quiz: Quiz, order: number[], onFinish: (attempt: Attempt) => void): Session {
   const session: Session = {
     quiz, order, startedAt: new Date(), foundOrder: [],
     timing: quiz.items.map(() => ({ wrong: 0 })),
-    rejected: 0, everFound: new Set(attemptsOf(quiz).flatMap((a) => a.found)), finished: false, timer: 0,
+    rejected: 0, locked: new Map(), lockoutAfter: lockoutOf(quiz), everFound: new Set(attemptsOf(quiz).flatMap((a) => a.found)), finished: false, timer: 0,
     clock: h("span", { class: "clock mono" }, "0:00"),
     score: h("span", { class: "score mono" }, `0 / ${quiz.items.length}`),
     giveUp: h("button", { class: "quiet give-up", onclick: () => session.finish(true) }, h("kbd", {}, "esc esc"), " Give up"),
@@ -69,7 +83,7 @@ function markFound(session: Session, idx: number, typed: string): boolean {
   session.score.classList.remove("bump");
   void session.score.offsetWidth; // restart the animation
   session.score.classList.add("bump");
-  if (session.foundOrder.length === session.quiz.items.length) session.finish(false);
+  if (allSettled(session)) session.finish(false);
   else if (first) sounds.firstFind();
   else sounds.accept();
   return first;
@@ -103,6 +117,21 @@ function reject(session: Session, input: AnswerBox, idx?: number): void {
   void input.offsetWidth;
   input.classList.add("shake");
   input.select();
+}
+
+// A rejected guess on a prompt item; says whether it locked the item out.
+function wrongGuess(session: Session, input: AnswerBox, idx: number): boolean {
+  reject(session, input, idx);
+  const n = session.lockoutAfter;
+  if (n === 0 || session.timing[idx].wrong < n) return false;
+  session.locked.set(idx, input.value.trim());
+  session.timing[idx].locked = true;
+  return true;
+}
+
+// What replaces a locked item's box: the last wrong guess, struck through.
+function lockedAnswer(session: Session, idx: number, cls: string): HTMLElement {
+  return h("div", { class: `${cls} locked`, title: "locked" }, session.locked.get(idx) ?? "");
 }
 
 function playHeader(session: Session, toggle: Node | null = null): HTMLElement {
@@ -263,11 +292,12 @@ function playDiagram(quiz: Quiz): void {
   }
 
   const inputs = new Map<number, HTMLInputElement>();
-  const open = () => order.filter((idx) => !found(idx));
+  const settled = (idx: number) => found(idx) || session.locked.has(idx);
+  const open = () => order.filter((idx) => !settled(idx));
   const nextOpen = (after: number) => {
     for (let k = 1; k < order.length; k++) {
       const idx = (after + k) % order.length;
-      if (!found(idx)) return inputs.get(idx) ?? null;
+      if (!settled(idx)) return inputs.get(idx) ?? null;
     }
     return null;
   };
@@ -288,8 +318,13 @@ function playDiagram(quiz: Quiz): void {
       const next = nextOpen(idx);
       if (markFound(session, idx, typed)) shown.append(firstMark());
       focusBox(next);
-    } else {
-      reject(session, input, idx);
+    } else if (wrongGuess(session, input, idx)) {
+      input.replaceWith(lockedAnswer(session, idx, "dnode-answer"));
+      inputs.delete(idx);
+      display.nodeOf.get(idx)!.classList.add("locked");
+      const next = nextOpen(idx);
+      if (allSettled(session)) session.finish(false);
+      else focusBox(next);
     }
   }
 
@@ -366,6 +401,7 @@ function playPrompt(quiz: Quiz): void {
   const order = shuffle ? shuffled(inOrder) : inOrder;
   const session = startSession(quiz, order, (attempt) => showResults(quiz, attempt, order));
   const found = (idx: number) => session.foundOrder.includes(idx);
+  const settled = (idx: number) => found(idx) || session.locked.has(idx);
   // Typed-but-unsubmitted text, kept across a switch of view.
   const drafts = new Map<number, string>();
   let inputs = new Map<number, AnswerBox>();
@@ -375,11 +411,11 @@ function playPrompt(quiz: Quiz): void {
     const pos = order.indexOf(after);
     for (let k = 1; k <= order.length; k++) {
       const idx = order[(pos + k) % order.length];
-      if (!found(idx) && idx !== after) return inputs.get(idx) ?? null;
+      if (!settled(idx) && idx !== after) return inputs.get(idx) ?? null;
     }
     return null;
   }
-  const firstUnanswered = () => inputs.get(order.find((idx) => !found(idx)) ?? -1) ?? null;
+  const firstUnanswered = () => inputs.get(order.find((idx) => !settled(idx)) ?? -1) ?? null;
 
   function submit(idx: number): void {
     const input = inputs.get(idx)!;
@@ -394,18 +430,24 @@ function playPrompt(quiz: Quiz): void {
       const next = nextUnanswered(idx);
       if (markFound(session, idx, typed)) shown.append(" ", firstMark());
       focusBox(next);
-    } else {
-      reject(session, input, idx);
+    } else if (wrongGuess(session, input, idx)) {
+      drafts.delete(idx);
+      input.replaceWith(lockedAnswer(session, idx, "card-answer"));
+      inputs.delete(idx);
+      const next = nextUnanswered(idx);
+      if (allSettled(session)) session.finish(false);
+      else focusBox(next);
     }
   }
 
   function box(idx: number, input: AnswerBox): Node {
     if (found(idx)) return h("div", { class: "card-answer accepted" }, quiz.items[idx].canonical);
+    if (session.locked.has(idx)) return lockedAnswer(session, idx, "card-answer");
     input.value = drafts.get(idx) ?? "";
     input.addEventListener("input", () => drafts.set(idx, input.value));
     input.addEventListener("focus", () => {
       // Switching views refocuses the same box; that isn't a new look at the prompt.
-      if (!found(idx) && !switching) session.timing[idx].focusedMs = session.elapsedMs();
+      if (!settled(idx) && !switching) session.timing[idx].focusedMs = session.elapsedMs();
     });
     input.addEventListener("keydown", (ev) => {
       const e = ev as KeyboardEvent;

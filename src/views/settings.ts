@@ -334,6 +334,16 @@ function appSections(): Node[] {
     }
   });
 
+  // Prompt quizzes: wrong guesses before an item locks (0: never).
+  const lockoutLabel = (n: number) => (n === 0 ? "never" : n === 1 ? "1 wrong guess" : `${n} wrong guesses`);
+  const lockout = h("input", { type: "range", min: 0, max: 5, step: 1, value: String(app.settings.play.lockoutGuesses) });
+  const lockoutReadout = h("span", { class: "mono small" }, lockoutLabel(app.settings.play.lockoutGuesses));
+  lockout.addEventListener("input", () => {
+    app.settings.play.lockoutGuesses = Number(lockout.value);
+    lockoutReadout.textContent = lockoutLabel(app.settings.play.lockoutGuesses);
+    persistSettings();
+  });
+
   // Motion
   const m = app.settings.motion;
   const animToggle = h("input", { type: "checkbox" });
@@ -361,6 +371,8 @@ function appSections(): Node[] {
         h("button", { class: "quiet tiny", onclick: sounds.accept }, "accept"),
         h("button", { class: "quiet tiny", onclick: sounds.reject }, "reject"),
         h("button", { class: "quiet tiny", onclick: sounds.complete }, "complete"))),
+    group("Prompt quizzes",
+      h("div", { class: "control" }, h("label", {}, "Lock item after"), lockout, lockoutReadout)),
     group("Grading",
       h("div", { class: "control" }, h("label", {}, "Instant below"), thrSlider, thrReadout),
       h("div", { class: "control" }, h("label", {}, "Typing speed"),
