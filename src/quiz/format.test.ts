@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assembleSeries, defaultTitle, parseQuiz, parseSeries, previousLevel, QuizFormatError, topicOf, type Quiz } from "./format";
+import { assembleSeries, defaultTitle, parseQuiz, parseSeries, previousChunk, previousLevel, QuizFormatError, topicOf, type Quiz } from "./format";
 
 describe("parseQuiz", () => {
   it("parses a list-mode quiz with aliases and comments", () => {
@@ -197,6 +197,9 @@ describe("series", () => {
     expect(previousLevel(s, amr)).toBe(am);
     expect(previousLevel(s, am)).toBeNull();
     expect(previousLevel(s, nw)).toBeNull();
+    expect(previousChunk(s, nw)).toBe(am);
+    expect(previousChunk(s, am)).toBeNull();
+    expect(previousChunk(s, amr)).toBeNull();
     expect(() => assembleSeries(meta, [am, amr])).toThrow(/chunk "N–W" has no quiz at the first level/);
     expect(() => assembleSeries(meta, [am, nw, cell("dup", "chunk: A–M\nmode: prompt")])).toThrow(/same chunk and level/);
     expect(() => assembleSeries(meta, [am, nw, cell("x", "chunk: Z\nmode: prompt")])).toThrow(/chunk "Z" is not one/);

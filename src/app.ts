@@ -4,7 +4,7 @@ import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
 import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
 import { belongsTo, parseLog, type AnyAttempt } from "./log";
-import { assembleSeries, parseQuiz, parseSeries, previousLevel, type Quiz, type Series } from "./quiz/format";
+import { assembleSeries, parseQuiz, parseSeries, previousChunk, previousLevel, type Quiz, type Series } from "./quiz/format";
 import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
 import { loadSettings, saveSettings, type Settings } from "./settings";
 import { configureSound } from "./sound";
@@ -155,11 +155,34 @@ export function previousOf(quiz: Quiz): Quiz | null {
   return s ? previousLevel(s, quiz) : null;
 }
 
-// A quiz beyond the first level is locked until the previous level of its
-// chunk is proficient.
+// The chunk before this one, which it waits on: see locked().
+export function previousChunkOf(quiz: Quiz): Quiz | null {
+  const s = seriesOf(quiz);
+  return s ? previousChunk(s, quiz) : null;
+}
+
+// Chunks appear one at a time: a chunk after the first stays locked until
+// the previous chunk has been cleared once (or retired). A chunk that has
+// been played stays in, whatever happens to the one before it.
+function waitingOnChunk(quiz: Quiz): boolean {
+  const prev = previousChunkOf(quiz);
+  if (!prev || prev.retired) return false;
+  if (attemptsOf(quiz).length) return false;
+  return !attemptsOf(prev).some((a) => a.cleared);
+}
+
+// A quiz is locked while its chunk waits on the previous chunk, and beyond
+// the first level until the previous level of its chunk is proficient.
 export function locked(quiz: Quiz): boolean {
+  if (waitingOnChunk(quiz)) return true;
   const prev = previousOf(quiz);
   return !!prev && stateOf(prev).status !== "proficient";
+}
+
+// Why a quiz is locked, for display.
+export function lockReason(quiz: Quiz): string {
+  if (waitingOnChunk(quiz)) return `appears when ${previousChunkOf(quiz)?.title} is cleared`;
+  return `unlocks when ${previousOf(quiz)?.title} is proficient`;
 }
 
 // Your series: the ones imported from the Watering Hole, plus the typing

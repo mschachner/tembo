@@ -5,27 +5,27 @@ pass: 100
 prompt-label: State
 answer-label: Nickname
 ---
-Nebraska :: Cornhusker State
+Nebraska :: Cornhusker State | Beef State
 Nevada :: Silver State | Battle Born State | Sagebrush State
 New Hampshire :: Granite State
 New Jersey :: Garden State
 New Mexico :: Land of Enchantment
 New York :: Empire State
 North Carolina :: Tar Heel State | Old North State
-North Dakota :: Peace Garden State | Flickertail State | Rough Rider State
+North Dakota :: Peace Garden State | Roughrider State | Flickertail State
 Ohio :: Buckeye State
 Oklahoma :: Sooner State
 Oregon :: Beaver State
-Pennsylvania :: Keystone State | Quaker State
+Pennsylvania :: Keystone State
 Rhode Island :: Ocean State | Little Rhody
 South Carolina :: Palmetto State
-South Dakota :: Mount Rushmore State | Coyote State
+South Dakota :: Mount Rushmore State | Mt. Rushmore State | Coyote State
 Tennessee :: Volunteer State
 Texas :: Lone Star State
 Utah :: Beehive State
 Vermont :: Green Mountain State
-Virginia :: Old Dominion | Mother of Presidents
+Virginia :: Old Dominion | Old Dominion State | Mother of Presidents
 Washington :: Evergreen State
 West Virginia :: Mountain State
-Wisconsin :: Badger State | America's Dairyland | Dairy State
+Wisconsin :: Badger State | America's Dairyland
 Wyoming :: Equality State | Cowboy State

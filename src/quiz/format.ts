@@ -4,7 +4,8 @@
 // one quiz per subfolder, `watering-hole/<series>/<cell>/quiz.txt`. A series
 // is a grid of quizzes along two dimensions: chunks (which part of the
 // material: A–M, N–W; 1–20, 21–40) and levels (how hard: standard, flipped,
-// no clues). Every chunk starts at the first level; the next level of a
+// no clues). Every chunk starts at the first level; a chunk after the first
+// appears once the previous chunk has been cleared, and the next level of a
 // chunk unlocks when the previous one is proficient. Level names are free
 // text; by convention a flipped level swaps prompts and answers (capital →
 // country). Order is not a level: a prompt quiz is shuffled once proficient.
@@ -241,6 +242,16 @@ export function previousLevel(series: Series, quiz: Quiz): Quiz | null {
     if (q) return q;
   }
   return null;
+}
+
+// The quiz a chunk waits on before it first appears: the first-level quiz
+// of the previous chunk, or null for the first chunk and for later levels
+// (which wait on the level before them instead).
+export function previousChunk(series: Series, quiz: Quiz): Quiz | null {
+  if (quiz.level !== series.levels[0]) return null;
+  const k = series.chunks.indexOf(quiz.chunk);
+  if (k <= 0) return null;
+  return series.quizzes.find((x) => x.chunk === series.chunks[k - 1] && x.level === series.levels[0]) ?? null;
 }
 
 // Parses quiz.txt. With `series`, the quiz is placed in that series: its

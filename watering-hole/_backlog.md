@@ -17,6 +17,11 @@ off with the date. Reorder, add or delete lines freely.
   `set 1`). Adding a chunk means a new quiz folder with `chunk: ...` at
   the first level, and the chunk appended to `chunks:` in series.txt when
   that header is present.
+- Build a new series whole: every chunk of the material, in order in
+  `chunks:`, each with its harder levels, all in the same run. Tembo spaces
+  the chunks out itself (a chunk appears once the chunk before it has been
+  cleared), so the queue doesn't need to. Delete any later queue lines that
+  are chunks of the series just built.
 - Every series gets a `tags:` header in series.txt; the first tag is its
   topic and is used for grouping in the app. Reuse existing topics where one
   fits (geography, history, literature, science, mathematics, music, language,
@@ -81,7 +86,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
 - [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
 - [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
-- [x] US state nicknames, N–W (prompt: nickname → state, flipped level state → nickname) — new chunk of us-state-nicknames — added 2026-11-14 as us-state-nicknames/n-w
+- [x] US state nicknames, N–W (prompt) — added 2026-11-13 as us-state-nicknames/n-w
 - [x] Playwright of the play (prompt) — added 2026-11-15 as playwright-of-the-play
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)

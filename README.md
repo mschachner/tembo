@@ -14,8 +14,9 @@ A–M, N–W) by levels (how hard: standard, flipped, no clues). `series.txt`
 carries the title, the `tags:` (the first tag is the topic the Library and
 Watering Hole can group by, with `t`), the `levels:` in order and, when
 there are several, the `chunks:` in order; each `quiz.txt` names its
-`chunk:` and `level:`. Importing a series puts every chunk into rotation at
-the first level; the next level of a chunk unlocks when the previous one is
+`chunk:` and `level:`. Importing a series puts its first chunk into rotation at
+the first level; each later chunk appears once the chunk before it has been
+cleared, and the next level of a chunk unlocks when the previous one is
 proficient. Folders starting with `_` are ignored; `_backlog.md` is the daily
 quiz task's queue and its standing rules.
 Library: `data/library.txt`, the ids of the series imported from the

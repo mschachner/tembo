@@ -4,7 +4,7 @@
 // from the keyboard (see panes.ts). The quiz details are also the body of
 // the quiz screen (detail.ts).
 import {
-  app, attemptsOf, entries, importSeries, inLibrary, locked, lockedQuizzes, persistSettings, playable, previousOf,
+  app, attemptsOf, entries, importSeries, inLibrary, locked, lockedQuizzes, lockReason, persistSettings, playable,
   removeSeries, seriesDue, seriesInLibrary, seriesStatus, stateOf, type SeriesStatus,
 } from "../app";
 import { tembo } from "../banner";
@@ -260,7 +260,7 @@ export function detailPanes(q: Quiz, back: () => void, today: string, full = fal
   const isLocked = locked(q);
   const facts = [
     isLocked ? "locked" : mine ? (q.kind === "calibration" ? "calibration" : q.retired ? "retired" : st.status) : "not in library",
-    isLocked ? `unlocks when ${previousOf(q)?.title} is proficient` : mine ? dueLabel(st, today) : null,
+    isLocked ? lockReason(q) : mine ? dueLabel(st, today) : null,
     `${q.items.length} ${q.diagram ? "blanks" : q.mode === "prompt" ? "prompts" : "answers"}`,
     q.tags.length ? q.tags.join(", ") : null,
     q.columns.length ? q.columns.join(", ").toLowerCase() : null,
@@ -413,7 +413,7 @@ function statsContent(root: HTMLElement): Pane[] {
     { value: status.proficient, fill: "instant", label: "proficient" },
     { value: status.learning, fill: "accent", label: "learning" },
     { value: status.fresh, fill: "muted", label: "new" },
-  ]), lockedQuizzes().length ? `${lockedQuizzes().length} level${lockedQuizzes().length === 1 ? "" : "s"} waiting` : undefined);
+  ]), lockedQuizzes().length ? `${lockedQuizzes().length} quiz${lockedQuizzes().length === 1 ? "" : "zes"} waiting` : undefined);
   const knowledge = figure("Items", segments([
     { value: know.known, fill: "instant", label: "known" },
     { value: know.shaky, fill: "slow", label: "shaky" },
