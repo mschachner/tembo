@@ -257,7 +257,7 @@ export function renderHome(tab: Tab, content: Node): void {
 
 // Screens other than the home tabs: a slim drag strip instead of the
 // banner. Detail screens fill the window with panes; play and results are
-// a centred column.
+// a centered column.
 export function renderScreen(content: Node, opts: { wide?: boolean; panes?: boolean } = {}): void {
   setKeys(null);
   const root = document.getElementById("app")!;

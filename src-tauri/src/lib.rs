@@ -311,7 +311,7 @@ fn write_attempt(line: &str) -> Result<(), String> {
     writeln!(file, "{line}").map_err(|e| e.to_string())
 }
 
-/// The active theme's background colour: an override in settings.json, else
+/// The active theme's background color: an override in settings.json, else
 /// the preset's "bg" (custom presets first), else the built-in default.
 fn theme_background() -> (u8, u8, u8) {
     let fallback = (0xf6, 0xef, 0xe4);

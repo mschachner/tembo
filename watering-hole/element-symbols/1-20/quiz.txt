@@ -17,7 +17,7 @@ F :: Fluorine ;; 9
 Ne :: Neon ;; 10
 Na :: Sodium ;; 11
 Mg :: Magnesium ;; 12
-Al :: Aluminium | Aluminum ;; 13
+Al :: Aluminum | Aluminium ;; 13
 Si :: Silicon ;; 14
 P :: Phosphorus ;; 15
 S :: Sulfur | Sulphur ;; 16

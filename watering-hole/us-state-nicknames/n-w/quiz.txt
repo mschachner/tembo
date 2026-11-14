@@ -4,27 +4,27 @@ pass: 100
 prompt-label: Nickname
 answer-label: State
 ---
-Cornhusker State :: Nebraska
-Silver State :: Nevada
-Granite State :: New Hampshire
-Garden State :: New Jersey
-Land of Enchantment :: New Mexico
-Empire State :: New York
-Tar Heel State :: North Carolina
-Peace Garden State :: North Dakota
-Buckeye State :: Ohio
-Sooner State :: Oklahoma
-Beaver State :: Oregon
-Keystone State :: Pennsylvania
-Ocean State :: Rhode Island
-Palmetto State :: South Carolina
-Mount Rushmore State :: South Dakota
-Volunteer State :: Tennessee
-Lone Star State :: Texas
-Beehive State :: Utah
-Green Mountain State :: Vermont
-Old Dominion :: Virginia
-Evergreen State :: Washington
-Mountain State :: West Virginia
 Badger State :: Wisconsin
+Beaver State :: Oregon
+Beehive State :: Utah
+Buckeye State :: Ohio
+Cornhusker State :: Nebraska
+Empire State :: New York
 Equality State :: Wyoming
+Evergreen State :: Washington
+Garden State :: New Jersey
+Granite State :: New Hampshire
+Green Mountain State :: Vermont
+Keystone State :: Pennsylvania
+Land of Enchantment :: New Mexico
+Lone Star State :: Texas
+Mount Rushmore State :: South Dakota
+Mountain State :: West Virginia
+Ocean State :: Rhode Island
+Old Dominion :: Virginia
+Palmetto State :: South Carolina
+Peace Garden State :: North Dakota
+Silver State :: Nevada
+Sooner State :: Oklahoma
+Tar Heel State :: North Carolina
+Volunteer State :: Tennessee

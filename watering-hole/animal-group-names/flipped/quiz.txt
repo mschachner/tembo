@@ -23,7 +23,7 @@ Kittens :: Kindle | Litter
 Larks :: Exaltation
 Leopards :: Leap | Lepe
 Lions :: Pride
-Moles :: Labour | Labor
+Moles :: Labor | Labour
 Owls :: Parliament
 Porcupines :: Prickle
 Ravens :: Unkindness | Conspiracy

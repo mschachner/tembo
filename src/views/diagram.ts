@@ -2,7 +2,7 @@ import { h } from "../dom";
 import type { DiagramNode, Quiz } from "../quiz/format";
 import { plain, rich } from "../rich";
 
-// Draws quiz.diagram. Node centres are placed by percentage inside a margin
+// Draws quiz.diagram. Node centers are placed by percentage inside a margin
 // (so the drawing scales down with the window); edges are an SVG layer
 // underneath, redrawn whenever the drawing or any box changes size
 // (answers filling in change box widths). The side margins are sized from
@@ -26,7 +26,7 @@ export function diagramDisplay(quiz: Quiz, fill: (item: number, node: HTMLElemen
   const xs = d.nodes.map((n) => n.x), ys = d.nodes.map((n) => n.y);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
   const minY = Math.min(...ys), maxY = Math.max(...ys);
-  const w = (maxX - minX) * d.scale, ht = (maxY - minY) * d.scale;   // px between outermost centres, at full size
+  const w = (maxX - minX) * d.scale, ht = (maxY - minY) * d.scale;   // px between outermost centers, at full size
 
   const text = (n: DiagramNode) => plain(n.given ?? quiz.items[n.item!].canonical);
   const outer = d.nodes.filter((n) => n.x === minX || n.x === maxX);
@@ -61,7 +61,7 @@ export function diagramDisplay(quiz: Quiz, fill: (item: number, node: HTMLElemen
 
   // Layout positions (offset*), not getBoundingClientRect, so entrance
   // animations' transforms don't skew the lines. Each node's left/top is
-  // its centre; CSS translates the box by half its size.
+  // its center; CSS translates the box by half its size.
   function draw(): void {
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${box.clientWidth} ${box.clientHeight}`);
@@ -71,7 +71,7 @@ export function diagramDisplay(quiz: Quiz, fill: (item: number, node: HTMLElemen
       const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
       if (len === 0) continue;
       const ux = dx / len, uy = dy / len;
-      // Distance from a box's centre to its border along the edge.
+      // Distance from a box's center to its border along the edge.
       const out = (q: typeof a) => Math.min(q.hw / Math.abs(ux || 1e-9), q.hh / Math.abs(uy || 1e-9));
       const s = out(a) + GAP, t = len - out(b) - GAP;
       if (t - s < (e.arrow ? HEAD + 2 : 2)) continue;   // boxes too close to draw between

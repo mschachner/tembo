@@ -17,7 +17,7 @@ Fluorine :: F
 Neon :: Ne
 Sodium :: Na
 Magnesium :: Mg
-Aluminium :: Al
+Aluminum :: Al
 Silicon :: Si
 Phosphorus :: P
 Sulfur :: S

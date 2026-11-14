@@ -8,7 +8,7 @@ answer-label: Gift
 3rd :: Leather
 5th :: Wood
 8th :: Bronze
-10th :: Tin | Aluminium | Aluminum
+10th :: Tin | Aluminum | Aluminium
 11th :: Steel
 12th :: Silk
 13th :: Lace

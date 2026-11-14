@@ -4,29 +4,29 @@ pass: 100
 prompt-label: Nickname
 answer-label: State
 ---
-Yellowhammer State :: Alabama
-Last Frontier :: Alaska
-Grand Canyon State :: Arizona
-Natural State :: Arkansas
-Golden State :: California
+Aloha State :: Hawaii
+Bay State :: Massachusetts
+Bluegrass State :: Kentucky
 Centennial State :: Colorado
 Constitution State :: Connecticut
 First State :: Delaware
-Sunshine State :: Florida
-Peach State :: Georgia
-Aloha State :: Hawaii
 Gem State :: Idaho
-Prairie State :: Illinois
-Hoosier State :: Indiana
+Golden State :: California
+Grand Canyon State :: Arizona
+Great Lakes State :: Michigan
 Hawkeye State :: Iowa
-Sunflower State :: Kansas
-Bluegrass State :: Kentucky
+Hoosier State :: Indiana
+Last Frontier :: Alaska
+Magnolia State :: Mississippi
+Natural State :: Arkansas
+North Star State :: Minnesota
+Old Line State :: Maryland
+Peach State :: Georgia
 Pelican State :: Louisiana
 Pine Tree State :: Maine
-Old Line State :: Maryland
-Bay State :: Massachusetts
-Great Lakes State :: Michigan
-North Star State :: Minnesota
-Magnolia State :: Mississippi
+Prairie State :: Illinois
 Show Me State :: Missouri
+Sunflower State :: Kansas
+Sunshine State :: Florida
 Treasure State :: Montana
+Yellowhammer State :: Alabama

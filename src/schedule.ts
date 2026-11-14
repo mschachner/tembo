@@ -27,7 +27,7 @@ export const NEW_STATE: QuizState = {
   lastGrade: null,
 };
 
-// 1 (laboured clear) to 3 (fully fluent).
+// 1 (labored clear) to 3 (fully fluent).
 export function multiplier(grade: number): number {
   return 1 + 2 * Math.min(1, Math.max(0, grade));
 }
