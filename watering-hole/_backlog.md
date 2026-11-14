@@ -79,7 +79,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] Composers of famous works (prompt) — added 2026-11-11 as composers-of-famous-works
 - [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
 - [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
-- [ ] US state nicknames, N–W (prompt: nickname → state, flipped level state → nickname) — new chunk of us-state-nicknames
+- [x] US state nicknames, N–W (prompt: nickname → state, flipped level state → nickname) — new chunk of us-state-nicknames — added 2026-11-14 as us-state-nicknames/n-w
 - [ ] Playwright of the play (prompt)
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)

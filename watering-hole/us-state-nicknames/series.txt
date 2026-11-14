@@ -1,4 +1,4 @@
 title: US state nicknames
 tags: geography, nicknames
 levels: standard, flipped
-chunks: A–M
+chunks: A–M, N–W
