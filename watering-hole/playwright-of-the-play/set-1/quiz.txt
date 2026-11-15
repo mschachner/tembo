@@ -1,0 +1,31 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Premiered
+prompt-label: Play
+answer-label: Playwright
+---
+Medea :: Euripides ;; 431 BC
+Oedipus Rex :: Sophocles ;; c. 429 BC
+Lysistrata :: Aristophanes ;; 411 BC
+Tartuffe :: Molière | Jean-Baptiste Poquelin ;; 1664
+She Stoops to Conquer :: Oliver Goldsmith | Goldsmith ;; 1773
+The School for Scandal :: Richard Brinsley Sheridan | Sheridan | R. B. Sheridan ;; 1777
+A Doll's House :: Henrik Ibsen | Ibsen ;; 1879
+The Importance of Being Earnest :: Oscar Wilde | Wilde ;; 1895
+The Seagull :: Anton Chekhov | Chekhov | Anton Tchekhov | Tchekhov | Chekov ;; 1896
+Cyrano de Bergerac :: Edmond Rostand | Rostand ;; 1897
+The Playboy of the Western World :: J. M. Synge | Synge | John Millington Synge ;; 1907
+Pygmalion :: George Bernard Shaw | Shaw | Bernard Shaw | GBS ;; 1913
+Six Characters in Search of an Author :: Luigi Pirandello | Pirandello ;; 1921
+Our Town :: Thornton Wilder | Wilder ;; 1938
+Mother Courage and Her Children :: Bertolt Brecht | Brecht | Bertold Brecht ;; 1941
+The Glass Menagerie :: Tennessee Williams | Williams ;; 1944
+Death of a Salesman :: Arthur Miller | Miller ;; 1949
+Waiting for Godot :: Samuel Beckett | Beckett ;; 1953
+Long Day's Journey into Night :: Eugene O'Neill | O'Neill ;; 1956
+Look Back in Anger :: John Osborne | Osborne ;; 1956
+A Raisin in the Sun :: Lorraine Hansberry | Hansberry ;; 1959
+Who's Afraid of Virginia Woolf? :: Edward Albee | Albee ;; 1962
+Rosencrantz and Guildenstern Are Dead :: Tom Stoppard | Stoppard ;; 1966
+Angels in America :: Tony Kushner | Kushner ;; 1991

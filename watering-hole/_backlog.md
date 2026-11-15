@@ -44,6 +44,8 @@ off with the date. Reorder, add or delete lines freely.
   (Hoosier State → Indiana), and the flipped level asks the reverse.
 - A new level for an already-built chunk can also be queued as its own
   line ("..., flipped").
+- Titration counts series, not chunks or levels: a series in `data/library.txt`
+  counts as started once any of its quizzes has an attempt.
 - Quiz titles are computed (series title, chunk, level); set `title:` in a
   quiz.txt only when the computed one reads badly.
 
@@ -80,7 +82,7 @@ off with the date. Reorder, add or delete lines freely.
 - [x] World Cup winners by year (prompt) — added 2026-11-12 as world-cup-winners
 - [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
 - [x] US state nicknames, N–W (prompt: nickname → state, flipped level state → nickname) — new chunk of us-state-nicknames — added 2026-11-14 as us-state-nicknames/n-w
-- [ ] Playwright of the play (prompt)
+- [x] Playwright of the play (prompt) — added 2026-11-15 as playwright-of-the-play
 - [ ] SI base units (prompt: quantity → unit)
 - [ ] UK prime ministers since 1900 (prompt)
 - [ ] Sculptor of the sculpture (prompt)

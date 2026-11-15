@@ -1,0 +1,4 @@
+title: Playwright of the play
+tags: literature, plays
+levels: standard, no clues
+chunks: set 1

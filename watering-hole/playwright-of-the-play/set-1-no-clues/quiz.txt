@@ -1,0 +1,31 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Play
+answer-label: Playwright
+---
+Medea :: Euripides
+Oedipus Rex :: Sophocles
+Lysistrata :: Aristophanes
+Tartuffe :: Molière | Jean-Baptiste Poquelin
+She Stoops to Conquer :: Oliver Goldsmith | Goldsmith
+The School for Scandal :: Richard Brinsley Sheridan | Sheridan | R. B. Sheridan
+A Doll's House :: Henrik Ibsen | Ibsen
+The Importance of Being Earnest :: Oscar Wilde | Wilde
+The Seagull :: Anton Chekhov | Chekhov | Anton Tchekhov | Tchekhov | Chekov
+Cyrano de Bergerac :: Edmond Rostand | Rostand
+The Playboy of the Western World :: J. M. Synge | Synge | John Millington Synge
+Pygmalion :: George Bernard Shaw | Shaw | Bernard Shaw | GBS
+Six Characters in Search of an Author :: Luigi Pirandello | Pirandello
+Our Town :: Thornton Wilder | Wilder
+Mother Courage and Her Children :: Bertolt Brecht | Brecht | Bertold Brecht
+The Glass Menagerie :: Tennessee Williams | Williams
+Death of a Salesman :: Arthur Miller | Miller
+Waiting for Godot :: Samuel Beckett | Beckett
+Long Day's Journey into Night :: Eugene O'Neill | O'Neill
+Look Back in Anger :: John Osborne | Osborne
+A Raisin in the Sun :: Lorraine Hansberry | Hansberry
+Who's Afraid of Virginia Woolf? :: Edward Albee | Albee
+Rosencrantz and Guildenstern Are Dead :: Tom Stoppard | Stoppard
+Angels in America :: Tony Kushner | Kushner
