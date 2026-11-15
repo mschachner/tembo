@@ -18,7 +18,8 @@ there are several, the `chunks:` in order; each `quiz.txt` names its
 the first level; each later chunk appears once the chunk before it has been
 cleared, and the next level of a chunk unlocks when the previous one is
 proficient. Folders starting with `_` are ignored; `_backlog.md` is the daily
-quiz task's queue and its standing rules.
+quiz task's queue (unchecked lines ROT13-encoded, against spoilers) and its
+standing rules.
 Library: `data/library.txt`, the ids of the series imported from the
 Watering Hole, one per line. The typing calibration is always included.
 Attempt log: `data/attempts.jsonl`, one JSON object per line, keyed by quiz

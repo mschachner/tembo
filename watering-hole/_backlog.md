@@ -3,6 +3,14 @@
 The daily quiz task takes the first unchecked line, builds it, and checks it
 off with the date. Reorder, add or delete lines freely.
 
+Unchecked lines are ROT13-encoded after the `- [ ] ` so Mark can't spoil the
+queue by glancing at this file; checked lines are plain text. The same command
+encodes and decodes: `tr 'A-Za-z' 'N-ZA-Mn-za-m'`. Decode a line before
+reading or building it, encode any unchecked line you add or edit (skip notes
+included), and write a line in plain text when you check it off. Never print
+decoded queue lines anywhere Mark will see them: commit messages, reports or
+chat.
+
 ## Standing rules for the daily task
 
 - The Watering Hole is organized by series: `watering-hole/<series>/series.txt`
@@ -88,37 +96,37 @@ off with the date. Reorder, add or delete lines freely.
 - [x] US state nicknames (prompt) — added 2026-11-13 as us-state-nicknames
 - [x] US state nicknames, N–W (prompt) — added 2026-11-13 as us-state-nicknames/n-w
 - [x] Playwright of the play (prompt) — added 2026-11-15 as playwright-of-the-play
-- [ ] SI base units (prompt: quantity → unit)
-- [ ] UK prime ministers since 1900 (prompt)
-- [ ] Sculptor of the sculpture (prompt)
-- [ ] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa
-- [ ] Phobias (prompt)
-- [ ] Composer of the opera (prompt)
-- [ ] Olympic host cities, Summer (prompt: year → city)
-- [ ] Element symbols, 41–60 (prompt) — new chunk of element-symbols
-- [ ] Architect of the building (prompt)
-- [ ] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays
-- [ ] Longest rivers (list)
-- [ ] Poet of the poem (prompt)
-- [ ] Chinese zodiac in order (prompt)
-- [ ] Roman emperors, Julio-Claudian to Severan (list)
-- [ ] Composers of famous works, set 2 (prompt) — new chunk of composers-of-famous-works
-- [ ] Flags of Europe (prompt, images)
-- [ ] Capitals of Asia, set 1 (prompt) — starts capitals-of-asia
-- [ ] Composer of the musical (prompt)
-- [ ] Best Picture winners, 2000s and 2010s (prompt: year → film)
-- [ ] Bones of the body (list)
-- [ ] Seven summits (prompt: continent → mountain)
-- [ ] Director of the film (prompt)
-- [ ] Currencies of the world, set 1 (prompt)
-- [ ] Vice presidents (prompt: president → VP)
-- [ ] Author of the novel, set 2 (prompt) — new chunk of author-of-the-novel
-- [ ] Capitals of Africa, set 2 (prompt) — new chunk of capitals-of-africa
-- [ ] Landlocked countries (list)
-- [ ] Painter of the painting (prompt, images)
-- [ ] Element symbols, 61–86 (prompt) — new chunk of element-symbols
-- [ ] Capitals of Asia, set 2 (prompt) — new chunk of capitals-of-asia
-- [ ] NBA teams by city (prompt)
-- [ ] Flags of Africa (prompt, images)
-- [ ] Capitals of North America and the Caribbean (prompt)
-- [ ] Capitals of Oceania (prompt)
+- [ ] FV onfr havgf (cebzcg: dhnagvgl → havg)
+- [ ] HX cevzr zvavfgref fvapr 1900 (cebzcg)
+- [ ] Fphycgbe bs gur fphycgher (cebzcg)
+- [ ] Pncvgnyf bs Nsevpn, frg 1 (cebzcg) — fgnegf pncvgnyf-bs-nsevpn
+- [ ] Cubovnf (cebzcg)
+- [ ] Pbzcbfre bs gur bcren (cebzcg)
+- [ ] Bylzcvp ubfg pvgvrf, Fhzzre (cebzcg: lrne → pvgl)
+- [ ] Ryrzrag flzobyf, 41–60 (cebzcg) — arj puhax bs ryrzrag-flzobyf
+- [ ] Nepuvgrpg bs gur ohvyqvat (cebzcg)
+- [ ] Funxrfcrner punenpgref → cynl (cebzcg) — vgf bja frevrf, abg n puhax bs funxrfcrner-cynlf
+- [ ] Ybatrfg eviref (yvfg)
+- [ ] Cbrg bs gur cbrz (cebzcg)
+- [ ] Puvarfr mbqvnp va beqre (cebzcg)
+- [ ] Ebzna rzcrebef, Whyvb-Pynhqvna gb Frirena (yvfg)
+- [ ] Pbzcbfref bs snzbhf jbexf, frg 2 (cebzcg) — arj puhax bs pbzcbfref-bs-snzbhf-jbexf
+- [ ] Syntf bs Rhebcr (cebzcg, vzntrf)
+- [ ] Pncvgnyf bs Nfvn, frg 1 (cebzcg) — fgnegf pncvgnyf-bs-nfvn
+- [ ] Pbzcbfre bs gur zhfvpny (cebzcg)
+- [ ] Orfg Cvpgher jvaaref, 2000f naq 2010f (cebzcg: lrne → svyz)
+- [ ] Obarf bs gur obql (yvfg)
+- [ ] Frira fhzzvgf (cebzcg: pbagvarag → zbhagnva)
+- [ ] Qverpgbe bs gur svyz (cebzcg)
+- [ ] Pheerapvrf bs gur jbeyq, frg 1 (cebzcg)
+- [ ] Ivpr cerfvqragf (cebzcg: cerfvqrag → IC)
+- [ ] Nhgube bs gur abiry, frg 2 (cebzcg) — arj puhax bs nhgube-bs-gur-abiry
+- [ ] Pncvgnyf bs Nsevpn, frg 2 (cebzcg) — arj puhax bs pncvgnyf-bs-nsevpn
+- [ ] Ynaqybpxrq pbhagevrf (yvfg)
+- [ ] Cnvagre bs gur cnvagvat (cebzcg, vzntrf)
+- [ ] Ryrzrag flzobyf, 61–86 (cebzcg) — arj puhax bs ryrzrag-flzobyf
+- [ ] Pncvgnyf bs Nfvn, frg 2 (cebzcg) — arj puhax bs pncvgnyf-bs-nfvn
+- [ ] AON grnzf ol pvgl (cebzcg)
+- [ ] Syntf bs Nsevpn (cebzcg, vzntrf)
+- [ ] Pncvgnyf bs Abegu Nzrevpn naq gur Pnevoorna (cebzcg)
+- [ ] Pncvgnyf bs Bprnavn (cebzcg)
