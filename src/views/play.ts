@@ -129,9 +129,12 @@ function wrongGuess(session: Session, input: AnswerBox, idx: number): boolean {
   return true;
 }
 
-// What replaces a locked item's box: the last wrong guess, struck through.
+// What replaces a locked item's box: the last wrong guess, struck through,
+// then the correct answer.
 function lockedAnswer(session: Session, idx: number, cls: string): HTMLElement {
-  return h("div", { class: `${cls} locked`, title: "locked" }, session.locked.get(idx) ?? "");
+  return h("div", { class: `${cls} locked`, title: "locked" },
+    h("s", { class: "guess" }, session.locked.get(idx) ?? ""), " ",
+    h("span", { class: "correct" }, session.quiz.items[idx].canonical));
 }
 
 function playHeader(session: Session, toggle: Node | null = null): HTMLElement {
