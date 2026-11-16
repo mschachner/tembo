@@ -1,0 +1,12 @@
+mode: prompt
+pass: 100
+prompt-label: Quantity
+answer-label: Unit
+---
+Time :: Second
+Length :: Metre | Meter
+Mass :: Kilogram | Kilogramme
+Electric current :: Ampere | Amp
+Thermodynamic temperature :: Kelvin
+Amount of substance :: Mole
+Luminous intensity :: Candela
