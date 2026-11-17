@@ -1,0 +1,19 @@
+chunk: 1900–1945
+mode: prompt
+pass: 100
+columns: Term, Party
+answer-label: Prime minister
+---
+1st :: Lord Salisbury | Salisbury | Marquess of Salisbury | Robert Gascoyne-Cecil ;; 1895–1902 ;; Conservative
+2nd :: Arthur Balfour | Balfour | A. J. Balfour ;; 1902–1905 ;; Conservative
+3rd :: Henry Campbell-Bannerman | Campbell-Bannerman ;; 1905–1908 ;; Liberal
+4th :: H. H. Asquith | Asquith | Herbert Asquith | Herbert Henry Asquith ;; 1908–1916 ;; Liberal
+5th :: David Lloyd George | Lloyd George ;; 1916–1922 ;; Liberal (coalition)
+6th :: Bonar Law | Andrew Bonar Law | Law ;; 1922–1923 ;; Conservative
+7th :: Stanley Baldwin | Baldwin ;; 1923–1924 ;; Conservative
+8th :: Ramsay MacDonald | MacDonald | James Ramsay MacDonald ;; 1924 ;; Labour
+9th :: Stanley Baldwin | Baldwin ;; 1924–1929 ;; Conservative
+10th :: Ramsay MacDonald | MacDonald | James Ramsay MacDonald ;; 1929–1935 ;; Labour, then National Labour
+11th :: Stanley Baldwin | Baldwin ;; 1935–1937 ;; Conservative
+12th :: Neville Chamberlain | Chamberlain ;; 1937–1940 ;; Conservative
+13th :: Winston Churchill | Churchill ;; 1940–1945 ;; Conservative

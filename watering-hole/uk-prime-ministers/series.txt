@@ -1,0 +1,4 @@
+title: UK prime ministers since 1900
+tags: history, prime ministers
+levels: standard, no clues
+chunks: 1900–1945, 1945–present

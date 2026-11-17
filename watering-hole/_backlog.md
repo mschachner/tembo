@@ -97,7 +97,7 @@ chat.
 - [x] US state nicknames, N–W (prompt) — added 2026-11-13 as us-state-nicknames/n-w
 - [x] Playwright of the play (prompt) — added 2026-11-15 as playwright-of-the-play
 - [x] SI base units (prompt: quantity → unit) — added 2026-11-16 as si-base-units
-- [ ] HX cevzr zvavfgref fvapr 1900 (cebzcg)
+- [x] UK prime ministers since 1900 (prompt) — added 2026-11-17 as uk-prime-ministers
 - [ ] Fphycgbe bs gur fphycgher (cebzcg)
 - [ ] Pncvgnyf bs Nsevpn, frg 1 (cebzcg) — fgnegf pncvgnyf-bs-nsevpn
 - [ ] Cubovnf (cebzcg)

@@ -1,0 +1,26 @@
+chunk: 1945–present
+level: no clues
+mode: prompt
+pass: 100
+answer-label: Prime minister
+---
+14th :: Clement Attlee | Attlee
+15th :: Winston Churchill | Churchill
+16th :: Anthony Eden | Eden
+17th :: Harold Macmillan | Macmillan
+18th :: Alec Douglas-Home | Douglas-Home | Sir Alec Douglas-Home | Lord Home
+19th :: Harold Wilson | Wilson
+20th :: Edward Heath | Heath | Ted Heath
+21st :: Harold Wilson | Wilson
+22nd :: James Callaghan | Callaghan | Jim Callaghan
+23rd :: Margaret Thatcher | Thatcher
+24th :: John Major | Major
+25th :: Tony Blair | Blair
+26th :: Gordon Brown | Brown
+27th :: David Cameron | Cameron
+28th :: Theresa May | May
+29th :: Boris Johnson | Johnson
+30th :: Liz Truss | Truss
+31st :: Rishi Sunak | Sunak
+32nd :: Keir Starmer | Starmer
+33rd :: Andy Burnham | Burnham

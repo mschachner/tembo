@@ -1,0 +1,19 @@
+chunk: 1900–1945
+level: no clues
+mode: prompt
+pass: 100
+answer-label: Prime minister
+---
+1st :: Lord Salisbury | Salisbury | Marquess of Salisbury | Robert Gascoyne-Cecil
+2nd :: Arthur Balfour | Balfour | A. J. Balfour
+3rd :: Henry Campbell-Bannerman | Campbell-Bannerman
+4th :: H. H. Asquith | Asquith | Herbert Asquith | Herbert Henry Asquith
+5th :: David Lloyd George | Lloyd George
+6th :: Bonar Law | Andrew Bonar Law | Law
+7th :: Stanley Baldwin | Baldwin
+8th :: Ramsay MacDonald | MacDonald | James Ramsay MacDonald
+9th :: Stanley Baldwin | Baldwin
+10th :: Ramsay MacDonald | MacDonald | James Ramsay MacDonald
+11th :: Stanley Baldwin | Baldwin
+12th :: Neville Chamberlain | Chamberlain
+13th :: Winston Churchill | Churchill

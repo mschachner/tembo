@@ -1,0 +1,26 @@
+chunk: 1945–present
+mode: prompt
+pass: 100
+columns: Term, Party
+answer-label: Prime minister
+---
+14th :: Clement Attlee | Attlee ;; 1945–1951 ;; Labour
+15th :: Winston Churchill | Churchill ;; 1951–1955 ;; Conservative
+16th :: Anthony Eden | Eden ;; 1955–1957 ;; Conservative
+17th :: Harold Macmillan | Macmillan ;; 1957–1963 ;; Conservative
+18th :: Alec Douglas-Home | Douglas-Home | Sir Alec Douglas-Home | Lord Home ;; 1963–1964 ;; Conservative
+19th :: Harold Wilson | Wilson ;; 1964–1970 ;; Labour
+20th :: Edward Heath | Heath | Ted Heath ;; 1970–1974 ;; Conservative
+21st :: Harold Wilson | Wilson ;; 1974–1976 ;; Labour
+22nd :: James Callaghan | Callaghan | Jim Callaghan ;; 1976–1979 ;; Labour
+23rd :: Margaret Thatcher | Thatcher ;; 1979–1990 ;; Conservative
+24th :: John Major | Major ;; 1990–1997 ;; Conservative
+25th :: Tony Blair | Blair ;; 1997–2007 ;; Labour
+26th :: Gordon Brown | Brown ;; 2007–2010 ;; Labour
+27th :: David Cameron | Cameron ;; 2010–2016 ;; Conservative
+28th :: Theresa May | May ;; 2016–2019 ;; Conservative
+29th :: Boris Johnson | Johnson ;; 2019–2022 ;; Conservative
+30th :: Liz Truss | Truss ;; 2022 ;; Conservative
+31st :: Rishi Sunak | Sunak ;; 2022–2024 ;; Conservative
+32nd :: Keir Starmer | Starmer ;; 2024–2026 ;; Labour
+33rd :: Andy Burnham | Burnham ;; 2026– ;; Labour
