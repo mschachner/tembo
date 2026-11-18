@@ -61,6 +61,22 @@ chat.
   counts as started once any of its quizzes has an attempt.
 - Quiz titles are computed (series title, chunk, level); set `title:` in a
   quiz.txt only when the computed one reads badly.
+- Wikipedia links: give every quiz `wiki-prompt:` and/or `wiki-answer:`
+  headers ("Wikipedia links" in `src/quiz/format.ts`), so prompts and answers
+  can be clicked after a quiz. Link the side that names the thing being
+  learned (the Muse, not her domain; the capital, not the country; a flag
+  image to `Flag of {answer}`), and both sides when both name things (work
+  and creator, Greek god and Roman god, World Cup year and winning team).
+  Ordinals, plain descriptions and terms with no article of their own
+  (collective nouns, code words) stay unlinked. Where the header's title
+  would land on the wrong article or a disambiguation page, give the article
+  in series.txt, as a `text => Article title` line after a `---`; it holds
+  for every quiz of the series, so a flipped level needs no lines of its
+  own. Every level of a chunk links the same things. Run
+  `npm run check -- --links` when the network allows: it reports
+  missing articles and disambiguation pages, but not a wrong article that
+  happens to exist ("Carmina Burana" is the manuscript, "Mars" the planet),
+  so check what each title is about.
 
 ## Queue
 

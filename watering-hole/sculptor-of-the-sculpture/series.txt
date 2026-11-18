@@ -2,3 +2,10 @@ title: Sculptor of the sculpture
 tags: art, sculpture
 levels: standard, no clues
 chunks: set 1
+---
+Gates of Paradise (Florence Baptistery) => Florence Baptistery#East doors ("Gates of Paradise")
+David (Galleria dell'Accademia) => David (Michelangelo)
+The Rape of the Sabine Women => Abduction of a Sabine Woman
+The Little Mermaid (Copenhagen) => The Little Mermaid (statue)
+Walking Man I => L'Homme qui marche I
+Maman => Maman (sculpture)

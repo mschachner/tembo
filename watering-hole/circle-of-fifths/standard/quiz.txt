@@ -2,6 +2,7 @@ mode: prompt
 layout: diagram
 diagram-scale: 95
 pass: 100
+wiki-answer: {answer}
 ---
 # Major keys on the outer ring, relative minors inside, 30° apart.
 given @3.6<0 :: C

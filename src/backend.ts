@@ -87,6 +87,12 @@ export function openPath(path: string): Promise<void> {
   return invoke("open_path", { path });
 }
 
+// Open a Wikipedia article (an https://en.wikipedia.org/wiki/ URL) in the
+// default browser.
+export function openUrl(url: string): Promise<void> {
+  return invoke("open_url", { url });
+}
+
 // Moves data/attempts.jsonl to a dated backup; returns the backup's path
 // ("" if there was no log).
 export function clearAttempts(): Promise<string> {

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: State
 answer-label: Capital
+wiki-answer: {answer}, {prompt}
 ---
 Alabama :: Montgomery
 Alaska :: Juneau

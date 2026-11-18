@@ -44,6 +44,9 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
     }
     case "open_path":
       return undefined as T;
+    case "open_url":
+      window.open(String(args.url), "_blank", "noopener");
+      return undefined as T;
     case "read_library":
       return (localStorage.getItem("mock-library") ?? librarySource) as T;
     case "write_library":

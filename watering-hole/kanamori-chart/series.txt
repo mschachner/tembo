@@ -1,2 +1,31 @@
 title: Kanamori's chart of cardinals
 tags: mathematics, set theory
+---
+I0–I3 => Rank-into-rank
+n-huge => Huge cardinal
+superhuge => Huge cardinal
+huge => Huge cardinal
+almost huge => Huge cardinal
+Vopěnka's Principle => Vopěnka's principle
+extendible => Extendible cardinal
+supercompact => Supercompact cardinal
+strongly compact => Strongly compact cardinal
+superstrong => Superstrong cardinal
+Woodin => Woodin cardinal
+strong => Strong cardinal
+0^{†} exists => Zero dagger
+measurable => Measurable cardinal
+Ramsey => Ramsey cardinal
+Rowbottom => Rowbottom cardinal
+Jónsson => Jónsson cardinal
+κ → (ω₁)^{<ω}_{2} => Erdős cardinal
+∀a ∈ ^{ω}ω (a^{#} exists) => Zero sharp
+0^{#} exists => Zero sharp
+κ → (ω)^{<ω}_{2} => Erdős cardinal
+indescribable => Indescribable cardinal
+weakly compact => Weakly compact cardinal
+α-Mahlo => Mahlo cardinal
+Mahlo => Mahlo cardinal
+α-inaccessible => Inaccessible cardinal
+inaccessible => Inaccessible cardinal
+weakly inaccessible => Inaccessible cardinal

@@ -2,6 +2,7 @@ mode: prompt
 pass: 100
 prompt-label: Body
 answer-label: Largest moon
+wiki-answer: {answer} (moon)
 ---
 Earth :: Moon | The Moon | Luna
 Mars :: Phobos

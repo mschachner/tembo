@@ -2,3 +2,7 @@ title: US state nicknames
 tags: geography, nicknames
 levels: standard, flipped
 chunks: A–M, N–W
+---
+Georgia => Georgia (U.S. state)
+New York => New York (state)
+Washington => Washington (state)

@@ -1,2 +1,26 @@
 title: Circle of fifths
 tags: music
+---
+G => G major
+D => D major
+A => A major
+E => E major
+B / C♭ => B major
+F♯ / G♭ => F-sharp major
+D♭ / C♯ => D-flat major
+A♭ => A-flat major
+E♭ => E-flat major
+B♭ => B-flat major
+F => F major
+Am => A minor
+Em => E minor
+Bm => B minor
+F♯m => F-sharp minor
+C♯m => C-sharp minor
+G♯m / A♭m => G-sharp minor
+E♭m / D♯m => E-flat minor
+B♭m / A♯m => B-flat minor
+Fm => F minor
+Cm => C minor
+Gm => G minor
+Dm => D minor

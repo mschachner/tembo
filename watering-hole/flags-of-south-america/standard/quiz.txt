@@ -2,6 +2,7 @@ mode: prompt
 pass: 100
 prompt-label: Flag
 answer-label: Country
+wiki-prompt: Flag of {answer}
 ---
 ![Argentina](flags/ar.svg) :: Argentina
 ![Bolivia](flags/bo.svg) :: Bolivia | Plurinational State of Bolivia

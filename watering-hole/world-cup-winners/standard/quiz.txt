@@ -3,6 +3,8 @@ pass: 100
 columns: Host
 prompt-label: Year
 answer-label: Winner
+wiki-prompt: {prompt} FIFA World Cup
+wiki-answer: {answer} national football team
 ---
 1930 :: Uruguay ;; Uruguay
 1934 :: Italy | Italia ;; Italy

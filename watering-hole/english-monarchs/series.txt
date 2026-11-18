@@ -2,3 +2,27 @@ title: English and British monarchs in order
 tags: history, monarchs
 levels: standard, no clues
 chunks: 1066–1485, 1485–present
+---
+William I => William the Conqueror
+William II => William II of England
+Henry I => Henry I of England
+Stephen => Stephen, King of England
+Henry II => Henry II of England
+Richard I => Richard I of England
+John => John, King of England
+Henry III => Henry III of England
+Richard II => Richard II of England
+Henry IV => Henry IV of England
+Henry V => Henry V of England
+Henry VI => Henry VI of England
+Richard III => Richard III of England
+Henry VII => Henry VII of England
+James I => James VI and I
+Charles I => Charles I of England
+Charles II => Charles II of England
+James II => James II of England
+William III and Mary II => William III of England
+Anne => Anne, Queen of Great Britain
+George I => George I of Great Britain
+George II => George II of Great Britain
+Victoria => Queen Victoria

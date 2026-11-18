@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 columns: Reign, House
 answer-label: Monarch
+wiki-answer: {answer}
 ---
 1st :: William I | William 1 | William the Conqueror ;; 1066–1087 ;; Normandy
 2nd :: William II | William 2 | William Rufus ;; 1087–1100 ;; Normandy

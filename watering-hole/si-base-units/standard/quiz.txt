@@ -2,6 +2,7 @@ mode: prompt
 pass: 100
 prompt-label: Quantity
 answer-label: Unit
+wiki-answer: {answer}
 ---
 Time :: Second
 Length :: Metre | Meter

@@ -4,6 +4,8 @@ pass: 100
 columns: Created
 prompt-label: Sculpture
 answer-label: Sculptor
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Discobolus :: Myron | Myron of Eleutherae ;; c. 460–450 BC
 Gates of Paradise (Florence Baptistery) :: Lorenzo Ghiberti | Ghiberti ;; 1425–1452

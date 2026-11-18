@@ -1,2 +1,10 @@
 title: Greek alphabet
 tags: language
+---
+Delta => Delta (letter)
+Mu => Mu (letter)
+Nu => Nu (Greek)
+Xi => Xi (letter)
+Pi => Pi (letter)
+Chi => Chi (letter)
+Psi => Psi (Greek)

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Country
 answer-label: Capital
+wiki-answer: {answer}
 ---
 Albania :: Tirana | Tiranë
 Andorra :: Andorra la Vella

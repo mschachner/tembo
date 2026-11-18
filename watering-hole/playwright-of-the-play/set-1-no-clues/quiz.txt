@@ -4,6 +4,8 @@ mode: prompt
 pass: 100
 prompt-label: Play
 answer-label: Playwright
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Medea :: Euripides
 Oedipus Rex :: Sophocles

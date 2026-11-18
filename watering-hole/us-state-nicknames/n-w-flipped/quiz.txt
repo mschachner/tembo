@@ -4,6 +4,7 @@ mode: prompt
 pass: 100
 prompt-label: State
 answer-label: Nickname
+wiki-prompt: {prompt}
 ---
 Nebraska :: Cornhusker State | Beef State
 Nevada :: Silver State | Battle Born State | Sagebrush State

@@ -1,5 +1,6 @@
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 Great Pyramid of Giza | Pyramid of Giza | Pyramids of Giza | Great Pyramid | Pyramid of Khufu | Pyramid of Cheops | Pyramids
 Hanging Gardens of Babylon | Hanging Gardens | Gardens of Babylon

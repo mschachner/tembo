@@ -3,6 +3,7 @@ level: no clues
 mode: prompt
 pass: 100
 answer-label: Monarch
+wiki-answer: {answer}
 ---
 19th :: Henry VII | Henry 7 | Henry Tudor
 20th :: Henry VIII | Henry 8

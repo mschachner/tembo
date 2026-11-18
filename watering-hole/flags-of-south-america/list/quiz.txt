@@ -2,6 +2,7 @@ level: list
 title: Countries of South America
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 Argentina
 Bolivia | Plurinational State of Bolivia

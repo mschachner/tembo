@@ -4,6 +4,8 @@ mode: prompt
 pass: 100
 prompt-label: Work
 answer-label: Composer
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 The Four Seasons :: Antonio Vivaldi | Vivaldi
 Brandenburg Concertos :: Johann Sebastian Bach | Bach | J. S. Bach

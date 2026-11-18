@@ -1,6 +1,7 @@
 chunk: histories
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 King John | The Life and Death of King John
 Richard II | Richard the Second | Richard 2 | King Richard II | King Richard the Second

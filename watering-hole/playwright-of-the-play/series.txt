@@ -2,3 +2,7 @@ title: Playwright of the play
 tags: literature, plays
 levels: standard, no clues
 chunks: set 1
+---
+Medea => Medea (play)
+Cyrano de Bergerac => Cyrano de Bergerac (play)
+Pygmalion => Pygmalion (play)

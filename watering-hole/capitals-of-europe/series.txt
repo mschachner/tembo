@@ -2,3 +2,6 @@ title: Capitals of Europe
 tags: geography, capitals
 levels: standard, flipped
 chunks: A–L, M–Z
+---
+Luxembourg => Luxembourg City
+San Marino => City of San Marino

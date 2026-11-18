@@ -86,15 +86,16 @@ export interface ItemRecord {
   latency: number | null;
   typedChars: number | null;
   wrong: number | null;
+  guesses: string[];         // the wrong guesses, where the record has them
 }
 
 export function itemRecord(attempt: AnyAttempt, answer: string, cps: number): ItemRecord | null {
   if (attempt.version !== 2) {
     if (attempt.found.includes(answer)) {
-      return { answer, result: "untimed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null };
+      return { answer, result: "untimed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null, guesses: [] };
     }
     if (attempt.missed.includes(answer)) {
-      return { answer, result: "missed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null };
+      return { answer, result: "missed", acceptedMs: null, seconds: null, latency: null, typedChars: null, wrong: null, guesses: [] };
     }
     return null;
   }
@@ -109,6 +110,7 @@ export function itemRecord(attempt: AnyAttempt, answer: string, cps: number): It
     latency: itemLatency(attempt, idx, cps),
     typedChars: r.typedChars ?? null,
     wrong: r.wrong,
+    guesses: r.guesses ?? [],
   };
 }
 

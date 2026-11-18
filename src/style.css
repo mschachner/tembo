@@ -235,9 +235,10 @@ input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
 .card-input { margin: auto 0 0; padding: calc(var(--u) * 0.75) var(--u); font-size: 1em; text-align: center; }
 .card-answer.accepted { margin-top: auto; color: var(--instant); padding: calc(var(--u) * 0.75) 0; }
 .card-answer { font-weight: 500; }
-/* A locked-out item: the last wrong guess, struck through, then the answer. */
+/* A locked-out item: the last wrong guess, struck through, then the answer.
+   The results show every wrong guess the same way. */
 .card-answer.locked { margin-top: auto; padding: calc(var(--u) * 0.75) 0; }
-:is(.card-answer, .dnode-answer).locked .guess { color: var(--missed); }
+.guess { color: var(--missed); }
 .card:has(.card-answer.locked) { border-color: color-mix(in srgb, var(--missed) 50%, var(--line)); }
 .card.instant .card-answer { color: var(--instant); }
 .card.slow .card-answer { color: var(--slow); }
@@ -267,6 +268,20 @@ input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
 .quiz-table tr.slow .answer-cell { color: var(--slow); }
 .quiz-table tr.missed .answer-cell { color: var(--missed); }
 .quiz-table tr.instant .answer-cell { color: var(--instant); }
+
+/* ---- Wikipedia links (results and item screens) ---- */
+/* The text keeps its color; a dotted underline marks it as a link, solid
+   under the pointer. A linked image is laid out as if it weren't linked
+   (the link has no box of its own) and gets an outline under the pointer. */
+a.wiki {
+  color: inherit; cursor: pointer;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration-thickness: 1px; text-underline-offset: 0.22em;
+}
+a.wiki:hover { text-decoration-style: solid; text-decoration-color: currentColor; }
+a.wiki.image { display: contents; }
+a.wiki.image img { cursor: pointer; }
+a.wiki.image:hover img { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---- play: diagram layout ---- */
 .diagram-wrap { overflow-x: auto; padding: var(--u) 0; container-type: inline-size; }

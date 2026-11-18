@@ -133,6 +133,19 @@ fn open_path(path: String) -> Result<(), String> {
     Ok(())
 }
 
+/// Open a Wikipedia article in the default browser. Only English Wikipedia
+/// article URLs are accepted.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    let ok = url.starts_with("https://en.wikipedia.org/wiki/")
+        && !url.chars().any(|c| c.is_whitespace() || c.is_control());
+    if !ok {
+        return Err(format!("{url}: not a Wikipedia article"));
+    }
+    std::process::Command::new("open").arg(&url).spawn().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 /// Read an image from inside a quiz directory and return it as a data URL.
 /// `rel` must stay inside `dir`.
 #[tauri::command]
@@ -381,7 +394,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_series, read_asset, read_attempts, append_attempt,
             root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
-            read_library, write_library, open_path, clear_attempts,
+            read_library, write_library, open_path, open_url, clear_attempts,
             sync_now, sync_status, set_dock_icon
         ])
         .setup(|app| {

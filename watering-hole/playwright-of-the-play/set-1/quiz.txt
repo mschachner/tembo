@@ -4,6 +4,8 @@ pass: 100
 columns: Premiered
 prompt-label: Play
 answer-label: Playwright
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Medea :: Euripides ;; 431 BC
 Oedipus Rex :: Sophocles ;; c. 429 BC

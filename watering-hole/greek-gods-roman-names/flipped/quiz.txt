@@ -4,6 +4,8 @@ mode: prompt
 pass: 100
 prompt-label: Roman
 answer-label: Greek
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Jupiter :: Zeus
 Juno :: Hera

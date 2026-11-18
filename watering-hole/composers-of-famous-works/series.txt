@@ -2,3 +2,11 @@ title: Composers of famous works
 tags: music, composers
 levels: standard, no clues
 chunks: set 1
+---
+The Four Seasons => The Four Seasons (Vivaldi)
+Messiah => Messiah (Handel)
+The Creation => The Creation (Haydn)
+A German Requiem => A German Requiem (Brahms)
+Peer Gynt (incidental music) => Peer Gynt (Grieg)
+Clair de lune => Suite bergamasque#3. Clair de lune
+Carmina Burana => Carmina Burana (Orff)

@@ -2,6 +2,7 @@ mode: prompt
 pass: 100
 prompt-label: Country
 answer-label: Capital
+wiki-answer: {answer}
 ---
 Argentina :: Buenos Aires
 Bolivia :: Sucre | La Paz

@@ -1,6 +1,7 @@
 chunk: tragedies
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 Troilus and Cressida | Troilus & Cressida | Troilus
 Coriolanus | The Tragedy of Coriolanus

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Unit
 answer-label: Quantity
+wiki-prompt: {prompt}
 ---
 Second :: Time
 Metre :: Length

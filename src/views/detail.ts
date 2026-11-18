@@ -10,9 +10,13 @@ import type { Quiz } from "../quiz/format";
 import { localDate } from "../schedule";
 import { lastTab, renderScreen } from "../shell";
 import { median } from "../stats";
-import { fmtDate, fmtNum, fmtSecs, promptNode } from "./common";
+import { answerNode, fmtDate, fmtNum, fmtSecs, openWiki, promptNode } from "./common";
 import { detailPanes } from "./panes";
 import { rich } from "../rich";
+
+// The wrong column: how many, then what was typed (newer records keep it).
+const fmtWrong = (r: { wrong: number | null; guesses: string[] }) =>
+  r.guesses.length ? `${r.wrong} · ${r.guesses.join(", ")}` : fmtNum(r.wrong);
 
 function mountScreen(scope: string, head: HTMLElement, grid: HTMLElement, panes: Pane[], extra: (row: Row | null) => KeyAction[]): void {
   const legend = h("nav", { class: "keys" });
@@ -55,7 +59,7 @@ export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): 
     head: ["#", "answer", "result", "at", "time", "latency", "typed", "wrong"],
     rowClass: (x) => x.r?.result ?? "",
     cells: ({ answer, r }, i) => r
-      ? [String(i + 1), rich(answer), r.result, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000), fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtNum(r.wrong)]
+      ? [String(i + 1), rich(answer), r.result, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000), fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtWrong(r)]
       : [String(i + 1), rich(answer)],
     activate: ({ answer, r }) => r ? () => nav.item(quiz, answer, () => showAttempt(quiz, attempt, back)) : undefined,
   });
@@ -88,21 +92,33 @@ export function showItem(quiz: Quiz, answer: string, back: () => void): void {
   ].filter(Boolean).join(" · ");
 
   const head = h("section", { class: "pane detail-head" },
-    h("div", { class: "detail-title" }, rich(answer)),
+    h("div", { class: "detail-title" }, item ? answerNode(item, rich(answer)) : rich(answer)),
     h("div", { class: "muted small" }, quiz.title),
     item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
-    item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item)) : null,
+    item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item, true)) : null,
     h("div", { class: "muted small" }, facts));
 
   const seen = tablePane({
     id: "seen", title: "Attempts", entries: records, key: (x) => x.a.endedAt,
     cols: "17ch 8ch 6ch 8ch 6ch minmax(6ch, 1fr)", head: ["when", "result", "time", "latency", "typed", "wrong"],
     rowClass: (x) => x.r.result,
-    cells: ({ a, r }) => [fmtDate(a.endedAt), r.result, fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtNum(r.wrong)],
+    cells: ({ a, r }) => [fmtDate(a.endedAt), r.result, fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtWrong(r)],
     activate: ({ a }) => () => nav.attempt(quiz, a, () => showItem(quiz, answer, back)),
   });
   const grid = h("div", { class: "detail-grid" }, seen.el);
+  // w opens the answer's Wikipedia article, W the prompt's; with only one
+  // of them, w opens it.
+  const side = (label: string, fallback: string) => (label || fallback).toLowerCase();
+  const articles = [
+    item?.wiki ? { title: item.wiki, side: side(quiz.answerLabel, "answer") } : null,
+    item?.prompt?.wiki ? { title: item.prompt.wiki, side: side(quiz.promptLabel, "prompt") } : null,
+  ].filter((x): x is { title: string; side: string } => x !== null);
+  const wikiKeys: KeyAction[] = articles.map((a, k) => ({
+    keys: [k === 0 ? "w" : "W"], hint: k === 0 ? "w" : "W",
+    label: articles.length > 1 ? `Wikipedia (${a.side})` : "Wikipedia", run: () => openWiki(a.title),
+  }));
   mountScreen(`item:${quiz.id}:${answer}`, head, grid, [seen], () => [
+    ...wikiKeys,
     { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
     BACK(back),
   ]);

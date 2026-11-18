@@ -4,6 +4,8 @@ pass: 100
 columns: Published
 prompt-label: Novel
 answer-label: Author
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Don Quixote :: Miguel de Cervantes | Cervantes | Miguel de Cervantes Saavedra ;; 1605
 Robinson Crusoe :: Daniel Defoe | Defoe ;; 1719

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 columns: Years, Party
 answer-label: President
+wiki-answer: {answer}
 ---
 25th :: William McKinley | McKinley ;; 1897–1901 ;; Republican
 26th :: Theodore Roosevelt | Teddy Roosevelt ;; 1901–1909 ;; Republican

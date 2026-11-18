@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Attempt, ItemResult } from "./attempt";
-import { bucketOf, gradeOf, itemLatency, typingSpeed } from "./grade";
+import { bucketOf, gradeOf, itemLatency, itemRecord, typingSpeed } from "./grade";
 
 function promptAttempt(items: ItemResult[], kind: Attempt["kind"] = "normal"): Attempt {
   const found = items.filter((i) => i.found).map((i) => i.answer);
@@ -11,6 +11,19 @@ function promptAttempt(items: ItemResult[], kind: Attempt["kind"] = "normal"): A
     rejected: 0, items,
   };
 }
+
+describe("itemRecord", () => {
+  it("carries the wrong guesses, where the attempt kept them", () => {
+    const a = promptAttempt([
+      { answer: "Thalia", found: false, wrong: 1, locked: true, guesses: ["Melpomene"] },
+      { answer: "Clio", found: true, focusedMs: 0, acceptedMs: 900, typedChars: 4, wrong: 0 },
+      { answer: "Erato", found: false, wrong: 1 },   // a record from before guesses were kept
+    ]);
+    expect(itemRecord(a, "Thalia", 5)).toMatchObject({ result: "missed", wrong: 1, guesses: ["Melpomene"] });
+    expect(itemRecord(a, "Clio", 5)?.guesses).toEqual([]);
+    expect(itemRecord(a, "Erato", 5)).toMatchObject({ wrong: 1, guesses: [] });
+  });
+});
 
 describe("latency and buckets", () => {
   const a = promptAttempt([

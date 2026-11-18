@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Nickname
 answer-label: State
+wiki-answer: {answer}
 ---
 Badger State :: Wisconsin
 Beaver State :: Oregon

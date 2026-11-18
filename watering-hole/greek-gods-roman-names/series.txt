@@ -1,3 +1,24 @@
 title: Greek gods and their Roman names
 tags: mythology
 levels: standard, flipped
+---
+Rhea => Rhea (mythology)
+Nike => Nike (mythology)
+Pan => Pan (god)
+Jupiter => Jupiter (god)
+Juno => Juno (mythology)
+Neptune => Neptune (mythology)
+Ceres => Ceres (mythology)
+Diana => Diana (mythology)
+Mars => Mars (mythology)
+Venus => Venus (mythology)
+Vulcan => Vulcan (mythology)
+Mercury => Mercury (mythology)
+Vesta => Vesta (goddess)
+Pluto => Pluto (god)
+Saturn => Saturn (mythology)
+Terra => Terra (mythology)
+Sol => Sol (Roman mythology)
+Luna => Luna (goddess)
+Aurora => Aurora (mythology)
+Victoria => Victoria (mythology)

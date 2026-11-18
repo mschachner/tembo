@@ -4,6 +4,7 @@ mode: prompt
 pass: 100
 prompt-label: Capital
 answer-label: Country
+wiki-prompt: {prompt}
 ---
 Tirana :: Albania
 Andorra la Vella :: Andorra

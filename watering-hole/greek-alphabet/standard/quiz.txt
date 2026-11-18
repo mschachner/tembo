@@ -1,5 +1,6 @@
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 Alpha
 Beta

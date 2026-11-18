@@ -2,6 +2,8 @@ mode: prompt
 pass: 100
 prompt-label: Greek
 answer-label: Roman
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Zeus :: Jupiter | Jove | Iuppiter | Juppiter
 Hera :: Juno | Iuno

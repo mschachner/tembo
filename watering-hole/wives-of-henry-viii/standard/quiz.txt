@@ -2,6 +2,7 @@ mode: prompt
 pass: 100
 columns: Married, Fate
 answer-label: Wife
+wiki-answer: {answer}
 ---
 1st :: Catherine of Aragon | Katherine of Aragon | Katharine of Aragon | Catalina of Aragon | Aragon ;; 1509–1533 ;; Annulled
 2nd :: Anne Boleyn | Anne Bullen | Boleyn ;; 1533–1536 ;; Executed

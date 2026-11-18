@@ -10,7 +10,7 @@ import { findMatch, matchesItem } from "../quiz/match";
 import { renderScreen } from "../shell";
 import { shuffled } from "../shuffle";
 import { sounds } from "../sound";
-import { dueLabel, promptNode } from "./common";
+import { answerNode, dueLabel, promptNode } from "./common";
 import { rich } from "../rich";
 import { diagramDisplay, nearestInDirection, nodeData, nodeLabel } from "./diagram";
 import { plainKey, setKeys, typing } from "../keys";
@@ -111,7 +111,10 @@ function focusBox(el: HTMLElement | null | undefined): void {
 
 function reject(session: Session, input: AnswerBox, idx?: number): void {
   session.rejected++;
-  if (idx !== undefined) session.timing[idx].wrong++;
+  if (idx !== undefined) {
+    session.timing[idx].wrong++;
+    (session.timing[idx].guesses ??= []).push(input.value.trim());
+  }
   sounds.reject();
   input.classList.remove("shake");
   void input.offsetWidth;
@@ -507,14 +510,19 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
   const tag = (idx: number) => attempt.items[idx].found
     ? h("span", { class: "muted seconds mono" }, bucketOf(attempt, idx, app.cps), firstFinds.has(attempt.items[idx].answer) ? firstMark() : null)
     : null;
+  // The wrong guesses made on an item, struck through, ahead of its answer.
+  const guesses = (idx: number) => (attempt.items[idx].guesses ?? []).flatMap((g) => [h("s", { class: "guess" }, g), " "]);
 
+  // Prompts and answers link to their Wikipedia articles here, where a
+  // quiz says so (never during play).
   function listing(view: View): HTMLElement {
     if (quiz.diagram) {
       return diagramDisplay(quiz, (idx, node) => {
         const bucket = bucketOf(attempt, idx, app.cps);
+        const item = quiz.items[idx];
         node.classList.add(bucket);
         node.title = bucket;
-        node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, rich(quiz.items[idx].canonical)), nodeData(quiz, idx)]
+        node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, ...guesses(idx), answerNode(item, rich(item.canonical))), nodeData(quiz, idx)]
           .filter((x): x is HTMLElement => x !== null));
       }).el;
     }
@@ -522,20 +530,20 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
       return h("ol", { class: "prompt-grid" }, ...order.map((idx) => {
         const item = quiz.items[idx];
         return h("li", { class: `card ${bucketOf(attempt, idx, app.cps)}` },
-          ...promptNode(quiz, item), cardData(item), h("div", { class: "card-answer" }, item.canonical, " ", tag(idx)));
+          ...promptNode(quiz, item, true), cardData(item), h("div", { class: "card-answer" }, ...guesses(idx), answerNode(item), " ", tag(idx)));
       }));
     }
     if (quiz.mode === "prompt" || quiz.columns.length) {
       return h("table", { class: "quiz-table" }, tableHead(quiz), h("tbody", {}, ...order.map((idx) => {
         const item = quiz.items[idx];
         return h("tr", { class: bucketOf(attempt, idx, app.cps) },
-          quiz.mode === "prompt" ? h("td", { class: "prompt-cell" }, ...promptNode(quiz, item)) : null,
+          quiz.mode === "prompt" ? h("td", { class: "prompt-cell" }, ...promptNode(quiz, item, true)) : null,
           ...dataCells(quiz, item),
-          h("td", { class: "answer-cell" }, item.canonical, " ", tag(idx)));
+          h("td", { class: "answer-cell" }, ...guesses(idx), answerNode(item), " ", tag(idx)));
       })));
     }
     return h("ol", { class: "slots" }, ...order.map((idx) =>
-      h("li", { class: bucketOf(attempt, idx, app.cps) }, quiz.items[idx].canonical, " ", tag(idx))));
+      h("li", { class: bucketOf(attempt, idx, app.cps) }, answerNode(quiz.items[idx]), " ", tag(idx))));
   }
 
   let current = listing(viewOf(quiz));

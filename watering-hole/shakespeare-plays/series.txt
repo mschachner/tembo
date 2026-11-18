@@ -1,3 +1,10 @@
 title: Shakespeare's plays (First Folio)
 tags: literature, shakespeare
 chunks: comedies, histories, tragedies
+---
+King John => King John (play)
+Richard II => Richard II (play)
+Henry V => Henry V (play)
+Richard III => Richard III (play)
+Henry VIII => Henry VIII (play)
+Julius Caesar => Julius Caesar (play)

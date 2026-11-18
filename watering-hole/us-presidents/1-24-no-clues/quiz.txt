@@ -3,6 +3,7 @@ level: no clues
 mode: prompt
 pass: 100
 answer-label: President
+wiki-answer: {answer}
 ---
 1st :: George Washington | Washington
 2nd :: John Adams

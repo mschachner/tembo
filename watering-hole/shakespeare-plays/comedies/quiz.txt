@@ -1,6 +1,7 @@
 chunk: comedies
 mode: list
 pass: 100
+wiki-answer: {answer}
 ---
 The Tempest | Tempest
 The Two Gentlemen of Verona | Two Gentlemen of Verona

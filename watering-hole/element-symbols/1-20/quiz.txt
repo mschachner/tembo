@@ -4,6 +4,7 @@ pass: 100
 columns: Atomic number
 prompt-label: Symbol
 answer-label: Element
+wiki-answer: {answer}
 ---
 H :: Hydrogen ;; 1
 He :: Helium ;; 2

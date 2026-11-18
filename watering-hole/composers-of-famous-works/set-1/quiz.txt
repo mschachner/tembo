@@ -4,6 +4,8 @@ pass: 100
 columns: Composed
 prompt-label: Work
 answer-label: Composer
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 The Four Seasons :: Antonio Vivaldi | Vivaldi ;; c. 1718–1720
 Brandenburg Concertos :: Johann Sebastian Bach | Bach | J. S. Bach ;; 1721

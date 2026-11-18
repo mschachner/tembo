@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 columns: Term, Party
 answer-label: Prime minister
+wiki-answer: {answer}
 ---
 1st :: Lord Salisbury | Salisbury | Marquess of Salisbury | Robert Gascoyne-Cecil ;; 1895–1902 ;; Conservative
 2nd :: Arthur Balfour | Balfour | A. J. Balfour ;; 1902–1905 ;; Conservative

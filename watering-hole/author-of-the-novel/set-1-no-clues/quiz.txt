@@ -4,6 +4,8 @@ mode: prompt
 pass: 100
 prompt-label: Novel
 answer-label: Author
+wiki-prompt: {prompt}
+wiki-answer: {answer}
 ---
 Don Quixote :: Miguel de Cervantes | Cervantes | Miguel de Cervantes Saavedra
 Robinson Crusoe :: Daniel Defoe | Defoe

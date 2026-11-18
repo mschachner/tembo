@@ -20,6 +20,13 @@ cleared, and the next level of a chunk unlocks when the previous one is
 proficient. Folders starting with `_` are ignored; `_backlog.md` is the daily
 quiz task's queue (unchecked lines ROT13-encoded, against spoilers) and its
 standing rules.
+Wikipedia links: a quiz's `wiki-prompt:` and `wiki-answer:` headers say which
+side of each item links to Wikipedia and to which article; where a name alone
+is not the article's title, a `name => title` line after `---` in the series'
+`series.txt` gives it, for every quiz of the series. The links are on the
+results and item screens, not during play. `npm run check -- --links` looks
+every title up on Wikipedia and reports missing articles and disambiguation
+pages.
 Library: `data/library.txt`, the ids of the series imported from the
 Watering Hole, one per line. The typing calibration is always included.
 Attempt log: `data/attempts.jsonl`, one JSON object per line, keyed by quiz

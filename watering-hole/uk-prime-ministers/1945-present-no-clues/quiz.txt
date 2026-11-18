@@ -3,6 +3,7 @@ level: no clues
 mode: prompt
 pass: 100
 answer-label: Prime minister
+wiki-answer: {answer}
 ---
 14th :: Clement Attlee | Attlee
 15th :: Winston Churchill | Churchill

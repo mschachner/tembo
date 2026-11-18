@@ -4,6 +4,7 @@ mode: prompt
 pass: 100
 prompt-label: Element
 answer-label: Symbol
+wiki-prompt: {prompt}
 ---
 Hydrogen :: H
 Helium :: He

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 prompt-label: Capital
 answer-label: Country
+wiki-prompt: {prompt}
 ---
 Buenos Aires :: Argentina
 Sucre :: Bolivia

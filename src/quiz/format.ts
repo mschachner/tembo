@@ -18,6 +18,8 @@
 //   levels: standard, flipped     # in order, easiest first (default: one level, "standard")
 //   chunks: A–M, N–W              # in order (default: the chunks the quizzes name, in folder order)
 //   retired: true                 # optional; drop the whole series from the schedule
+//   ---                           # optional; see "Wikipedia links" below
+//   Thalia => Thalia (Muse)
 //
 // quiz.txt:
 //
@@ -32,6 +34,8 @@
 //   columns: Years, Party # optional; names of per-item data columns
 //   prompt-label: Order   # optional; table heading over the prompts
 //   answer-label: Name    # optional; table heading over the answers
+//   wiki-prompt: Flag of {answer}   # optional; see "Wikipedia links" below
+//   wiki-answer: {answer}           # optional
 //   layout: diagram       # optional; see "Diagrams" below
 //   ---
 //   Algeria
@@ -49,6 +53,29 @@
 // Per-item data, one value per name in `columns`, follows `;;`:
 //   1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
 // It is shown alongside the prompt during play. Missing values are blank.
+//
+// Wikipedia links. After a quiz (on the results and item screens) a prompt
+// or an answer can be clicked to open its Wikipedia article. Which side
+// links, and to what, is set per quiz by two quiz.txt headers, each the
+// title of the article with {prompt} and {answer} standing for the item's
+// own text (for an image prompt, its alt text):
+//
+//   wiki-answer: {answer}             # Clio → "Clio"
+//   wiki-answer: {answer}, {prompt}   # Arizona :: Phoenix → "Phoenix, Arizona"
+//   wiki-prompt: Flag of {answer}     # a flag → "Flag of Peru"
+//
+// A side with no header has no links. Where a name alone is not the title
+// of its article, series.txt says which article it is, one `text => title`
+// line each after a `---`:
+//
+//   Thalia => Thalia (Muse)
+//   Mars => Mars (mythology)
+//   Clair de lune => Suite bergamasque#3. Clair de lune    # a section
+//   Paper =>                                               # no article
+//
+// These hold in every quiz of the series, for a prompt or an answer with
+// exactly that text, in place of what the quiz's header would give.
+// `npm run check -- --links` looks every title up on Wikipedia.
 //
 // Diagrams. With `layout: diagram` the answers are nodes of a picture
 // that Tembo draws, and the lines after `---` are of three kinds:
@@ -73,6 +100,7 @@ export interface Prompt {
   text: string;
   image?: string;
   imageHeight?: number;  // px; overrides the quiz's image-height
+  wiki?: string;         // title of the Wikipedia article the prompt links to
 }
 
 export interface Item {
@@ -80,6 +108,7 @@ export interface Item {
   canonical: string;
   aliases: string[];
   data: string[];        // one value per quiz column ("" where missing)
+  wiki?: string;         // title of the Wikipedia article the answer links to
 }
 
 // A node is either a blank (the item it asks for) or a given anchor.
@@ -161,6 +190,7 @@ export interface SeriesMeta {
   levels: string[];        // easiest first
   chunks: string[] | null;
   retired: boolean;
+  articles: Map<string, string>;   // prompt or answer text → its Wikipedia article ("" for none)
 }
 
 // A series with its quizzes: the chunks are settled and the quizzes titled.
@@ -170,7 +200,17 @@ export interface Series extends Omit<SeriesMeta, "chunks"> {
 }
 
 export function parseSeries(source: string, path = "", dir = ""): SeriesMeta {
-  const { header } = parseHeader(source.split(/\r?\n/));
+  const lines = source.split(/\r?\n/);
+  const { header, body } = parseHeader(lines);
+  const articles = new Map<string, string>();
+  for (let i = body; i < lines.length; i++) {
+    const line = stripComment(lines[i]).trim();
+    if (line === "") continue;
+    const m = /^(.*?)\s*=>\s*(.*)$/.exec(line);
+    if (!m || m[1] === "") throw new QuizFormatError(i + 1, "expected `text => Wikipedia article`");
+    if (articles.has(m[1])) throw new QuizFormatError(i + 1, `"${m[1]}" is given an article twice`);
+    articles.set(m[1], m[2]);
+  }
   const levels = list(header.levels);
   if (new Set(levels).size !== levels.length) throw new QuizFormatError(0, "a level is listed twice");
   const chunks = header.chunks === undefined ? null : list(header.chunks);
@@ -185,6 +225,7 @@ export function parseSeries(source: string, path = "", dir = ""): SeriesMeta {
     levels: levels.length ? levels : ["standard"],
     chunks,
     retired: (header.retired ?? "false").toLowerCase() === "true",
+    articles,
   };
 }
 
@@ -295,6 +336,7 @@ export function parseQuiz(source: string, path = "", dir = "", series?: SeriesMe
     }
   }
   if (items.length === 0) throw new QuizFormatError(lines.length, "quiz has no items");
+  linkItems(items, header["wiki-prompt"], header["wiki-answer"], series?.articles);
 
   return {
     path,
@@ -340,6 +382,24 @@ function parseItem(line: string, mode: Mode, lineNo: number, columnCount: number
     }
   }
   return item;
+}
+
+// Gives each item its links: on a side whose header the quiz has, the
+// article the series names for that text, else the header with the item's
+// text filled in. An empty title means no link.
+function linkItems(items: Item[], promptTemplate: string | undefined, answerTemplate: string | undefined, articles?: Map<string, string>): void {
+  for (const template of [promptTemplate, answerTemplate]) {
+    const unknown = /\{(?!prompt\}|answer\})[^}]*\}/.exec(template ?? "");
+    if (unknown) throw new QuizFormatError(0, `unknown placeholder ${unknown[0]} in a wiki header (use {prompt} or {answer})`);
+  }
+  for (const item of items) {
+    const title = (template: string | undefined, text: string) => template === undefined ? "" :
+      articles?.get(text) ?? template.replace(/\{(prompt|answer)\}/g, (_, side) => (side === "answer" ? item.canonical : item.prompt?.text ?? "")).trim();
+    const answer = title(answerTemplate, item.canonical);
+    if (answer) item.wiki = answer;
+    const prompt = item.prompt ? title(promptTemplate, item.prompt.text) : "";
+    if (prompt) item.prompt!.wiki = prompt;
+  }
 }
 
 // `answer | alias | alias ;; data ;; data`

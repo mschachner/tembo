@@ -1,7 +1,9 @@
 import { asset } from "../app";
+import { openUrl } from "../backend";
 import { h } from "../dom";
 import type { Item, Quiz } from "../quiz/format";
 import { daysBetween, localDate, type QuizState } from "../schedule";
+import { wikiUrl } from "../wiki";
 
 export function imageFor(quiz: Quiz, item: Item): HTMLImageElement | null {
   const rel = item.prompt?.image;
@@ -15,11 +17,35 @@ export function imageFor(quiz: Quiz, item: Item): HTMLImageElement | null {
   return img;
 }
 
-export function promptNode(quiz: Quiz, item: Item): Node[] {
+// `link` makes the prompt a link to its Wikipedia article, when it has one:
+// for screens shown after a quiz, never during play.
+export function promptNode(quiz: Quiz, item: Item, link = false): Node[] {
   const img = imageFor(quiz, item);
   const text = item.prompt?.text ?? "";
+  const wiki = link ? item.prompt?.wiki : undefined;
   // When there is an image, the text is its alt; don't show it twice.
-  return img ? [img] : [h("div", { class: "prompt-text" }, text)];
+  return img ? [wikiLink(wiki, img)] : [h("div", { class: "prompt-text" }, wikiLink(wiki, text))];
+}
+
+export function openWiki(title: string): void {
+  openUrl(wikiUrl(title)).catch((e) => console.error("could not open", title, e));
+}
+
+// `content` as a link that opens the Wikipedia article `title` in the
+// browser, or `content` itself when there is no article. There is no href:
+// the app's own window must never navigate away.
+export function wikiLink(title: string | undefined, content: Node | string): Node {
+  const node = typeof content === "string" ? document.createTextNode(content) : content;
+  if (!title) return node;
+  return h("a", {
+    class: `wiki ${node instanceof HTMLImageElement ? "image" : ""}`.trim(), role: "link", title: `Wikipedia: ${title}`,
+    onclick: (e: Event) => { e.preventDefault(); e.stopPropagation(); openWiki(title); },
+  }, node);
+}
+
+// An item's answer as shown after a quiz: linked to its article, if any.
+export function answerNode(item: Item, text: Node | string = item.canonical): Node {
+  return wikiLink(item.wiki, text);
 }
 
 export function dueLabel(state: QuizState, today = localDate(new Date())): string {

@@ -2,6 +2,7 @@ level: no clues
 mode: prompt
 pass: 100
 answer-label: Wife
+wiki-answer: {answer}
 ---
 1st :: Catherine of Aragon | Katherine of Aragon | Katharine of Aragon | Catalina of Aragon | Aragon
 2nd :: Anne Boleyn | Anne Bullen | Boleyn

@@ -3,6 +3,7 @@ mode: prompt
 pass: 100
 columns: Term, Party
 answer-label: Prime minister
+wiki-answer: {answer}
 ---
 14th :: Clement Attlee | Attlee ;; 1945–1951 ;; Labour
 15th :: Winston Churchill | Churchill ;; 1951–1955 ;; Conservative

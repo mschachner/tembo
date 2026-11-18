@@ -1,6 +1,72 @@
 import { describe, expect, it } from "vitest";
 import { assembleSeries, defaultTitle, parseQuiz, parseSeries, previousChunk, previousLevel, QuizFormatError, topicOf, type Quiz } from "./format";
 
+describe("Wikipedia links", () => {
+  it("links each side through its header, filling in the item's text", () => {
+    const q = parseQuiz(`mode: prompt
+wiki-answer: {answer}, {prompt}
+---
+Arizona :: Phoenix
+Minnesota :: Saint Paul | St. Paul
+`);
+    expect(q.items.map((i) => i.wiki)).toEqual(["Phoenix, Arizona", "Saint Paul, Minnesota"]);
+    expect(q.items[0].prompt).toEqual({ text: "Arizona" });
+
+    const flags = parseQuiz(`mode: prompt\nwiki-prompt: Flag of {answer}\n---\n![Peru](flags/pe.svg){height=90} :: Peru\n`);
+    expect(flags.items[0].prompt).toEqual({ text: "Peru", image: "flags/pe.svg", imageHeight: 90, wiki: "Flag of Peru" });
+    expect(flags.items[0].wiki).toBeUndefined();
+
+    const list = parseQuiz(`mode: list\nwiki-answer: {answer}\n---\nColossus of Rhodes | Colossus\n`);
+    expect(list.items[0].wiki).toBe("Colossus of Rhodes");
+  });
+
+  it("has no links without a header", () => {
+    const q = parseQuiz(`mode: prompt\n---\nHistory :: Clio\n`);
+    expect(q.items[0].wiki).toBeUndefined();
+    expect(q.items[0].prompt).toEqual({ text: "History" });
+  });
+
+  it("takes the articles a series names, for prompts and answers alike", () => {
+    const m = parseSeries(`title: Greek gods and their Roman names
+levels: standard, flipped
+---
+# where the name alone is not the article
+Mars => Mars (mythology)
+Pan => Pan (god)    # the Greek one
+Clair de lune => Suite bergamasque#3. Clair de lune
+Nobody =>
+`, "/h/gods/series.txt", "/h/gods");
+    expect(m.levels).toEqual(["standard", "flipped"]);
+    expect([...m.articles]).toEqual([
+      ["Mars", "Mars (mythology)"], ["Pan", "Pan (god)"], ["Clair de lune", "Suite bergamasque#3. Clair de lune"], ["Nobody", ""],
+    ]);
+
+    const both = "wiki-prompt: {prompt}\nwiki-answer: {answer}\n";
+    const standard = parseQuiz(`mode: prompt\n${both}---\nAres :: Mars | Mavors\nPan :: Faunus\nNobody :: Nobody\n`, "/h/gods/standard/quiz.txt", "/h/gods/standard", m);
+    expect(standard.items.map((i) => [i.prompt?.wiki, i.wiki])).toEqual([["Ares", "Mars (mythology)"], ["Pan (god)", "Faunus"], [undefined, undefined]]);
+    expect(standard.items[0].aliases).toEqual(["Mavors"]);
+    const flipped = parseQuiz(`level: flipped\nmode: prompt\n${both}---\nMars :: Ares\n`, "/h/gods/flipped/quiz.txt", "/h/gods/flipped", m);
+    expect(flipped.items[0]).toMatchObject({ wiki: "Ares", prompt: { text: "Mars", wiki: "Mars (mythology)" } });
+
+    // The series' articles don't link a side the quiz has no header for.
+    const answersOnly = parseQuiz(`mode: prompt\nwiki-answer: {answer}\n---\nPan :: Faunus\n`, "/h/gods/standard/quiz.txt", "/h/gods/standard", m);
+    expect(answersOnly.items[0].prompt).toEqual({ text: "Pan" });
+  });
+
+  it("links diagram nodes", () => {
+    const m = parseSeries("title: Chart\n---\nhuge => Huge cardinal\n", "/h/c/series.txt", "/h/c");
+    const q = parseQuiz(`mode: prompt\nlayout: diagram\nwiki-answer: {answer}\n---\ngiven @0,0 :: start\n@1,0 :: huge | huge cardinal\nstart -> huge\n`, "/h/c/standard/quiz.txt", "/h/c/standard", m);
+    expect(q.items[0]).toMatchObject({ canonical: "huge", aliases: ["huge cardinal"], wiki: "Huge cardinal" });
+  });
+
+  it("rejects unknown placeholders and malformed article lines", () => {
+    expect(() => parseQuiz(`mode: list\nwiki-answer: {name}\n---\nX\n`)).toThrow(/unknown placeholder \{name\}/);
+    expect(() => parseSeries("title: T\n---\nno arrow here\n")).toThrow(/expected `text => Wikipedia article`/);
+    expect(() => parseSeries("title: T\n---\nA => B\nA => C\n")).toThrow(/given an article twice/);
+    expect(parseSeries("title: T\n").articles.size).toBe(0);
+  });
+});
+
 describe("parseQuiz", () => {
   it("parses a list-mode quiz with aliases and comments", () => {
     const q = parseQuiz(`title: T

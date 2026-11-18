@@ -11,6 +11,7 @@ export interface ItemResult {
   typedChars?: number;   // length of the accepted input
   wrong: number;         // rejected submissions on this item (always 0 in list mode)
   locked?: boolean;      // prompt mode: locked out after too many wrong guesses
+  guesses?: string[];    // prompt mode: the rejected submissions, as typed, in order
 }
 
 export interface Attempt {
@@ -39,6 +40,7 @@ export interface ItemTiming {
   typedChars?: number;
   wrong: number;
   locked?: boolean;
+  guesses?: string[];
 }
 
 export function makeAttempt(
