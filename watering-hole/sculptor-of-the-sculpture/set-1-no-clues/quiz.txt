@@ -1,0 +1,28 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Sculpture
+answer-label: Sculptor
+---
+Discobolus :: Myron | Myron of Eleutherae
+Gates of Paradise (Florence Baptistery) :: Lorenzo Ghiberti | Ghiberti
+David (Galleria dell'Accademia) :: Michelangelo | Michelangelo Buonarroti | Buonarroti
+Perseus with the Head of Medusa :: Benvenuto Cellini | Cellini
+The Rape of the Sabine Women :: Giambologna | Giovanni da Bologna | Jean de Boulogne
+Ecstasy of Saint Teresa :: Gian Lorenzo Bernini | Bernini | Gianlorenzo Bernini
+Psyche Revived by Cupid's Kiss :: Antonio Canova | Canova
+Little Dancer Aged Fourteen :: Edgar Degas | Degas
+The Thinker :: Auguste Rodin | Rodin
+Statue of Liberty :: Frédéric Auguste Bartholdi | Bartholdi | Frédéric Bartholdi | Auguste Bartholdi
+Unique Forms of Continuity in Space :: Umberto Boccioni | Boccioni
+The Little Mermaid (Copenhagen) :: Edvard Eriksen | Eriksen
+Statue of Abraham Lincoln (Lincoln Memorial) :: Daniel Chester French | French | Daniel French
+Bird in Space :: Constantin Brâncuși | Brâncuși
+Mount Rushmore :: Gutzon Borglum | Borglum
+Walking Man I :: Alberto Giacometti | Giacometti
+The Physical Impossibility of Death in the Mind of Someone Living :: Damien Hirst | Hirst
+Balloon Dog :: Jeff Koons | Koons
+Angel of the North :: Antony Gormley | Gormley | Anthony Gormley
+Maman :: Louise Bourgeois | Bourgeois
+Cloud Gate :: Anish Kapoor | Kapoor

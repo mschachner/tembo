@@ -1,0 +1,28 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Created
+prompt-label: Sculpture
+answer-label: Sculptor
+---
+Discobolus :: Myron | Myron of Eleutherae ;; c. 460–450 BC
+Gates of Paradise (Florence Baptistery) :: Lorenzo Ghiberti | Ghiberti ;; 1425–1452
+David (Galleria dell'Accademia) :: Michelangelo | Michelangelo Buonarroti | Buonarroti ;; 1501–1504
+Perseus with the Head of Medusa :: Benvenuto Cellini | Cellini ;; 1545–1554
+The Rape of the Sabine Women :: Giambologna | Giovanni da Bologna | Jean de Boulogne ;; 1579–1583
+Ecstasy of Saint Teresa :: Gian Lorenzo Bernini | Bernini | Gianlorenzo Bernini ;; 1647–1652
+Psyche Revived by Cupid's Kiss :: Antonio Canova | Canova ;; 1787–1793
+Little Dancer Aged Fourteen :: Edgar Degas | Degas ;; 1878–1881
+The Thinker :: Auguste Rodin | Rodin ;; 1880
+Statue of Liberty :: Frédéric Auguste Bartholdi | Bartholdi | Frédéric Bartholdi | Auguste Bartholdi ;; 1886
+Unique Forms of Continuity in Space :: Umberto Boccioni | Boccioni ;; 1913
+The Little Mermaid (Copenhagen) :: Edvard Eriksen | Eriksen ;; 1913
+Statue of Abraham Lincoln (Lincoln Memorial) :: Daniel Chester French | French | Daniel French ;; 1914–1920
+Bird in Space :: Constantin Brâncuși | Brâncuși ;; 1923
+Mount Rushmore :: Gutzon Borglum | Borglum ;; 1927–1941
+Walking Man I :: Alberto Giacometti | Giacometti ;; 1960
+The Physical Impossibility of Death in the Mind of Someone Living :: Damien Hirst | Hirst ;; 1991
+Balloon Dog :: Jeff Koons | Koons ;; 1994–2000
+Angel of the North :: Antony Gormley | Gormley | Anthony Gormley ;; 1998
+Maman :: Louise Bourgeois | Bourgeois ;; 1999
+Cloud Gate :: Anish Kapoor | Kapoor ;; 2004–2006

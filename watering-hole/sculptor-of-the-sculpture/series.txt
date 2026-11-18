@@ -1,0 +1,4 @@
+title: Sculptor of the sculpture
+tags: art, sculpture
+levels: standard, no clues
+chunks: set 1
