@@ -6,7 +6,7 @@ import { bucketOf, gradeOf, INSTANT_SECONDS, itemLatency, type Bucket } from "./
 import { isCalibration, type AnyAttempt } from "./log";
 import { topicOf, type Quiz } from "./quiz/format";
 import { addDays, daysBetween, localDate, type QuizState } from "./schedule";
-import { itemStats, median, type ItemStats } from "./stats";
+import { itemStats, median, occurrenceKeys, type ItemStats } from "./stats";
 
 export const dayOf = (a: AnyAttempt) => localDate(new Date(a.endedAt));
 
@@ -94,9 +94,13 @@ export function quizSummary(quiz: Quiz, attempts: AnyAttempt[], cps: number): Qu
 // Items × attempts: each item's bucket in each attempt (null where the
 // item wasn't in the quiz yet). Rows in the given item order.
 export function itemHistory(attempts: AnyAttempt[], cps: number, answers: string[]): (Bucket | "untimed" | null)[][] {
-  return answers.map((answer) => attempts.map((a) => {
+  // An answer asked for twice has two rows: the k-th goes with the k-th
+  // result with that answer in each attempt.
+  const keys = occurrenceKeys(answers);
+  const own = attempts.map((a) => (a.version === 2 ? occurrenceKeys(a.items.map((r) => r.answer)) : []));
+  return answers.map((answer, row) => attempts.map((a, col) => {
     if (a.version === 2) {
-      const idx = a.items.findIndex((r) => r.answer === answer);
+      const idx = own[col].indexOf(keys[row]);
       return idx < 0 ? null : bucketOf(a as Attempt, idx, cps);
     }
     if (a.found.includes(answer)) return "untimed";

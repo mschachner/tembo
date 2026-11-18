@@ -19,18 +19,32 @@ export interface AttemptSummary {
   grade: number;
 }
 
+// A quiz can ask for the same answer more than once (Grover Cleveland, 22nd
+// and 24th president). The k-th item with an answer goes with the k-th
+// result with that answer in an attempt; these keys say which is which.
+export function occurrenceKeys(answers: string[]): string[] {
+  const count = new Map<string, number>();
+  return answers.map((answer) => {
+    const k = count.get(answer) ?? 0;
+    count.set(answer, k + 1);
+    return `${k}\u0000${answer}`;
+  });
+}
+
 // Per-item history across all of a quiz's attempts, in file order.
 export function itemStats(quiz: Quiz, attempts: AnyAttempt[], cps: number): ItemStats[] {
+  const keys = occurrenceKeys(quiz.items.map((it) => it.canonical));
   const byAnswer = new Map<string, ItemStats>();
-  for (const it of quiz.items) {
-    byAnswer.set(it.canonical, {
+  quiz.items.forEach((it, i) => {
+    byAnswer.set(keys[i], {
       answer: it.canonical, seen: 0, instant: 0, slow: 0, missed: 0, untimed: 0, latencies: [], last: null,
     });
-  }
+  });
   for (const a of attempts) {
     if (a.version === 2) {
+      const own = occurrenceKeys(a.items.map((r) => r.answer));
       for (let i = 0; i < a.items.length; i++) {
-        const st = byAnswer.get(a.items[i].answer);
+        const st = byAnswer.get(own[i]);
         if (!st) continue; // item since removed from the quiz
         st.seen++;
         const b = bucketOf(a as Attempt, i, cps);
@@ -40,17 +54,17 @@ export function itemStats(quiz: Quiz, attempts: AnyAttempt[], cps: number): Item
         if (lat !== null) st.latencies.push(lat);
       }
     } else {
-      for (const ans of a.found) {
-        const st = byAnswer.get(ans);
+      for (const key of occurrenceKeys(a.found)) {
+        const st = byAnswer.get(key);
         if (st) { st.seen++; st.untimed++; st.last = "untimed"; }
       }
-      for (const ans of a.missed) {
-        const st = byAnswer.get(ans);
+      for (const key of occurrenceKeys(a.missed)) {
+        const st = byAnswer.get(key);
         if (st) { st.seen++; st.missed++; st.last = "missed"; }
       }
     }
   }
-  return quiz.items.map((it) => byAnswer.get(it.canonical)!);
+  return keys.map((key) => byAnswer.get(key)!);
 }
 
 // Higher is worse: misses count double, slows single, per appearance.

@@ -13,14 +13,15 @@ import { gradeOf } from "../grade";
 import { isCalibration, type AnyAttempt } from "../log";
 import { nav, type Tab } from "../nav";
 import { focusPane, mountPanes, paneEl, setPanes, tablePane, type KeyAction, type Pane, type Row } from "../panes";
-import { topicOf, type Quiz, type Series } from "../quiz/format";
+import { topicOf, type Item, type Quiz, type Series } from "../quiz/format";
 import { localDate, type QuizState } from "../schedule";
 import { openSettingsWindow } from "../bus";
 import { itemStats, median, trouble, type ItemStats } from "../stats";
-import { dueLabel, fmtDate } from "./common";
+import { answerNode, dueLabel, fmtDate, promptNode } from "./common";
+import { diagramDisplay, nodeData, nodeLabel } from "./diagram";
 import { alertLine, groups } from "./home";
 import { rich } from "../rich";
-import { calendar, columns, figure, heatmap, lines, segments, tile, tiles, type Fill } from "../charts";
+import { calendar, columns, figure, lines, segments, tile, tiles, type Fill } from "../charts";
 import {
   activityByDay, byTopic, dayOf, forecast, formatDuration, histogram, instantBin, itemHistory, lastDays, latenciesOf,
   libraryKnowledge, longestStreak, pct, quizSummary, streak, troubleItems, bucketsOf, emptyBuckets,
@@ -197,9 +198,9 @@ function unit(value: string, u: string): HTMLElement {
 }
 
 // Figures for a quiz that has been played: key numbers, then charts.
-// `full` (the quiz screen) adds the rest of the numbers and the item ×
-// attempt history; the home screen's detail area shows the essentials.
-function quizFigures(q: Quiz, own: AnyAttempt[], today: string, full: boolean): { tileRow: HTMLElement; charts: HTMLElement; history: HTMLElement | null } {
+// `full` (the quiz screen) adds the rest of the numbers; the home screen's
+// detail area shows the essentials.
+function quizFigures(q: Quiz, own: AnyAttempt[], today: string, full: boolean): { tileRow: HTMLElement; charts: HTMLElement } {
   const st = stateOf(q);
   const sm = quizSummary(q, own, app.cps);
   const last = own.at(-1)!;
@@ -236,24 +237,88 @@ function quizFigures(q: Quiz, own: AnyAttempt[], today: string, full: boolean): 
   ]), "all attempts");
 
   const charts = h("div", { class: `figures ${full ? "three" : "two"}` }, progress, latency, full ? results : null);
-
-  let history: HTMLElement | null = null;
-  if (full) {
-    const stats = itemStats(q, own, app.cps).map((s) => ({ s, t: trouble(s) })).sort((a, b) => b.t - a.t || a.s.answer.localeCompare(b.s.answer)).map(({ s }) => s);
-    const shown = own.slice(-40);
-    const hist2 = itemHistory(shown, app.cps, stats.map((s) => s.answer));
-    history = figure("Item history", heatmap(
-      stats.map((s, i) => ({ label: rich(s.answer), cells: hist2[i].map((b, k) => ({ fill: bucketFill(b), tip: `${s.answer} · ${fmtDate(shown[k].endedAt)}: ${b ?? "not in quiz"}` })) })),
-    ), `worst first · ${shown.length === own.length ? "every attempt" : `last ${shown.length} attempts`}, oldest left`);
-  }
-  return { tileRow, charts, history };
+  return { tileRow, charts };
 }
 
-// The head (title, facts, figures) and the panes below it: items worst
-// first and attempts newest first, or for a quiz not played yet, its
-// prompts. `back` returns to the screen these are shown on, from the item
-// and attempt screens.
-export function detailPanes(q: Quiz, back: () => void, today: string, full = false): { head: HTMLElement; panes: Pane[]; grid: HTMLElement } {
+// How many of the latest attempts the answer key's history column shows.
+const KEY_HISTORY = 16;
+
+// A key row's id, and the item a row id names (undefined for other rows).
+const keyRowId = (i: number) => `item:${i}`;
+export function keyItem(q: Quiz, rowId: string | undefined): Item | undefined {
+  const m = /^item:(\d+)$/.exec(rowId ?? "");
+  return m ? q.items[Number(m[1])] : undefined;
+}
+
+// The answer key of a quiz that has been played: every item, clue then
+// answer, with how it has gone; in quiz order, or the most troublesome
+// first. `full` (the quiz screen) adds the data columns, each item's result
+// in the latest attempts, and all the counts. With `hidden` the answers are
+// left out (and nothing links or opens), so the key can't spoil a quiz that
+// is waiting to be played; that leaves nothing to show for a quiz whose
+// items have no clues.
+function keyPane(q: Quiz, own: AnyAttempt[], back: () => void, opts: { full: boolean; hidden: boolean; worstFirst: boolean }): Pane | null {
+  const withClue = q.items.some((it) => it.prompt);
+  const data = opts.full || !withClue ? q.columns : [];
+  if (opts.hidden && !withClue && !data.length) return null;
+  const stats = itemStats(q, own, app.cps);
+  const shown = own.slice(-KEY_HISTORY);
+  const hist = opts.full ? itemHistory(shown, app.cps, q.items.map((it) => it.canonical)) : [];
+  const rows = q.items.map((item, i) => ({ item, i, s: stats[i] }));
+  if (opts.worstFirst) rows.sort((a, b) => trouble(b.s) - trouble(a.s) || a.i - b.i);
+
+  const med = (s: ItemStats) => { const m = median(s.latencies); return m === null ? "" : `${m.toFixed(1)}s`; };
+  const strip = (i: number) => h("span", { class: "key-history" }, ...hist[i].map((b, k) =>
+    h("i", { class: bucketFill(b) ? `c-${bucketFill(b)}` : "empty", title: `${fmtDate(shown[k].endedAt)}: ${b ?? "not in quiz"}` })));
+  const head = [
+    ...(withClue ? [q.promptLabel.toLowerCase() || "clue"] : []),
+    ...data.map((c) => c.toLowerCase()),
+    ...(opts.hidden ? [] : [q.answerLabel.toLowerCase() || "answer"]),
+    ...(opts.full ? ["history", "seen", "instant", "slow", "missed", "median"] : ["missed", "slow", "median"]),
+  ];
+  const cols = [
+    // The answers take the room left over; without them, the clues do.
+    ...(withClue ? [opts.hidden ? "minmax(0, 1fr)" : "fit-content(34%)"] : []),
+    ...data.map(() => "fit-content(20%)"),
+    ...(opts.hidden ? [] : ["minmax(0, 1fr)"]),
+    ...Array.from({ length: opts.full ? 6 : 3 }, () => "max-content"),
+  ];
+  return tablePane({
+    id: "key", title: opts.hidden ? "Clues" : "Answer key", entries: rows, key: (r) => keyRowId(r.i), extra: "key", fit: true,
+    cols: cols.join(" "), head,
+    meta: [opts.hidden ? "answers hidden until played" : null, opts.worstFirst ? "worst first" : "quiz order", opts.full && shown.length ? `history: last ${shown.length}, oldest left` : null].filter(Boolean).join(" · "),
+    rowClass: (r) => r.s.last ?? "",
+    cells: (r) => [
+      ...(withClue ? [h("span", { class: "key-clue" }, ...(r.item.prompt ? promptNode(q, r.item, !opts.hidden) : []))] : []),
+      ...data.map((_, k) => r.item.data[k] ?? ""),
+      ...(opts.hidden ? [] : [h("span", { class: "key-answer" }, answerNode(r.item, rich(r.item.canonical)))]),
+      ...(opts.full ? [strip(r.i), String(r.s.seen), String(r.s.instant)] : []),
+      ...(opts.full ? [String(r.s.slow), String(r.s.missed)] : [String(r.s.missed), String(r.s.slow)]),
+      med(r.s),
+    ],
+    activate: (r) => opts.hidden ? undefined : () => nav.item(q, r.item.canonical, back),
+  });
+}
+
+// A diagram quiz's key is also drawn: the diagram filled in, each node
+// colored by how it last went.
+function keyDiagram(q: Quiz, own: AnyAttempt[]): HTMLElement {
+  const stats = itemStats(q, own, app.cps);
+  return figure("Diagram", diagramDisplay(q, (idx, node) => {
+    const last = stats[idx].last;
+    if (last) { node.classList.add(last === "untimed" ? "slow" : last); node.title = last; }
+    node.append(...[nodeLabel(q, idx), h("div", { class: "dnode-answer" }, answerNode(q.items[idx], rich(q.items[idx].canonical))), nodeData(q, idx)]
+      .filter((x): x is HTMLElement => x !== null));
+  }).el, "by last result");
+}
+
+// The head (title, facts, figures) and the panes below it: the answer key
+// and the attempts, newest first, or for a quiz not played yet, its
+// prompts. On the quiz screen (`full`) the key comes first, above the
+// charts. `back` returns to the screen these are shown on, from the item
+// and attempt screens. `key` says whether the answer key is there and
+// whether it shows its answers.
+export function detailPanes(q: Quiz, back: () => void, today: string, full = false, worstFirst = false): { head: HTMLElement; panes: Pane[]; grid: HTMLElement; key: "shown" | "hidden" | null } {
   const mine = inLibrary(q);
   const st = stateOf(q);
   const own = attemptsOf(q).filter((a) => !isCalibration(a) || q.kind === "calibration");
@@ -272,23 +337,12 @@ export function detailPanes(q: Quiz, back: () => void, today: string, full = fal
     h("div", { class: "muted small" }, facts),
     figs?.tileRow ?? null);
 
+  // A quiz waiting to be played today keeps its answers to itself.
+  const hidden = q.kind === "normal" && awaitingToday({ quiz: q, state: st }, today);
+  const key = own.length ? keyPane(q, own, back, { full, hidden, worstFirst }) : null;
   const panes: Pane[] = [];
   if (own.length) {
-    const stats = itemStats(q, own, app.cps).filter((s) => s.seen > 0)
-      .map((s) => ({ s, t: trouble(s) }))
-      .sort((a, b) => b.t - a.t || a.s.answer.localeCompare(b.s.answer))
-      .map(({ s }) => s);
-    const med = (s: ItemStats) => { const m = median(s.latencies); return m === null ? "" : `${m.toFixed(1)}s`; };
-    panes.push(tablePane<ItemStats>({
-      id: "items", title: "Items", entries: stats, key: (s) => s.answer,
-      rowClass: (s) => s.last ?? "",
-      activate: (s) => () => nav.item(q, s.answer, back),
-      ...(full
-        ? { cols: "minmax(0, 1fr) 5ch 7ch 5ch 6ch 6ch 7ch", head: ["answer", "seen", "instant", "slow", "missed", "median", "last"],
-            cells: (s) => [rich(s.answer), String(s.seen), String(s.instant), String(s.slow), String(s.missed), med(s), s.last ?? ""] }
-        : { cols: "minmax(0, 1fr) 6ch 5ch 6ch 7ch", head: ["answer", "missed", "slow", "median", "last"],
-            cells: (s) => [rich(s.answer), String(s.missed), String(s.slow), med(s), s.last ?? ""] }),
-    }));
+    if (key) panes.push(key);
     panes.push(tablePane({
       id: "attempts", title: "Attempts", entries: own.slice().reverse(), key: (a) => a.endedAt,
       cols: "17ch 6ch 5ch 5ch minmax(7ch, 1fr)", head: ["when", "score", "time", "grade", ""],
@@ -304,9 +358,15 @@ export function detailPanes(q: Quiz, back: () => void, today: string, full = fal
       cells: (it) => [...(q.mode === "prompt" ? [it.prompt?.text ?? ""] : []), ...it.data],
     }));
   }
-  const tables = h("div", { class: `tables ${panes.length === 2 ? "two" : ""}` }, ...panes.map((p) => p.el));
-  const grid = h("div", { class: "detail-grid rich" }, figs?.charts ?? null, figs?.history ?? null, panes.length ? tables : null);
-  return { head, panes, grid };
+  // On the quiz screen the key (with a diagram quiz's drawing) leads and
+  // takes the height it needs; elsewhere it sits beside the attempts.
+  const lead = full && key ? key : null;
+  const rest = panes.filter((p) => p !== lead);
+  const tables = h("div", { class: `tables ${rest.length === 2 ? "two" : ""}` }, ...rest.map((p) => p.el));
+  const grid = h("div", { class: "detail-grid rich" },
+    lead?.el ?? null, lead && q.diagram && !hidden ? keyDiagram(q, own) : null,
+    figs?.charts ?? null, rest.length ? tables : null);
+  return { head, panes, grid, key: key ? (hidden ? "hidden" : "shown") : null };
 }
 
 // ---------- today ----------

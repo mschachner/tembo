@@ -54,7 +54,7 @@
 //   1st :: George Washington | Washington ;; 1789–1797 ;; Unaffiliated
 // It is shown alongside the prompt during play. Missing values are blank.
 //
-// Wikipedia links. After a quiz (on the results and item screens) a prompt
+// Wikipedia links. After a quiz (on the results, item and quiz screens) a prompt
 // or an answer can be clicked to open its Wikipedia article. Which side
 // links, and to what, is set per quiz by two quiz.txt headers, each the
 // title of the article with {prompt} and {answer} standing for the item's

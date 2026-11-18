@@ -6,12 +6,12 @@ import { gradeOf, itemRecord, playOrder } from "../grade";
 import type { AnyAttempt } from "../log";
 import { nav } from "../nav";
 import { BACK, mountPanes, tablePane, type KeyAction, type Pane, type Row } from "../panes";
-import type { Quiz } from "../quiz/format";
+import type { Item, Quiz } from "../quiz/format";
 import { localDate } from "../schedule";
 import { lastTab, renderScreen } from "../shell";
 import { median } from "../stats";
 import { answerNode, fmtDate, fmtNum, fmtSecs, openWiki, promptNode } from "./common";
-import { detailPanes } from "./panes";
+import { detailPanes, keyItem } from "./panes";
 import { rich } from "../rich";
 
 // The wrong column: how many, then what was typed (newer records keep it).
@@ -29,12 +29,31 @@ function mountScreen(scope: string, head: HTMLElement, grid: HTMLElement, panes:
   mountPanes({ scope, root, legend, panes, actions });
 }
 
+// w opens the answer's Wikipedia article, W the prompt's; with only one of
+// them, w opens it.
+function wikiActions(quiz: Quiz, item: Item | undefined): KeyAction[] {
+  const side = (label: string, fallback: string) => (label || fallback).toLowerCase();
+  const articles = [
+    item?.wiki ? { title: item.wiki, side: side(quiz.answerLabel, "answer") } : null,
+    item?.prompt?.wiki ? { title: item.prompt.wiki, side: side(quiz.promptLabel, "prompt") } : null,
+  ].filter((x): x is { title: string; side: string } => x !== null);
+  return articles.map((a, k) => ({
+    keys: [k === 0 ? "w" : "W"], hint: k === 0 ? "w" : "W",
+    label: articles.length > 1 ? `Wikipedia (${a.side})` : "Wikipedia", run: () => openWiki(a.title),
+  }));
+}
+
+// The answer key's order on the quiz screen, kept while the app is open.
+let worstFirst = false;
+
 export function showQuiz(quiz: Quiz): void {
   const back = () => nav.home(lastTab());
-  const d = detailPanes(quiz, () => showQuiz(quiz), localDate(new Date()), true);
+  const d = detailPanes(quiz, () => showQuiz(quiz), localDate(new Date()), true, worstFirst);
   const canPlay = playable(quiz, stateOf(quiz));
-  mountScreen(`quiz:${quiz.id}`, d.head, d.grid, d.panes, () => [
+  mountScreen(`quiz:${quiz.id}`, d.head, d.grid, d.panes, (row) => [
     ...(canPlay ? [{ keys: ["p"], hint: "p", label: "Play", run: () => nav.play(quiz) }] : []),
+    ...(d.key === "shown" ? wikiActions(quiz, keyItem(quiz, row?.id)) : []),
+    ...(d.key ? [{ keys: ["s"], hint: "s", label: worstFirst ? "Quiz order" : "Worst first", run: () => { worstFirst = !worstFirst; showQuiz(quiz); } }] : []),
     BACK(back, "Home"),
   ]);
 }
@@ -106,19 +125,8 @@ export function showItem(quiz: Quiz, answer: string, back: () => void): void {
     activate: ({ a }) => () => nav.attempt(quiz, a, () => showItem(quiz, answer, back)),
   });
   const grid = h("div", { class: "detail-grid" }, seen.el);
-  // w opens the answer's Wikipedia article, W the prompt's; with only one
-  // of them, w opens it.
-  const side = (label: string, fallback: string) => (label || fallback).toLowerCase();
-  const articles = [
-    item?.wiki ? { title: item.wiki, side: side(quiz.answerLabel, "answer") } : null,
-    item?.prompt?.wiki ? { title: item.prompt.wiki, side: side(quiz.promptLabel, "prompt") } : null,
-  ].filter((x): x is { title: string; side: string } => x !== null);
-  const wikiKeys: KeyAction[] = articles.map((a, k) => ({
-    keys: [k === 0 ? "w" : "W"], hint: k === 0 ? "w" : "W",
-    label: articles.length > 1 ? `Wikipedia (${a.side})` : "Wikipedia", run: () => openWiki(a.title),
-  }));
   mountScreen(`item:${quiz.id}:${answer}`, head, grid, [seen], () => [
-    ...wikiKeys,
+    ...wikiActions(quiz, item),
     { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
     BACK(back),
   ]);

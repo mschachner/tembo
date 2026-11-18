@@ -269,7 +269,22 @@ input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
 .quiz-table tr.missed .answer-cell { color: var(--missed); }
 .quiz-table tr.instant .answer-cell { color: var(--instant); }
 
-/* ---- Wikipedia links (results and item screens) ---- */
+/* ---- the answer key (quiz screen; a shorter one in the home details) ---- */
+/* On the quiz screen the key is as tall as its rows: the page scrolls. */
+.detail-grid.rich > .pane.key { flex: none; }
+.pane.key .row { align-items: center; }
+/* The answer, not the first cell, takes the color of its last result. */
+.pane.key .row:is(.missed, .slow) .cell:first-child { color: inherit; }
+.pane.key .row.missed .key-answer { color: var(--missed); }
+.pane.key .row.slow .key-answer { color: var(--slow); }
+.pane.key .key-answer { font-weight: 500; }
+.pane.key .prompt-text { font-weight: 400; }
+.pane.key .prompt-image { height: 2.2em; margin: 0; }
+.key-history { display: inline-flex; gap: 2px; vertical-align: middle; }
+.key-history i { display: block; width: 10px; height: 10px; border-radius: 2px; background: currentColor; }
+.key-history i.empty { background: var(--line); opacity: 0.5; }
+
+/* ---- Wikipedia links (results, item and quiz screens) ---- */
 /* The text keeps its color; a dotted underline marks it as a link, solid
    under the pointer. A linked image is laid out as if it weren't linked
    (the link has no box of its own) and gets an outline under the pointer. */
