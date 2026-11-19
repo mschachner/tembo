@@ -1,0 +1,9 @@
+title: Capitals of Africa
+tags: geography, capitals
+levels: standard, flipped
+chunks: set 1, set 2
+---
+Djibouti => Djibouti (city)
+Moroni => Moroni, Comoros
+Victoria => Victoria, Seychelles
+Tripoli => Tripoli, Libya

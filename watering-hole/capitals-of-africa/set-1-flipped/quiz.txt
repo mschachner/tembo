@@ -1,0 +1,36 @@
+chunk: set 1
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Capital
+answer-label: Country
+wiki-prompt: {prompt}
+---
+Accra :: Ghana
+Addis Ababa :: Ethiopia
+Algiers :: Algeria
+Asmara :: Eritrea
+Bangui :: Central African Republic | CAR
+Banjul :: Gambia | The Gambia
+Bissau :: Guinea-Bissau
+Cairo :: Egypt
+Ciudad de la Paz :: Equatorial Guinea
+Conakry :: Guinea
+Djibouti :: Djibouti
+Gaborone :: Botswana
+Gitega :: Burundi
+Kinshasa :: Democratic Republic of the Congo | DR Congo | DRC | Congo-Kinshasa | Zaire
+Libreville :: Gabon
+Luanda :: Angola
+Maseru :: Lesotho
+Mbabane :: Eswatini | Swaziland
+Monrovia :: Liberia
+Moroni :: Comoros
+N'Djamena :: Chad
+Nairobi :: Kenya
+Ouagadougou :: Burkina Faso
+Porto-Novo :: Benin
+Praia :: Cape Verde | Cabo Verde
+Tripoli :: Libya
+Yamoussoukro :: Ivory Coast | Côte d'Ivoire
+Yaoundé :: Cameroon

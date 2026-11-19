@@ -1,0 +1,35 @@
+chunk: set 1
+mode: prompt
+pass: 100
+prompt-label: Country
+answer-label: Capital
+wiki-answer: {answer}
+---
+Algeria :: Algiers | Alger | Al-Jazair
+Angola :: Luanda
+Benin :: Porto-Novo | Cotonou
+Botswana :: Gaborone
+Burkina Faso :: Ouagadougou
+Burundi :: Gitega | Bujumbura
+Cameroon :: Yaoundé
+Cape Verde :: Praia
+Central African Republic :: Bangui
+Chad :: N'Djamena
+Comoros :: Moroni
+Democratic Republic of the Congo :: Kinshasa
+Djibouti :: Djibouti | Djibouti City
+Egypt :: Cairo | Al-Qahirah
+Equatorial Guinea :: Ciudad de la Paz | Malabo | Oyala
+Eritrea :: Asmara | Asmera
+Eswatini :: Mbabane | Lobamba
+Ethiopia :: Addis Ababa | Addis Abeba
+Gabon :: Libreville
+Gambia :: Banjul
+Ghana :: Accra
+Guinea :: Conakry
+Guinea-Bissau :: Bissau
+Ivory Coast :: Yamoussoukro | Abidjan
+Kenya :: Nairobi
+Lesotho :: Maseru
+Liberia :: Monrovia
+Libya :: Tripoli | Tarabulus

@@ -115,7 +115,7 @@ chat.
 - [x] SI base units (prompt: quantity → unit) — added 2026-11-16 as si-base-units
 - [x] UK prime ministers since 1900 (prompt) — added 2026-11-17 as uk-prime-ministers
 - [x] Sculptor of the sculpture (prompt) — added 2026-11-18 as sculptor-of-the-sculpture
-- [ ] Pncvgnyf bs Nsevpn, frg 1 (cebzcg) — fgnegf pncvgnyf-bs-nsevpn
+- [x] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa — added 2026-11-19 as capitals-of-africa
 - [ ] Cubovnf (cebzcg)
 - [ ] Pbzcbfre bs gur bcren (cebzcg)
 - [ ] Bylzcvp ubfg pvgvrf, Fhzzre (cebzcg: lrne → pvgl)
@@ -137,7 +137,6 @@ chat.
 - [ ] Pheerapvrf bs gur jbeyq, frg 1 (cebzcg)
 - [ ] Ivpr cerfvqragf (cebzcg: cerfvqrag → IC)
 - [ ] Nhgube bs gur abiry, frg 2 (cebzcg) — arj puhax bs nhgube-bs-gur-abiry
-- [ ] Pncvgnyf bs Nsevpn, frg 2 (cebzcg) — arj puhax bs pncvgnyf-bs-nsevpn
 - [ ] Ynaqybpxrq pbhagevrf (yvfg)
 - [ ] Cnvagre bs gur cnvagvat (cebzcg, vzntrf)
 - [ ] Ryrzrag flzobyf, 61–86 (cebzcg) — arj puhax bs ryrzrag-flzobyf

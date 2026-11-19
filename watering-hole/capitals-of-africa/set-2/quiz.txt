@@ -1,0 +1,33 @@
+chunk: set 2
+mode: prompt
+pass: 100
+prompt-label: Country
+answer-label: Capital
+wiki-answer: {answer}
+---
+Madagascar :: Antananarivo | Tananarive
+Malawi :: Lilongwe
+Mali :: Bamako
+Mauritania :: Nouakchott
+Mauritius :: Port Louis
+Morocco :: Rabat
+Mozambique :: Maputo
+Namibia :: Windhoek
+Niger :: Niamey
+Nigeria :: Abuja
+Republic of the Congo :: Brazzaville
+Rwanda :: Kigali
+São Tomé and Príncipe :: São Tomé
+Senegal :: Dakar
+Seychelles :: Victoria
+Sierra Leone :: Freetown
+Somalia :: Mogadishu | Muqdisho
+South Africa :: Pretoria | Cape Town | Bloemfontein | Tshwane
+South Sudan :: Juba
+Sudan :: Khartoum
+Tanzania :: Dodoma
+Togo :: Lomé
+Tunisia :: Tunis
+Uganda :: Kampala
+Zambia :: Lusaka
+Zimbabwe :: Harare

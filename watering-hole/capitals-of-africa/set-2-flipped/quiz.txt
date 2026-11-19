@@ -1,0 +1,34 @@
+chunk: set 2
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Capital
+answer-label: Country
+wiki-prompt: {prompt}
+---
+Abuja :: Nigeria
+Antananarivo :: Madagascar
+Bamako :: Mali
+Brazzaville :: Republic of the Congo | Congo-Brazzaville | Congo
+Dakar :: Senegal
+Dodoma :: Tanzania
+Freetown :: Sierra Leone
+Harare :: Zimbabwe
+Juba :: South Sudan
+Kampala :: Uganda
+Khartoum :: Sudan
+Kigali :: Rwanda
+Lilongwe :: Malawi
+Lomé :: Togo
+Lusaka :: Zambia
+Maputo :: Mozambique
+Mogadishu :: Somalia
+Niamey :: Niger
+Nouakchott :: Mauritania
+Port Louis :: Mauritius
+Pretoria :: South Africa
+Rabat :: Morocco
+São Tomé :: São Tomé and Príncipe | Sao Tome and Principe
+Tunis :: Tunisia
+Victoria :: Seychelles
+Windhoek :: Namibia
