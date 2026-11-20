@@ -1,0 +1,22 @@
+chunk: set 1
+mode: prompt
+pass: 100
+prompt-label: Phobia
+answer-label: Fear of
+wiki-prompt: {prompt}
+---
+Acrophobia :: Heights | Height
+Aerophobia :: Flying | Flight | Air travel
+Agoraphobia :: Open spaces | Open space | Public places | Crowded places | Crowds
+Ailurophobia :: Cats | Cat
+Arachnophobia :: Spiders | Spider | Arachnids
+Astraphobia :: Thunder and lightning | Thunder | Lightning | Thunderstorms | Storms
+Claustrophobia :: Confined spaces | Enclosed spaces | Small spaces | Closed spaces | Being closed in | Confinement
+Coulrophobia :: Clowns | Clown
+Cynophobia :: Dogs | Dog
+Glossophobia :: Public speaking | Speaking in public
+Mysophobia :: Germs | Germ | Dirt | Contamination | Germs and dirt
+Nyctophobia :: The dark | Dark | Darkness | Night
+Ophidiophobia :: Snakes | Snake | Serpents
+Triskaidekaphobia :: The number 13 | 13 | Thirteen | Number thirteen
+Xenophobia :: Foreigners | Foreigner | Strangers | Stranger | Foreign people

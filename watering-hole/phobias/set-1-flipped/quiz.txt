@@ -1,0 +1,23 @@
+chunk: set 1
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Fear of
+answer-label: Phobia
+wiki-answer: {answer}
+---
+Cats :: Ailurophobia | Felinophobia | Elurophobia
+Clowns :: Coulrophobia
+Confined spaces :: Claustrophobia
+The dark :: Nyctophobia | Achluophobia | Scotophobia | Lygophobia
+Dogs :: Cynophobia
+Flying :: Aerophobia | Aviophobia
+Foreigners :: Xenophobia
+Germs :: Mysophobia | Germophobia | Germaphobia
+Heights :: Acrophobia
+The number 13 :: Triskaidekaphobia
+Open spaces :: Agoraphobia
+Public speaking :: Glossophobia
+Snakes :: Ophidiophobia | Ophiophobia
+Spiders :: Arachnophobia
+Thunder and lightning :: Astraphobia | Astrapophobia | Brontophobia

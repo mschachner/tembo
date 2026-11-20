@@ -1,0 +1,22 @@
+chunk: set 2
+mode: prompt
+pass: 100
+prompt-label: Phobia
+answer-label: Fear of
+wiki-prompt: {prompt}
+---
+Apiphobia :: Bees | Bee
+Aquaphobia :: Water
+Emetophobia :: Vomiting | Vomit | Being sick
+Entomophobia :: Insects | Insect | Bugs
+Gephyrophobia :: Bridges | Bridge
+Hemophobia :: Blood
+Hippopotomonstrosesquipedaliophobia :: Long words | Long word
+Musophobia :: Mice | Mouse | Mice and rats | Rats | Rodents
+Nomophobia :: Being without a mobile phone | Being without a phone | No mobile phone | No phone | Losing phone signal | Being out of mobile phone contact
+Odontophobia :: Dentists | Dentist | Dental treatment | Dentistry
+Ornithophobia :: Birds | Bird
+Pyrophobia :: Fire
+Thalassophobia :: The sea | Sea | The ocean | Ocean | Deep water
+Trypanophobia :: Needles | Needle | Injections | Injection
+Trypophobia :: Clusters of holes | Holes | Small holes | Patterns of holes

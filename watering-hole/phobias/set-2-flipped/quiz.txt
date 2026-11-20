@@ -1,0 +1,23 @@
+chunk: set 2
+level: flipped
+mode: prompt
+pass: 100
+prompt-label: Fear of
+answer-label: Phobia
+wiki-answer: {answer}
+---
+Bees :: Apiphobia | Melissophobia
+Being without a mobile phone :: Nomophobia
+Birds :: Ornithophobia
+Blood :: Hemophobia | Haemophobia | Hematophobia | Haematophobia
+Bridges :: Gephyrophobia
+Clusters of holes :: Trypophobia
+Dentists :: Odontophobia | Dentophobia
+Fire :: Pyrophobia
+Insects :: Entomophobia | Insectophobia
+Long words :: Hippopotomonstrosesquipedaliophobia | Hippopotomonstrosesquippedaliophobia
+Mice :: Musophobia | Murophobia | Suriphobia
+Needles :: Trypanophobia | Belonephobia
+The sea :: Thalassophobia
+Vomiting :: Emetophobia
+Water :: Aquaphobia
