@@ -1,0 +1,38 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Premiered
+prompt-label: Opera
+answer-label: Composer
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+L'Orfeo :: Claudio Monteverdi | Monteverdi ;; 1607
+Dido and Aeneas :: Henry Purcell | Purcell ;; by 1689
+The Marriage of Figaro :: Wolfgang Amadeus Mozart | Mozart ;; 1786
+Fidelio :: Ludwig van Beethoven | Beethoven ;; 1805
+Der Freischütz :: Carl Maria von Weber | Weber | Carl Weber ;; 1821
+William Tell :: Gioachino Rossini | Rossini | Gioacchino Rossini ;; 1829
+Norma :: Vincenzo Bellini | Bellini ;; 1831
+Lucia di Lammermoor :: Gaetano Donizetti | Donizetti ;; 1835
+Rigoletto :: Giuseppe Verdi | Verdi ;; 1851
+Faust :: Charles Gounod | Gounod ;; 1859
+Tristan und Isolde :: Richard Wagner | Wagner ;; 1865
+The Bartered Bride :: Bedřich Smetana | Smetana ;; 1866
+Boris Godunov :: Modest Mussorgsky | Mussorgsky | Musorgsky | Moussorgsky | Modest Musorgsky ;; 1874
+Samson and Delilah :: Camille Saint-Saëns | Saint-Saëns ;; 1877
+Eugene Onegin :: Pyotr Ilyich Tchaikovsky | Tchaikovsky | Pyotr Tchaikovsky | Peter Tchaikovsky | Tchaikowsky | Tschaikowsky | Chaikovsky ;; 1879
+The Tales of Hoffmann :: Jacques Offenbach | Offenbach ;; 1881
+Cavalleria rusticana :: Pietro Mascagni | Mascagni ;; 1890
+Prince Igor :: Alexander Borodin | Borodin | Aleksandr Borodin ;; 1890
+Werther :: Jules Massenet | Massenet ;; 1892
+Pagliacci :: Ruggero Leoncavallo | Leoncavallo | Ruggiero Leoncavallo ;; 1892
+Hansel and Gretel :: Engelbert Humperdinck | Humperdinck ;; 1893
+Tosca :: Giacomo Puccini | Puccini ;; 1900
+Rusalka :: Antonín Dvořák | Dvořák | Anton Dvorak ;; 1901
+Pelléas et Mélisande :: Claude Debussy | Debussy ;; 1902
+Salome :: Richard Strauss | Strauss | R. Strauss ;; 1905
+Wozzeck :: Alban Berg | Berg ;; 1925
+Porgy and Bess :: George Gershwin | Gershwin ;; 1935
+Peter Grimes :: Benjamin Britten | Britten ;; 1945
+Nixon in China :: John Adams | Adams | John Coolidge Adams ;; 1987

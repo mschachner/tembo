@@ -117,7 +117,7 @@ chat.
 - [x] Sculptor of the sculpture (prompt) — added 2026-11-18 as sculptor-of-the-sculpture
 - [x] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa — added 2026-11-19 as capitals-of-africa
 - [x] Phobias (prompt) — added 2026-11-20 as phobias
-- [ ] Pbzcbfre bs gur bcren (cebzcg)
+- [x] Composer of the opera (prompt) — added 2026-11-21 as composer-of-the-opera
 - [ ] Bylzcvp ubfg pvgvrf, Fhzzre (cebzcg: lrne → pvgl)
 - [ ] Ryrzrag flzobyf, 41–60 (cebzcg) — arj puhax bs ryrzrag-flzobyf
 - [ ] Nepuvgrpg bs gur ohvyqvat (cebzcg)

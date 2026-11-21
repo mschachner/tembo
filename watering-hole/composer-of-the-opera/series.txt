@@ -1,0 +1,17 @@
+title: Composer of the opera
+tags: music, opera
+levels: standard, no clues
+chunks: set 1
+---
+William Tell => William Tell (opera)
+Norma => Norma (opera)
+Faust => Faust (opera)
+Boris Godunov => Boris Godunov (opera)
+Samson and Delilah => Samson and Delilah (opera)
+Eugene Onegin => Eugene Onegin (opera)
+Hansel and Gretel => Hansel and Gretel (opera)
+Rusalka => Rusalka (opera)
+Pelléas et Mélisande => Pelléas et Mélisande (opera)
+Salome => Salome (opera)
+Engelbert Humperdinck => Engelbert Humperdinck (composer)
+John Adams => John Adams (composer)

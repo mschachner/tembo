@@ -1,0 +1,38 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Opera
+answer-label: Composer
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+L'Orfeo :: Claudio Monteverdi | Monteverdi
+Dido and Aeneas :: Henry Purcell | Purcell
+The Marriage of Figaro :: Wolfgang Amadeus Mozart | Mozart
+Fidelio :: Ludwig van Beethoven | Beethoven
+Der Freischütz :: Carl Maria von Weber | Weber | Carl Weber
+William Tell :: Gioachino Rossini | Rossini | Gioacchino Rossini
+Norma :: Vincenzo Bellini | Bellini
+Lucia di Lammermoor :: Gaetano Donizetti | Donizetti
+Rigoletto :: Giuseppe Verdi | Verdi
+Faust :: Charles Gounod | Gounod
+Tristan und Isolde :: Richard Wagner | Wagner
+The Bartered Bride :: Bedřich Smetana | Smetana
+Boris Godunov :: Modest Mussorgsky | Mussorgsky | Musorgsky | Moussorgsky | Modest Musorgsky
+Samson and Delilah :: Camille Saint-Saëns | Saint-Saëns
+Eugene Onegin :: Pyotr Ilyich Tchaikovsky | Tchaikovsky | Pyotr Tchaikovsky | Peter Tchaikovsky | Tchaikowsky | Tschaikowsky | Chaikovsky
+The Tales of Hoffmann :: Jacques Offenbach | Offenbach
+Cavalleria rusticana :: Pietro Mascagni | Mascagni
+Prince Igor :: Alexander Borodin | Borodin | Aleksandr Borodin
+Werther :: Jules Massenet | Massenet
+Pagliacci :: Ruggero Leoncavallo | Leoncavallo | Ruggiero Leoncavallo
+Hansel and Gretel :: Engelbert Humperdinck | Humperdinck
+Tosca :: Giacomo Puccini | Puccini
+Rusalka :: Antonín Dvořák | Dvořák | Anton Dvorak
+Pelléas et Mélisande :: Claude Debussy | Debussy
+Salome :: Richard Strauss | Strauss | R. Strauss
+Wozzeck :: Alban Berg | Berg
+Porgy and Bess :: George Gershwin | Gershwin
+Peter Grimes :: Benjamin Britten | Britten
+Nixon in China :: John Adams | Adams | John Coolidge Adams
