@@ -1,0 +1,4 @@
+title: Summer Olympics host cities
+tags: sport, olympics
+levels: standard, no clues
+chunks: 1896–1956, 1960–2024

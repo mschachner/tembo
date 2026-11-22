@@ -1,0 +1,22 @@
+chunk: 1896–1956
+mode: prompt
+pass: 100
+columns: Country
+prompt-label: Year
+answer-label: Host city
+wiki-prompt: {prompt} Summer Olympics
+wiki-answer: {answer}
+---
+1896 :: Athens ;; Greece
+1900 :: Paris ;; France
+1904 :: St. Louis | Saint Louis ;; United States
+1908 :: London ;; United Kingdom
+1912 :: Stockholm ;; Sweden
+1920 :: Antwerp | Antwerpen | Anvers ;; Belgium
+1924 :: Paris ;; France
+1928 :: Amsterdam ;; Netherlands
+1932 :: Los Angeles | LA ;; United States
+1936 :: Berlin ;; Germany
+1948 :: London ;; United Kingdom
+1952 :: Helsinki ;; Finland
+1956 :: Melbourne ;; Australia

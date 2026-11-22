@@ -118,7 +118,7 @@ chat.
 - [x] Capitals of Africa, set 1 (prompt) — starts capitals-of-africa — added 2026-11-19 as capitals-of-africa
 - [x] Phobias (prompt) — added 2026-11-20 as phobias
 - [x] Composer of the opera (prompt) — added 2026-11-21 as composer-of-the-opera
-- [ ] Bylzcvp ubfg pvgvrf, Fhzzre (cebzcg: lrne → pvgl)
+- [x] Olympic host cities, Summer (prompt: year → city) — added 2026-11-22 as summer-olympics-host-cities
 - [ ] Ryrzrag flzobyf, 41–60 (cebzcg) — arj puhax bs ryrzrag-flzobyf
 - [ ] Nepuvgrpg bs gur ohvyqvat (cebzcg)
 - [ ] Funxrfcrner punenpgref → cynl (cebzcg) — vgf bja frevrf, abg n puhax bs funxrfcrner-cynlf

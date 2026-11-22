@@ -1,0 +1,26 @@
+chunk: 1960–2024
+mode: prompt
+pass: 100
+columns: Country
+prompt-label: Year
+answer-label: Host city
+wiki-prompt: {prompt} Summer Olympics
+wiki-answer: {answer}
+---
+1960 :: Rome | Roma ;; Italy
+1964 :: Tokyo ;; Japan
+1968 :: Mexico City | Ciudad de México ;; Mexico
+1972 :: Munich | München | Muenchen ;; West Germany
+1976 :: Montreal ;; Canada
+1980 :: Moscow | Moskva ;; Soviet Union
+1984 :: Los Angeles | LA ;; United States
+1988 :: Seoul ;; South Korea
+1992 :: Barcelona ;; Spain
+1996 :: Atlanta ;; United States
+2000 :: Sydney ;; Australia
+2004 :: Athens | Athina ;; Greece
+2008 :: Beijing | Peking ;; China
+2012 :: London ;; United Kingdom
+2016 :: Rio de Janeiro | Rio ;; Brazil
+2020 :: Tokyo ;; Japan
+2024 :: Paris ;; France
