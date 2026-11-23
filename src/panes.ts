@@ -77,19 +77,15 @@ function paint(): void {
     h("button", { class: "key", tabindex: "-1", onclick: () => a.run() }, h("kbd", {}, a.hint), " ", a.label)));
 }
 
-// Bring a row into view. Inside a pane that scrolls its own rows, the row
-// has to clear the column header, which stays at the top of the pane and
-// which scrollIntoView knows nothing about (it would leave a row moved up
-// to hidden underneath it). The first row takes the pane back to its very
-// top, so the group label above it shows too.
+// Bring a row into view inside a pane that scrolls its own rows. The first
+// row takes the pane back to its very top, so a group label above it shows
+// too.
 function revealInPane(pane: Pane, row: Row): void {
   const body = pane.body;
   if (body && body.scrollHeight > body.clientHeight) {
-    const head = body.querySelector<HTMLElement>(":scope > .row.head");
     const b = body.getBoundingClientRect(), r = row.el.getBoundingClientRect();
-    const top = b.top + (head ? head.getBoundingClientRect().height : 0);
     if (row === pane.rows[0]) body.scrollTop = 0;
-    else if (r.top < top) body.scrollTop -= top - r.top;
+    else if (r.top < b.top) body.scrollTop -= b.top - r.top;
     else if (r.bottom > b.bottom) body.scrollTop += r.bottom - b.bottom;
   }
 }
@@ -271,13 +267,17 @@ export function tablePane<T>(opts: {
   narrow?: { drop: number[]; cols: string };
 }): Pane {
   const drop = opts.narrow?.drop ?? [];
-  const body = h("div", { class: `pane-body ${opts.fit ? "fit" : ""}` }, h("div", { class: "row head" }, ...cells(opts.head, drop)));
+  // The column header stays put above the rows, which scroll on their own:
+  // nothing ever passes under the header, so it needs no background of its
+  // own and the pane looks the same all the way down.
+  const scroller = h("div", { class: "rows" });
+  const body = h("div", { class: `pane-body table ${opts.fit ? "fit" : ""}` }, h("div", { class: "row head" }, ...cells(opts.head, drop)), scroller);
   const rows: Row[] = opts.entries.map((t, i) => {
     const el = h("div", { class: `row ${opts.rowClass?.(t) ?? ""}` }, ...cells(opts.cells(t, i), drop));
-    body.append(el);
+    scroller.append(el);
     return { id: opts.key(t, i), el, activate: opts.activate?.(t) };
   });
-  return { id: opts.id, el: paneEl(opts.id, opts.title, body, { cols: opts.cols, narrowCols: opts.narrow?.cols, extra: opts.extra, meta: opts.meta }), rows, body };
+  return { id: opts.id, el: paneEl(opts.id, opts.title, body, { cols: opts.cols, narrowCols: opts.narrow?.cols, extra: opts.extra, meta: opts.meta }), rows, body: scroller };
 }
 
 export const BACK = (run: () => void, label = "Back"): KeyAction => ({ keys: ["Escape", "Backspace"], hint: "esc", label, run });

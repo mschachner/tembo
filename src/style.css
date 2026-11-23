@@ -399,7 +399,7 @@ kbd {
 }
 .pane.focused .pane-title { color: var(--accent); }
 .pane-body { flex: 1; min-height: 0; overflow: auto; padding: 0 0 calc(var(--u) * 0.75); }
-.pane-body > .stats, .pane-body > div > section, .pane-body > div > div { margin-left: calc(var(--u) * 1.25); margin-right: calc(var(--u) * 1.25); }
+.pane-body > .stats, .pane-body > div > section, .pane-body > div:not(.rows) > div { margin-left: calc(var(--u) * 1.25); margin-right: calc(var(--u) * 1.25); }
 .pane-body section { margin-top: calc(var(--u) * 2); }
 .pane-body h2 { margin-bottom: calc(var(--u) * 0.5); }
 .pane-empty { display: flex; justify-content: center; padding: calc(var(--u) * 3); color: var(--fg-3); }
@@ -415,14 +415,21 @@ kbd {
 .row .cell { min-width: 0; overflow-wrap: break-word; }
 /* Same font size as the rows (the grid is in ch); only the labels shrink. */
 .row.head .cell { font-size: 0.8em; }
-.row.head { color: var(--fg-3); position: sticky; top: 0; background: var(--bg); z-index: 1; }
-/* A fitted table: the rows share the body's grid, so a column can be as
-   wide as its widest cell and the text columns get everything else. */
-.pane-body.fit { display: grid; grid-template-columns: var(--cols, 1fr); column-gap: calc(var(--u) * 1.5); align-content: start; }
-.pane-body.fit > .row { grid-column: 1 / -1; grid-template-columns: subgrid; }
-.row:not(.head):hover { background: color-mix(in srgb, var(--bg-3) 60%, transparent); }
-.row.cursor { background: color-mix(in srgb, var(--bg-3) 70%, transparent); }
-.pane.focused .row.cursor { background: var(--bg-3); box-shadow: inset 2px 0 0 var(--accent); }
+.row.head { color: var(--fg-3); border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+/* A table pane: the column header, then the rows, which scroll by themselves
+   (tablePane). */
+.pane-body.table { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.pane-body.table > .rows { flex: 1; min-height: 0; overflow: auto; padding-bottom: calc(var(--u) * 0.75); }
+/* A fitted table: header and rows share the body's grid, so a column can be
+   as wide as its widest cell and the text columns get everything else. */
+.pane-body.fit { display: grid; grid-template-columns: var(--cols, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: calc(var(--u) * 1.5); }
+.pane-body.fit > .rows { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-content: start; }
+.pane-body.fit > .row, .pane-body.fit > .rows > .row { grid-column: 1 / -1; grid-template-columns: subgrid; }
+/* Highlights are tints of the pane's own text color, so they read the same
+   over page color, a plate or frosted art, in light and dark presets. */
+.row:not(.head):hover { background: color-mix(in srgb, var(--fg) 5%, transparent); }
+.row.cursor { background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.pane.focused .row.cursor { background: color-mix(in srgb, var(--fg) 12%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
 .row.missed .cell:first-child { color: var(--missed); }
 .row.slow .cell:first-child { color: var(--slow); }
 .row-group {
@@ -819,7 +826,7 @@ input, textarea,
 .series-grid { display: grid; grid-template-columns: var(--cols, 1fr); gap: 4px; font-size: 0.9em; }
 .series-grid .grid-row { display: contents; }
 .series-grid .grid-cell {
-  padding: calc(var(--u) * 0.45) calc(var(--u) * 0.75); border-radius: 4px; background: var(--bg-2);
+  padding: calc(var(--u) * 0.45) calc(var(--u) * 0.75); border-radius: 4px; background: color-mix(in srgb, var(--fg) 6%, transparent);
   min-width: 0; overflow-wrap: break-word; text-align: center;
 }
 .series-grid .head .grid-cell, .series-grid .grid-cell.chunk { background: none; color: var(--fg-3); font-size: 0.85em; }
@@ -827,12 +834,12 @@ input, textarea,
 .series-grid .head .grid-cell { letter-spacing: var(--label-tracking, 0.01em); padding-top: 0; padding-bottom: 2px; }
 .series-grid .grid-cell.corner { padding: 0; }
 .series-grid .grid-cell.none { background: none; color: var(--fg-3); }
-.series-grid .grid-cell.locked { color: var(--fg-3); background: color-mix(in srgb, var(--bg-2) 50%, transparent); }
+.series-grid .grid-cell.locked { color: var(--fg-3); background: color-mix(in srgb, var(--fg) 3%, transparent); }
 .series-grid .grid-cell.available { color: var(--fg-2); }
 .series-grid .grid-cell.new { color: var(--fg-2); }
 .series-grid .grid-cell.learning { color: var(--fg-2); }
-.series-grid .grid-cell.playable { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--bg-2)); }
-.series-grid .grid-cell.proficient { color: var(--instant); background: color-mix(in srgb, var(--instant) 14%, var(--bg-2)); }
+.series-grid .grid-cell.playable { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.series-grid .grid-cell.proficient { color: var(--instant); background: color-mix(in srgb, var(--instant) 16%, transparent); }
 .detail-grid.rich > .figures.one { grid-template-columns: minmax(0, 1fr); }
 [data-pane="quizzes"] .row.locked .cell { color: var(--fg-3); }
 [data-pane="quizzes"] .row.instant .cell { color: var(--instant); }
