@@ -3,6 +3,7 @@
     npm install
     npm run tauri dev     # desktop app, from the terminal
     npm run app           # build Tembo.app and install it in /Applications
+    npm run release       # build Tembo.app for any Mac and zip it for a GitHub Release
     npm test              # unit tests
     npm run check         # validate every quiz file
 
@@ -27,10 +28,31 @@ is not the article's title, a `name => title` line after `---` in the series'
 results and item screens, not during play. `npm run check -- --links` looks
 every title up on Wikipedia and reports missing articles and disambiguation
 pages.
-Library: `data/library.txt`, the ids of the series imported from the
-Watering Hole, one per line. The typing calibration is always included.
-Attempt log: `data/attempts.jsonl`, one JSON object per line, keyed by quiz
-id (`<series>/<quiz folder>`).
+
+Where the installed app keeps things (`src-tauri/src/paths.rs`):
+
+- The Watering Hole is downloaded from this repository on GitHub when the
+  app opens, and when its window comes back to the front (at most every
+  five minutes), into
+  `~/Library/Application Support/com.mschachner.tembo/watering-hole`. A new
+  series pushed here shows up in every copy of the app. Until the first
+  download the app reads the copy that was bundled when it was built.
+- The data folder is `~/Library/Application Support/com.mschachner.tembo/data`
+  (or `TEMBO_DATA`). Library: `library.txt`, the ids of the series imported
+  from the Watering Hole, one per line; the typing calibration is always
+  included. Attempt log: `attempts.jsonl`, one JSON object per line, keyed by
+  quiz id (`<series>/<quiz folder>`). Also `settings.json`, saved presets in
+  `themes/`, and your own banner images in `banners/`.
+- If the data folder is a git repository with a remote, the app commits and
+  pushes it after each attempt or library change and pulls it when it opens.
+  Otherwise the data stays on that computer and git is never run.
+- Default presets (`themes/*.json`) and banner photos (`banners/`) are
+  bundled into the app.
+
+`npm run tauri dev` (or `TEMBO_ROOT=<checkout>`) reads the Watering Hole,
+presets and banners straight from the checkout and downloads nothing; the
+data folder is the same one the installed app uses unless `TEMBO_DATA` says
+otherwise. `npm run check` reads `library.txt` from the data folder too.
 
 App icon: masters are in `art/icons/` (cream is installed). To switch,
 run `npm run tauri icon art/icons/<name>.png -- -o src-tauri/icons` and

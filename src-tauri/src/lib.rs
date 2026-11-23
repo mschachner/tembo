@@ -1,22 +1,19 @@
+mod hole;
+mod paths;
 mod sync;
 
 use base64::Engine;
+use paths::dirs;
 use tauri::Manager;
 use serde::Serialize;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-/// Repository root: the Watering Hole is `<root>/watering-hole`, one folder
-/// per series holding `series.txt` and one `<cell>/quiz.txt` per quiz; the
-/// attempt log and the list of imported series are in `<root>/data`.
-/// Override with TEMBO_ROOT; defaults to the directory containing
-/// `src-tauri`, which is right for `tauri dev`.
-fn root() -> PathBuf {
-    if let Ok(p) = std::env::var("TEMBO_ROOT") {
-        return PathBuf::from(p);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..")
+/// The user's own files (paths.rs): the attempt log, the list of imported
+/// series, settings, saved presets.
+fn data() -> PathBuf {
+    dirs().data.clone()
 }
 
 #[derive(Serialize)]
@@ -90,44 +87,50 @@ fn list_in(hole: &Path) -> Result<Vec<SeriesFile>, String> {
 
 #[tauri::command]
 fn list_series() -> Result<Vec<SeriesFile>, String> {
-    list_in(&root().join("watering-hole"))
+    list_in(&dirs().hole())
 }
 
 /// Ids of the series imported from the Watering Hole, one per line
-/// (data/library.txt; empty string if absent).
+/// (library.txt; empty string if absent).
 #[tauri::command]
 fn read_library() -> Result<String, String> {
-    let path = root().join("data").join("library.txt");
+    let path = data().join("library.txt");
     if !path.exists() {
         return Ok(String::new());
     }
     fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Replace the list of imported series ids, then commit and push it.
+/// Replace the list of imported series ids; synced data commits and pushes it.
 #[tauri::command]
 fn write_library(app: tauri::AppHandle, ids: Vec<String>, message: String) -> Result<(), String> {
     if let Some(bad) = ids.iter().find(|id| id.trim().is_empty() || id.contains('\n')) {
         return Err(format!("bad series id: {bad:?}"));
     }
-    let dir = root().join("data");
+    let dir = data();
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let mut text = ids.join("\n");
     if !text.is_empty() {
         text.push('\n');
     }
     fs::write(dir.join("library.txt"), text).map_err(|e| e.to_string())?;
-    sync::push_file(app, root(), "data/library.txt", message);
+    sync::push(app, data(), message);
     Ok(())
 }
 
-/// Open a file or folder inside the repo with the default macOS app.
+/// Open one of Tembo's folders in Finder: "data", "themes" (saved presets,
+/// inside the data folder) or "watering-hole".
 #[tauri::command]
-fn open_path(path: String) -> Result<(), String> {
-    let root = fs::canonicalize(root()).map_err(|e| e.to_string())?;
-    let target = fs::canonicalize(&path).map_err(|e| format!("{path}: {e}"))?;
-    if !target.starts_with(&root) {
-        return Err(format!("{path}: outside the repo"));
+fn open_folder(which: String) -> Result<(), String> {
+    let target = match which.as_str() {
+        "data" => data(),
+        "themes" => data().join("themes"),
+        "watering-hole" => dirs().hole(),
+        _ => return Err(format!("{which}: no such folder")),
+    };
+    // The user's folders may not have been written to yet.
+    if which != "watering-hole" {
+        fs::create_dir_all(&target).map_err(|e| format!("{}: {e}", target.display()))?;
     }
     std::process::Command::new("open").arg(&target).spawn().map_err(|e| e.to_string())?;
     Ok(())
@@ -150,10 +153,22 @@ fn open_url(url: String) -> Result<(), String> {
 /// `rel` must stay inside `dir`.
 #[tauri::command]
 fn read_asset(dir: String, rel: String) -> Result<String, String> {
-    let dir = fs::canonicalize(&dir).map_err(|e| format!("{dir}: {e}"))?;
-    let path = fs::canonicalize(dir.join(&rel)).map_err(|e| format!("{rel}: {e}"))?;
+    data_url(Path::new(&dir), &rel)
+}
+
+/// A theme's banner image as a data URL. `rel` is looked up in the data
+/// folder (the user's own images), then among the banners shipped with the app.
+#[tauri::command]
+fn read_banner(rel: String) -> Result<String, String> {
+    data_url(&data(), &rel).or_else(|_| data_url(&dirs().resources, &rel))
+}
+
+/// The file `rel` inside `dir`, as a data URL. `rel` must stay inside `dir`.
+fn data_url(dir: &Path, rel: &str) -> Result<String, String> {
+    let dir = fs::canonicalize(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let path = fs::canonicalize(dir.join(rel)).map_err(|e| format!("{rel}: {e}"))?;
     if !path.starts_with(&dir) {
-        return Err(format!("{rel}: outside quiz directory"));
+        return Err(format!("{rel}: outside {}", dir.display()));
     }
     let bytes = fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     let mime = mime_for(&path);
@@ -172,10 +187,17 @@ fn mime_for(path: &Path) -> &'static str {
     }
 }
 
+#[derive(Serialize)]
+struct Folders {
+    data: String,
+    hole: String,
+}
+
+/// Where the data folder and the Watering Hole are, for display.
 #[tauri::command]
-fn root_dir() -> String {
-    let r = root();
-    fs::canonicalize(&r).unwrap_or(r).to_string_lossy().into_owned()
+fn folders() -> Folders {
+    let shown = |p: PathBuf| fs::canonicalize(&p).unwrap_or(p).to_string_lossy().into_owned();
+    Folders { data: shown(data()), hole: shown(dirs().hole()) }
 }
 
 #[derive(Serialize)]
@@ -201,13 +223,13 @@ fn themes_in(dir: &Path, custom: bool, out: &mut Vec<ThemeFile>) -> Result<(), S
     Ok(())
 }
 
-/// Default presets: `<root>/themes/*.json`; custom: `<root>/themes/custom/*.json`.
+/// Default presets: `themes/*.json` shipped with the app; custom:
+/// `themes/*.json` in the data folder.
 #[tauri::command]
 fn list_themes() -> Result<Vec<ThemeFile>, String> {
-    let dir = root().join("themes");
     let mut out = Vec::new();
-    themes_in(&dir, false, &mut out)?;
-    themes_in(&dir.join("custom"), true, &mut out)?;
+    themes_in(&dirs().resources.join("themes"), false, &mut out)?;
+    themes_in(&data().join("themes"), true, &mut out)?;
     out.sort_by(|a, b| a.name.cmp(&b.name));
     Ok(out)
 }
@@ -221,29 +243,33 @@ fn theme_name_ok(name: &str) -> Result<(), String> {
 
 /// Saves a custom preset. Default presets can't be overwritten.
 #[tauri::command]
-fn write_theme(name: String, json: String) -> Result<(), String> {
+fn write_theme(app: tauri::AppHandle, name: String, json: String) -> Result<(), String> {
     theme_name_ok(&name)?;
-    let themes = root().join("themes");
-    if themes.join(format!("{name}.json")).exists() {
+    if dirs().resources.join("themes").join(format!("{name}.json")).exists() {
         return Err(format!("{name} is a default preset; choose another name"));
     }
-    let dir = themes.join("custom");
+    let dir = data().join("themes");
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    fs::write(dir.join(format!("{name}.json")), json).map_err(|e| e.to_string())
+    fs::write(dir.join(format!("{name}.json")), json).map_err(|e| e.to_string())?;
+    sync::push(app, data(), format!("Save preset: {name}"));
+    Ok(())
 }
 
 /// Deletes a custom preset.
 #[tauri::command]
-fn delete_theme(name: String) -> Result<(), String> {
+fn delete_theme(app: tauri::AppHandle, name: String) -> Result<(), String> {
     theme_name_ok(&name)?;
-    let path = root().join("themes").join("custom").join(format!("{name}.json"));
-    fs::remove_file(&path).map_err(|e| format!("{}: {e}", path.display()))
+    let path = data().join("themes").join(format!("{name}.json"));
+    fs::remove_file(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    sync::push(app, data(), format!("Delete preset: {name}"));
+    Ok(())
 }
 
-/// `<root>/data/settings.json`; empty string if absent.
+/// settings.json in the data folder; empty string if absent. Synced data
+/// commits it along with the next attempt or library change.
 #[tauri::command]
 fn read_settings() -> Result<String, String> {
-    let path = root().join("data").join("settings.json");
+    let path = data().join("settings.json");
     if !path.exists() {
         return Ok(String::new());
     }
@@ -252,7 +278,7 @@ fn read_settings() -> Result<String, String> {
 
 #[tauri::command]
 fn write_settings(json: String) -> Result<(), String> {
-    let dir = root().join("data");
+    let dir = data();
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     fs::write(dir.join("settings.json"), json).map_err(|e| e.to_string())
 }
@@ -260,7 +286,7 @@ fn write_settings(json: String) -> Result<(), String> {
 /// Whole attempt log; empty string if there is none yet.
 #[tauri::command]
 fn read_attempts() -> Result<String, String> {
-    let path = root().join("data").join("attempts.jsonl");
+    let path = data().join("attempts.jsonl");
     if !path.exists() {
         return Ok(String::new());
     }
@@ -272,12 +298,12 @@ fn read_attempts() -> Result<String, String> {
 #[tauri::command]
 fn clear_attempts(app: tauri::AppHandle) -> Result<String, String> {
     let backup = move_log_aside()?;
-    sync::push_file(app, root(), "data/attempts.jsonl", "Clear attempt history".into());
+    sync::push(app, data(), "Clear attempt history".into());
     Ok(backup)
 }
 
 fn move_log_aside() -> Result<String, String> {
-    let dir = root().join("data");
+    let dir = data();
     let log = dir.join("attempts.jsonl");
     if !log.exists() {
         return Ok(String::new());
@@ -298,23 +324,31 @@ fn append_attempt(app: tauri::AppHandle, line: String) -> Result<(), String> {
         .ok()
         .and_then(|v| v.get("title")?.as_str().map(str::to_owned))
         .unwrap_or_else(|| "quiz".into());
-    sync::push_file(app, root(), "data/attempts.jsonl", format!("Record attempt: {title}"));
+    sync::push(app, data(), format!("Record attempt: {title}"));
     Ok(())
 }
 
-/// Pull from the remote in the background (no-op without one).
+/// In the background: check for a newer Watering Hole, and pull the data
+/// folder from its remote if it has one.
 #[tauri::command]
 fn sync_now(app: tauri::AppHandle) {
-    sync::pull(app, root());
+    hole::refresh(app.clone());
+    sync::pull(app, data());
+}
+
+#[derive(Serialize)]
+struct SyncStatus {
+    data: sync::Status,
+    hole: sync::Status,
 }
 
 #[tauri::command]
-fn sync_status() -> sync::SyncStatus {
-    sync::status(&root())
+fn sync_status() -> SyncStatus {
+    SyncStatus { data: sync::status(&data()), hole: hole::status() }
 }
 
 fn write_attempt(line: &str) -> Result<(), String> {
-    let dir = root().join("data");
+    let dir = data();
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let mut file = fs::OpenOptions::new()
         .create(true)
@@ -331,8 +365,7 @@ fn theme_background() -> (u8, u8, u8) {
     let read = |p: PathBuf| -> Option<serde_json::Value> {
         serde_json::from_str(&fs::read_to_string(p).ok()?).ok()
     };
-    let r = root();
-    let settings = read(r.join("data").join("settings.json"));
+    let settings = read(data().join("settings.json"));
     let preset = settings
         .as_ref()
         .and_then(|s| s.get("preset")?.as_str().map(str::to_owned))
@@ -342,7 +375,7 @@ fn theme_background() -> (u8, u8, u8) {
         .and_then(|s| s.get("overrides")?.get("bg")?.as_str().map(str::to_owned));
     let from_preset = || {
         let file = format!("{preset}.json");
-        [r.join("themes").join("custom").join(&file), r.join("themes").join(&file)]
+        [data().join("themes").join(&file), dirs().resources.join("themes").join(&file)]
             .into_iter()
             .find_map(|p| read(p)?.get("bg")?.as_str().map(str::to_owned))
     };
@@ -392,14 +425,17 @@ fn set_dock_icon(app: tauri::AppHandle, png: String) -> Result<(), String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            list_series, read_asset, read_attempts, append_attempt,
-            root_dir, list_themes, write_theme, delete_theme, read_settings, write_settings,
-            read_library, write_library, open_path, open_url, clear_attempts,
+            list_series, read_asset, read_banner, read_attempts, append_attempt,
+            folders, list_themes, write_theme, delete_theme, read_settings, write_settings,
+            read_library, write_library, open_folder, open_url, clear_attempts,
             sync_now, sync_status, set_dock_icon
         ])
         .setup(|app| {
-            // Bring in anything new from the remote (quizzes written in the cloud).
-            sync::pull(app.handle().clone(), root());
+            paths::init(app)?;
+            // Bring in anything new: quizzes for the Watering Hole, and the
+            // data folder's remote if it has one.
+            hole::refresh(app.handle().clone());
+            sync::pull(app.handle().clone(), data());
             // Paint the window in the theme's background before the page has
             // drawn, instead of the webview's default white.
             if let Some(w) = app.get_webview_window("main") {

@@ -5,12 +5,14 @@
 // chunk with no first-level quiz), missing image files, answers or aliases
 // that collide within a quiz after normalization, untagged series, article
 // lines in series.txt that match no prompt or answer, and imported ids
-// (data/library.txt) that match no series.
+// (library.txt in the data folder) that match no series. The data folder is
+// TEMBO_DATA, else where the app keeps it on a Mac.
 //
 //   npm run check -- --links
 // also looks up every Wikipedia link on Wikipedia, and reports titles with
 // no article and titles that land on a disambiguation page. Needs network.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 import { assembleSeries, parseQuiz, parseSeries, type Quiz } from "../src/quiz/format";
 import { normalize } from "../src/quiz/match";
@@ -151,10 +153,11 @@ for (const name of folders(root)) {
   }
 }
 
-const libraryPath = join(import.meta.dirname, "..", "data", "library.txt");
+const dataDir = process.env.TEMBO_DATA || join(homedir(), "Library", "Application Support", "com.mschachner.tembo", "data");
+const libraryPath = join(dataDir, "library.txt");
 if (existsSync(libraryPath)) {
   for (const id of readFileSync(libraryPath, "utf8").split(/\r?\n/).map((s) => s.trim())) {
-    if (id && !id.startsWith("#") && !seriesIds.has(id)) report("data/library.txt", `imported id "${id}" matches no series`);
+    if (id && !id.startsWith("#") && !seriesIds.has(id)) report(libraryPath, `imported id "${id}" matches no series`);
   }
 }
 

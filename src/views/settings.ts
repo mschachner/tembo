@@ -1,5 +1,5 @@
 import { activeTheme, app, applyActiveTheme, loadThemes, persistSettings, reloadHistory } from "../app";
-import { clearAttempts, deleteTheme, openPath, syncNow, syncStatus, writeTheme } from "../backend";
+import { clearAttempts, deleteTheme, openFolder, syncNow, syncStatus, writeTheme, type SyncState } from "../backend";
 import { h } from "../dom";
 import { nav } from "../nav";
 import { refreshBanner } from "../shell";
@@ -123,19 +123,36 @@ function control(spec: VarSpec, labelText = spec.label): HTMLElement {
 
 const openGroups = new Set<string>();
 
-// Sync with the GitHub remote: where, when it last worked, and the last error.
+// The two things that sync: the Watering Hole (downloaded from the Tembo
+// repository) and the data folder (when it is a git repository with a
+// remote). For each: where, when it last worked, and the last error.
 function syncRows(): HTMLElement {
-  const where = h("span", { class: "mono small" });
-  const when = h("span", { class: "muted small" });
-  const error = h("p", { class: "small sync-error" });
+  const part = (label: string, unsynced: string, folder: () => string) => {
+    const where = h("span", { class: "mono small" });
+    const when = h("span", { class: "muted small" });
+    const error = h("p", { class: "small sync-error" });
+    const row = h("div", { class: "control" }, h("label", {}, label), where, when);
+    const show = (s: SyncState) => {
+      where.textContent = s.source
+        ? s.source.replace(/^(https:\/\/|git@)/, "").replace(/\.git$/, "").replace(":", "/")
+        : unsynced;
+      where.title = folder();
+      when.textContent = s.last_ok
+        ? new Date(s.last_ok * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+        : "";
+      error.textContent = s.error ?? "";
+      error.hidden = !s.error;
+    };
+    return { row, error, show };
+  };
+  // Unsynced: a checkout reads its own watering-hole folder; data that is
+  // not a git repository stays on this computer.
+  const hole = part("Watering Hole", "this checkout", () => app.folders.hole);
+  const data = part("Data", "this computer only", () => app.folders.data);
   const refresh = async () => {
     const s = await syncStatus();
-    where.textContent = s.remote ? s.remote.replace(/^(https:\/\/|git@)/, "").replace(/\.git$/, "").replace(":", "/") : "no remote";
-    when.textContent = s.last_ok
-      ? `last synced ${new Date(s.last_ok * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}`
-      : "";
-    error.textContent = s.error ?? "";
-    error.hidden = !s.error;
+    hole.show(s.hole);
+    data.show(s.data);
   };
   const now = h("button", { class: "quiet tiny", onclick: async () => {
     await syncNow();
@@ -143,9 +160,9 @@ function syncRows(): HTMLElement {
   } }, "Sync now");
   void refresh();
   return h("div", {},
-    h("div", { class: "control" }, h("label", {}, "Remote"), where, now),
-    h("div", { class: "control" }, h("label", {}, "Status"), when),
-    error);
+    hole.row, hole.error,
+    data.row, data.error,
+    h("div", { class: "control" }, h("label", {}), now));
 }
 
 // A collapsible group; which ones are open survives redraws.
@@ -383,12 +400,12 @@ function appSections(): Node[] {
         calibQuiz ? h("button", { class: "quiet tiny", onclick: () => publish({ kind: "play", quizId: calibQuiz.id }) }, "Calibrate") : null)),
     group("Sync", syncRows()),
     group("Files",
-      h("div", { class: "control", title: app.root }, h("label", {}, "Open folder"),
-        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/watering-hole`) }, "watering hole"),
-        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/data`) }, "data"),
-        h("button", { class: "quiet tiny", onclick: () => openPath(`${app.root}/themes`) }, "themes"))),
+      h("div", { class: "control" }, h("label", {}, "Open folder"),
+        h("button", { class: "quiet tiny", title: app.folders.hole, onclick: () => openFolder("watering-hole") }, "watering hole"),
+        h("button", { class: "quiet tiny", title: app.folders.data, onclick: () => openFolder("data") }, "data"),
+        h("button", { class: "quiet tiny", title: `${app.folders.data}/themes`, onclick: () => openFolder("themes") }, "themes"))),
     group({ name: "Danger zone", class: "danger-zone" },
       h("div", { class: "control" }, h("label", {}, "History"), clearButton, clearStatus),
-      h("p", { class: "muted small" }, "Moves data/attempts.jsonl to a dated backup in the same folder and starts an empty log. Every quiz becomes new.")),
+      h("p", { class: "muted small" }, "Moves attempts.jsonl to a dated backup in the same folder and starts an empty log. Every quiz becomes new.")),
   ];
 }

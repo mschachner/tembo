@@ -1,6 +1,6 @@
 // Every visual knob is a CSS variable on :root. A theme is a JSON object
 // assigning each; presets live in themes/*.json, the active preset and any
-// overrides in data/settings.json.
+// overrides in settings.json.
 
 export type VarKind = "color" | "px" | "pct" | "scale" | "em" | "text" | "image" | "choice";
 
@@ -64,7 +64,7 @@ export const THEME_VARS: VarSpec[] = [
   { key: "plateRadius", css: "--plate-radius", kind: "px", label: "Corner radius: surfaces", min: 0, max: 32, step: 1 },
   { key: "cardMin", css: "--card-min", kind: "px", label: "Prompt card width", min: 120, max: 360, step: 5 },
   { key: "slotCols", css: "--slot-cols", kind: "scale", label: "List quiz columns", min: 1, max: 6, step: 1 },
-  { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path from repo root)" },
+  { key: "bannerImage", css: "--banner-image", kind: "image", label: "Banner image (path in the data folder)" },
   { key: "bannerHeight", css: "--banner-height", kind: "px", label: "Banner height", min: 100, max: 480, step: 10 },
   { key: "bannerY", css: "--banner-y", kind: "pct", label: "Banner image focus (top to bottom)", min: 0, max: 100, step: 1 },
   // How far the art travels from the first tab to the last.

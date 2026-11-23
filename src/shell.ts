@@ -1,6 +1,6 @@
 // Page skeleton: title-bar drag strip, banner (home only), tabs, content,
 // status line.
-import { activeTheme, app, asset, dueCount } from "./app";
+import { activeTheme, app, banner, dueCount } from "./app";
 import { bannerImage, defaultBanner, tembo } from "./banner";
 import { clear, h } from "./dom";
 import { applyEdge } from "./edge";
@@ -51,7 +51,7 @@ function mediaFor(path: string, bannerH: number): { el: HTMLElement | SVGSVGElem
   if (path) {
     const img = bannerImage("");
     img.classList.add("entering");
-    asset(app.root, path).then(
+    banner(path).then(
       async (url) => {
         img.src = url;
         await img.decode().catch(() => {});

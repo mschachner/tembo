@@ -29,6 +29,14 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "../themes/*.json": "themes/",
+      "../banners/": "banners/",
+      "../watering-hole/": "watering-hole/"
+    },
+    "macOS": {
+      "signingIdentity": "-"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

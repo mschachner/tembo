@@ -33,24 +33,36 @@ export function readAsset(dir: string, rel: string): Promise<string> {
   return invoke<string>("read_asset", { dir, rel });
 }
 
-// The whole of data/attempts.jsonl ("" if absent).
+// The whole of attempts.jsonl in the data folder ("" if absent).
 export function readAttempts(): Promise<string> {
   return invoke<string>("read_attempts");
 }
 
-// One JSON line appended to data/attempts.jsonl.
+// One JSON line appended to attempts.jsonl.
 export function appendAttempt(record: unknown): Promise<void> {
   return invoke("append_attempt", { line: JSON.stringify(record) });
 }
 
-export function rootDir(): Promise<string> {
-  return invoke<string>("root_dir");
+// A theme's banner image as a data URL: `rel` in the data folder (your own
+// images), else among the banners that come with the app.
+export function readBanner(rel: string): Promise<string> {
+  return invoke<string>("read_banner", { rel });
+}
+
+// Where the data folder and the Watering Hole are on disk, for display.
+export interface Folders {
+  data: string;
+  hole: string;
+}
+
+export function folders(): Promise<Folders> {
+  return invoke<Folders>("folders");
 }
 
 export interface ThemeFile {
   name: string;
   json: string;
-  custom: boolean;   // saved by you (themes/custom/), as opposed to a default
+  custom: boolean;   // saved by you (themes/ in the data folder), as opposed to a default
 }
 
 export function listThemes(): Promise<ThemeFile[]> {
@@ -73,18 +85,19 @@ export function writeSettings(json: string): Promise<void> {
   return invoke("write_settings", { json });
 }
 
-// Ids of the series imported from the Watering Hole (data/library.txt).
+// Ids of the series imported from the Watering Hole (library.txt in the data folder).
 export function readLibrary(): Promise<string> {
   return invoke<string>("read_library");
 }
 
-// Replace the imported ids; the change is committed with `message` and pushed.
+// Replace the imported ids; synced data commits the change with `message` and pushes it.
 export function writeLibrary(ids: string[], message: string): Promise<void> {
   return invoke("write_library", { ids, message });
 }
 
-export function openPath(path: string): Promise<void> {
-  return invoke("open_path", { path });
+// Open one of Tembo's folders in Finder ("themes": your saved presets).
+export function openFolder(which: "data" | "themes" | "watering-hole"): Promise<void> {
+  return invoke("open_folder", { which });
 }
 
 // Open a Wikipedia article (an https://en.wikipedia.org/wiki/ URL) in the
@@ -93,19 +106,28 @@ export function openUrl(url: string): Promise<void> {
   return invoke("open_url", { url });
 }
 
-// Moves data/attempts.jsonl to a dated backup; returns the backup's path
+// Moves attempts.jsonl to a dated backup; returns the backup's path
 // ("" if there was no log).
 export function clearAttempts(): Promise<string> {
   return invoke<string>("clear_attempts");
 }
 
-export interface SyncStatus {
-  remote: string | null;     // origin URL; null when sync isn't set up
-  last_ok: number | null;    // unix seconds of the last successful sync
+export interface SyncState {
+  source: string | null;     // where it syncs with; null when it doesn't
+  last_ok: number | null;    // unix seconds of the last success
   error: string | null;
 }
 
-// Pull from the remote in the background; a "synced" message follows if anything changed.
+// `hole`: the Watering Hole, downloaded from the Tembo repository (source is
+// null when running from a checkout, which reads its own folder). `data`:
+// the data folder, synced when it is a git repository with a remote.
+export interface SyncStatus {
+  data: SyncState;
+  hole: SyncState;
+}
+
+// In the background: check for a newer Watering Hole and pull the data
+// folder's remote; a "synced" message follows if anything changed.
 export function syncNow(): Promise<void> {
   return invoke("sync_now");
 }

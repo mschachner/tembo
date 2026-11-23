@@ -1,15 +1,15 @@
-//! Keeping the repo in step with its GitHub remote, so quizzes written in the
-//! cloud arrive here and attempts made here reach the cloud.
+//! Keeping the data folder in step with its git remote, when it has one, so
+//! the library list written in the cloud arrives here and attempts made here
+//! reach the cloud. A data folder that is not a git repository is left alone
+//! and git is never run.
 //!
 //! - `pull`: fetch, and if the remote is ahead, rebase local commits onto it
 //!   (uncommitted edits are stashed and restored). A rebase that would
 //!   conflict is aborted and reported; nothing is left half-done.
-//! - `push_file`: commit one data file (the attempt log, the library list)
-//!   alone, pull, push.
+//! - `push`: commit whatever changed in the data folder, pull, push.
 //!
-//! Everything runs on a background thread, one git operation at a time, and
-//! does nothing when the repo has no remote. Failures are recorded for the
-//! settings page and never interrupt play.
+//! Everything runs on a background thread, one git operation at a time.
+//! Failures are recorded for the settings page and never interrupt play.
 
 use serde::Serialize;
 use std::path::PathBuf;
@@ -18,19 +18,21 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Emitter};
 
 static GIT: Mutex<()> = Mutex::new(());
-static STATUS: Mutex<SyncStatus> = Mutex::new(SyncStatus { remote: None, last_ok: None, error: None });
+static STATUS: Mutex<Status> = Mutex::new(Status { source: None, last_ok: None, error: None });
 
+/// How one kind of syncing is going: the data folder's (here) or the
+/// Watering Hole's (hole.rs).
 #[derive(Serialize, Clone)]
-pub struct SyncStatus {
-    /// URL of the "origin" remote; None when sync isn't set up.
-    remote: Option<String>,
-    /// Unix seconds of the last successful sync.
-    last_ok: Option<u64>,
+pub struct Status {
+    /// Where it syncs with; None when it doesn't.
+    pub source: Option<String>,
+    /// Unix seconds of the last success.
+    pub last_ok: Option<u64>,
     /// The last failure, cleared by the next success.
-    error: Option<String>,
+    pub error: Option<String>,
 }
 
-fn now() -> u64 {
+pub fn now() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -58,7 +60,12 @@ fn git(root: &PathBuf, args: &[&str]) -> Result<String, String> {
     }
 }
 
+/// URL of the "origin" remote; None when the folder is not a git repository
+/// or has no remote. git only runs once the folder is known to be a repository.
 fn remote(root: &PathBuf) -> Option<String> {
+    if !root.join(".git").exists() {
+        return None;
+    }
     git(root, &["remote", "get-url", "origin"]).ok().filter(|s| !s.is_empty())
 }
 
@@ -79,7 +86,7 @@ fn pull_locked(root: &PathBuf) -> Result<bool, String> {
 
 fn record(root: &PathBuf, result: Result<(), String>) {
     let mut s = STATUS.lock().unwrap();
-    s.remote = remote(root);
+    s.source = remote(root);
     match result {
         Ok(()) => { s.last_ok = Some(now()); s.error = None; }
         Err(e) => { s.error = Some(e); }
@@ -94,7 +101,7 @@ fn changed(app: &AppHandle) {
 pub fn pull(app: AppHandle, root: PathBuf) {
     std::thread::spawn(move || {
         let _guard = GIT.lock().unwrap();
-        if remote(&root).is_none() { record(&root, Ok(())); return; }
+        if remote(&root).is_none() { return; }
         match pull_locked(&root) {
             Ok(moved) => { record(&root, Ok(())); if moved { changed(&app); } }
             Err(e) => record(&root, Err(e)),
@@ -102,17 +109,18 @@ pub fn pull(app: AppHandle, root: PathBuf) {
     });
 }
 
-/// Commit one file and push it, in the background.
-pub fn push_file(app: AppHandle, root: PathBuf, path: &'static str, message: String) {
+/// Commit everything that changed in the data folder and push it, in the
+/// background.
+pub fn push(app: AppHandle, root: PathBuf, message: String) {
     std::thread::spawn(move || {
         let _guard = GIT.lock().unwrap();
         if remote(&root).is_none() { return; }
         let result = (|| -> Result<bool, String> {
-            // Nothing to commit if the file matches HEAD.
-            let dirty = !git(&root, &["status", "--porcelain", "--", path])?.is_empty();
+            git(&root, &["add", "--all"])?;
+            // Nothing to commit if the folder matches HEAD.
+            let dirty = !git(&root, &["status", "--porcelain"])?.is_empty();
             if dirty {
-                let _ = git(&root, &["add", "--all", "--", path]);
-                git(&root, &["commit", "--quiet", "-m", &message, "--", path])?;
+                git(&root, &["commit", "--quiet", "-m", &message])?;
             }
             let moved = pull_locked(&root)?;
             git(&root, &["push", "--quiet", "origin", "HEAD"])?;
@@ -125,8 +133,8 @@ pub fn push_file(app: AppHandle, root: PathBuf, path: &'static str, message: Str
     });
 }
 
-pub fn status(root: &PathBuf) -> SyncStatus {
+pub fn status(root: &PathBuf) -> Status {
     let mut s = STATUS.lock().unwrap().clone();
-    if s.remote.is_none() { s.remote = remote(root); }
+    s.source = remote(root);
     s
 }

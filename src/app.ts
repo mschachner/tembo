@@ -1,5 +1,5 @@
 // Application state: quizzes, the attempt log, calibration, settings, theme.
-import { listSeries, listThemes, readAsset, readAttempts, readLibrary, rootDir, writeLibrary, type ThemeFile } from "./backend";
+import { folders, listSeries, listThemes, readAsset, readAttempts, readBanner, readLibrary, writeLibrary, type Folders, type ThemeFile } from "./backend";
 import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
 import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
@@ -19,7 +19,7 @@ export interface Entry {
 }
 
 export const app = {
-  root: "",
+  folders: { data: "", hole: "" } as Folders,
   attempts: [] as AnyAttempt[],
   cps: DEFAULT_CPS,
   settings: null as unknown as Settings,
@@ -32,7 +32,7 @@ export const app = {
 };
 
 export async function loadAll(): Promise<void> {
-  app.root = await rootDir();
+  app.folders = await folders();
   app.settings = await loadSettings();
   await loadThemes();
   applyActiveTheme();
@@ -208,7 +208,7 @@ export function entries(): Entry[] {
   return app.quizzes.filter(inLibrary).map((quiz) => ({ quiz, state: stateOf(quiz) }));
 }
 
-// Importing and removing only change data/library.txt; history is kept by
+// Importing and removing only change library.txt; history is kept by
 // quiz id, so a series removed and imported again picks up where it left off.
 export async function importSeries(series: Series): Promise<void> {
   if (seriesInLibrary(series)) return;
@@ -254,11 +254,18 @@ export function recordAttempt(attempt: Attempt): void {
   appendAttempt(attempt).catch((e) => console.error("could not log attempt", e));
 }
 
-// Images inside a quiz folder, or a banner relative to the repo root.
+// Images inside a quiz folder.
 const assetCache = new Map<string, Promise<string>>();
 export function asset(dir: string, rel: string): Promise<string> {
   const key = `${dir}\u0000${rel}`;
   if (!assetCache.has(key)) assetCache.set(key, readAsset(dir, rel));
+  return assetCache.get(key)!;
+}
+
+// A theme's banner image (a path like "banners/wheat.jpg").
+export function banner(rel: string): Promise<string> {
+  const key = `banner\u0000${rel}`;
+  if (!assetCache.has(key)) assetCache.set(key, readBanner(rel));
   return assetCache.get(key)!;
 }
 

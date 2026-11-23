@@ -1,31 +1,27 @@
 // Dev-only stand-in for the Rust commands, used when the page runs in a
 // browser rather than in Tauri. Quizzes and themes come from the repo via
-// Vite globs; attempts and settings live in memory for the session.
+// Vite globs; the library, attempts and settings live in the browser's
+// storage, starting empty.
 const seriesSources = import.meta.glob(["../watering-hole/*/series.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
 const quizSources = import.meta.glob(["../watering-hole/*/*/quiz.txt", "!../watering-hole/_*/**"], { query: "?raw", import: "default" });
 const quizImages = import.meta.glob("../watering-hole/*/*/**/*.{svg,png,jpg,jpeg,gif,webp}", { query: "?url", import: "default" });
-const librarySource = Object.values(import.meta.glob("../data/library.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>)[0] ?? "";
 const bannerImages = import.meta.glob("../banners/*.{jpg,jpeg,png,webp}", { query: "?url", import: "default" });
 const themeSources = import.meta.glob("../themes/*.json", { query: "?raw", import: "default" });
-const customSources = import.meta.glob("../themes/custom/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 let attempts = (import.meta.env.VITE_MOCK_ATTEMPTS as string | undefined) ?? "";
 let settings = localStorage.getItem("mock-settings") ?? "";
 const deletedThemes = new Set<string>();
 // Shared between preview windows through localStorage, like files on disk.
-const savedThemesNow = () => new Map<string, string>([
-  ...Object.entries(customSources).map(([f, json]) => [f.replace(/^.*\//, "").replace(/\.json$/, ""), json] as [string, string]),
-  ...JSON.parse(localStorage.getItem("mock-themes") ?? "[]"),
-]);
+const savedThemesNow = () => new Map<string, string>(JSON.parse(localStorage.getItem("mock-themes") ?? "[]"));
 
 export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   switch (cmd) {
     case "sync_now":
       return undefined as T;
     case "sync_status":
-      return { remote: null, last_ok: null, error: null } as T;
-    case "root_dir":
-      return "/mock" as T;
+      return { data: { source: null, last_ok: null, error: null }, hole: { source: null, last_ok: null, error: null } } as T;
+    case "folders":
+      return { data: "/mock/data", hole: "/mock/watering-hole" } as T;
     case "list_series": {
       const byDir = new Map<string, { dir: string; path: string; source: string | null; quizzes: { dir: string; path: string; source: string }[] }>();
       const seriesOf = (dir: string) => {
@@ -42,20 +38,23 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       for (const s of byDir.values()) s.quizzes.sort((a, b) => a.path.localeCompare(b.path));
       return [...byDir.values()].sort((a, b) => a.dir.localeCompare(b.dir)) as T;
     }
-    case "open_path":
+    case "open_folder":
       return undefined as T;
     case "open_url":
       window.open(String(args.url), "_blank", "noopener");
       return undefined as T;
     case "read_library":
-      return (localStorage.getItem("mock-library") ?? librarySource) as T;
+      return (localStorage.getItem("mock-library") ?? "") as T;
     case "write_library":
       localStorage.setItem("mock-library", (args.ids as string[]).map((id) => `${id}\n`).join(""));
       return undefined as T;
     case "read_asset": {
-      const dir = String(args.dir);
-      const key = dir === "/mock" ? `../${args.rel}` : `${dir.replace(/^\/mock\//, "../")}/${args.rel}`;
-      const load = quizImages[key] ?? bannerImages[key];
+      const load = quizImages[`${String(args.dir).replace(/^\/mock\//, "../")}/${args.rel}`];
+      if (!load) throw new Error(`${args.rel}: not found`);
+      return (await load()) as T;
+    }
+    case "read_banner": {
+      const load = bannerImages[`../${args.rel}`];
       if (!load) throw new Error(`${args.rel}: not found`);
       return (await load()) as T;
     }
@@ -64,7 +63,7 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
     case "clear_attempts":
       attempts = "";
       localStorage.setItem("mock-attempts", "");
-      return "/mock/data/attempts.backup.jsonl" as T;
+      return "/mock/data/attempts.backup.jsonl" as T; // nothing is written
     case "append_attempt":
       attempts += `${args.line}\n`;
       return undefined as T;
