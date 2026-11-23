@@ -1,6 +1,6 @@
 mode: prompt
 kind: calibration
-note:
+note: Just enter the clue as written!
 ---
 Peru :: Peru
 Chad :: Chad
