@@ -1,0 +1,28 @@
+chunk: 41–60
+mode: prompt
+pass: 100
+columns: Atomic number
+prompt-label: Symbol
+answer-label: Element
+wiki-answer: {answer}
+---
+Nb :: Niobium ;; 41
+Mo :: Molybdenum ;; 42
+Tc :: Technetium ;; 43
+Ru :: Ruthenium ;; 44
+Rh :: Rhodium ;; 45
+Pd :: Palladium ;; 46
+Ag :: Silver ;; 47
+Cd :: Cadmium ;; 48
+In :: Indium ;; 49
+Sn :: Tin ;; 50
+Sb :: Antimony ;; 51
+Te :: Tellurium ;; 52
+I :: Iodine ;; 53
+Xe :: Xenon ;; 54
+Cs :: Caesium | Cesium ;; 55
+Ba :: Barium ;; 56
+La :: Lanthanum ;; 57
+Ce :: Cerium ;; 58
+Pr :: Praseodymium ;; 59
+Nd :: Neodymium ;; 60

@@ -1,4 +1,4 @@
 title: Element symbols
 tags: science, chemistry
 levels: standard, flipped
-chunks: 1–20, 21–40
+chunks: 1–20, 21–40, 41–60

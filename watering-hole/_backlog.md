@@ -119,7 +119,7 @@ chat.
 - [x] Phobias (prompt) — added 2026-11-20 as phobias
 - [x] Composer of the opera (prompt) — added 2026-11-21 as composer-of-the-opera
 - [x] Olympic host cities, Summer (prompt: year → city) — added 2026-11-22 as summer-olympics-host-cities
-- [ ] Ryrzrag flzobyf, 41–60 (cebzcg) — arj puhax bs ryrzrag-flzobyf
+- [x] Element symbols, 41–60 (prompt) — new chunk of element-symbols — added 2026-11-23 as element-symbols/41-60
 - [ ] Nepuvgrpg bs gur ohvyqvat (cebzcg)
 - [ ] Funxrfcrner punenpgref → cynl (cebzcg) — vgf bja frevrf, abg n puhax bs funxrfcrner-cynlf
 - [ ] Ybatrfg eviref (yvfg)
