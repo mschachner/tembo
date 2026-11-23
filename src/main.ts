@@ -9,8 +9,10 @@ import { showHome } from "./views/home";
 import { showPlay } from "./views/play";
 import { settingsView } from "./views/settings";
 import { setKeys, typing } from "./keys";
+import { installTips } from "./tip";
 
 const isSettingsWindow = location.hash === "#settings";
+installTips();
 
 function fail(e: unknown): void {
   const root = document.getElementById("app")!;

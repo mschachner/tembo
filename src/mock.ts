@@ -65,7 +65,8 @@ export async function mockInvoke<T>(cmd: string, args: Record<string, unknown> =
       localStorage.setItem("mock-attempts", "");
       return "/mock/data/attempts.backup.jsonl" as T; // nothing is written
     case "append_attempt":
-      attempts += `${args.line}\n`;
+      attempts = `${localStorage.getItem("mock-attempts") ?? attempts}${args.line}\n`;
+      localStorage.setItem("mock-attempts", attempts);
       return undefined as T;
     case "list_themes": {
       const savedThemes = savedThemesNow();

@@ -129,14 +129,11 @@ h1 {
 /* Section labels: h2, table column headers, settings group titles. */
 h2, .stats th, details.group > summary {
   font-family: var(--label-font, var(--font));
-  font-weight: var(--label-weight, 600); letter-spacing: var(--label-tracking, 0.06em);
+  font-weight: var(--label-weight, 600); letter-spacing: var(--label-tracking, 0.01em);
   color: var(--label-color, var(--fg-3));
 }
 h2, details.group > summary { font-size: calc(1em * var(--label-size)); }
 .stats th { font-size: calc(0.95em * var(--label-size)); }
-[data-label-case="upper"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: uppercase; }
-[data-label-case="small caps"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: none; font-variant-caps: small-caps; }
-[data-label-case="as written"] :is(h2, .stats th, .quiz-table th, details.group > summary) { text-transform: none; }
 h2 { margin: calc(var(--u) * 3) 0 calc(var(--u) * 1); }
 section:first-child h2 { margin-top: 0; }
 header { margin-bottom: calc(var(--u) * 2); }
@@ -272,7 +269,7 @@ input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
 /* ---- the answer key (quiz screen; a shorter one in the home details) ---- */
 /* On the quiz screen the key is as tall as its rows: the page scrolls. */
 .detail-grid.rich > .pane.key { flex: none; }
-.pane.key .row { align-items: center; }
+.pane.key .row:has(.prompt-image) { align-items: center; }
 /* The answer, not the first cell, takes the color of its last result. */
 .pane.key .row:is(.missed, .slow) .cell:first-child { color: inherit; }
 .pane.key .row.missed .key-answer { color: var(--missed); }
@@ -394,9 +391,9 @@ kbd {
 .pane-title {
   display: flex; justify-content: space-between; flex: none; margin: 0;
   padding: calc(var(--u) * 0.6) calc(var(--u) * 1.25);
-  font-family: var(--label-font, var(--font)); font-size: calc(0.95em * var(--label-size));
-  font-weight: var(--label-weight, 600); letter-spacing: var(--label-tracking, 0.06em);
-  color: var(--label-color, var(--fg-3)); text-transform: uppercase;
+  font-family: var(--label-font, var(--font)); font-size: calc(1.05em * var(--label-size));
+  font-weight: var(--label-weight, 600); letter-spacing: var(--label-tracking, 0.01em);
+  color: var(--label-color, var(--fg-3));
 }
 .pane.focused .pane-title { color: var(--accent); }
 .pane-body { flex: 1; min-height: 0; overflow: auto; padding: 0 0 calc(var(--u) * 0.75); }
@@ -409,6 +406,9 @@ kbd {
   display: grid; grid-template-columns: var(--cols, 1fr); column-gap: calc(var(--u) * 1.5); align-items: baseline;
   padding: calc(var(--u) * 0.3 * var(--row-pad)) calc(var(--u) * 1.25); cursor: default;
 }
+/* A row brought into view by the keyboard stays clear of the title bar
+   (the window's content runs under it) and of the window's bottom edge. */
+.row { scroll-margin: calc(var(--titlebar) + var(--u)) 0 var(--u); }
 /* Text is never cut off: a cell, title or label that doesn't fit wraps. */
 .row .cell { min-width: 0; overflow-wrap: break-word; }
 /* Same font size as the rows (the grid is in ch); only the labels shrink. */
@@ -425,7 +425,7 @@ kbd {
 .row.slow .cell:first-child { color: var(--slow); }
 .row-group {
   padding: calc(var(--u) * 0.9) calc(var(--u) * 1.25) calc(var(--u) * 0.2);
-  font-size: 0.75em; letter-spacing: var(--label-tracking, 0.06em); text-transform: uppercase; color: var(--fg-3);
+  font-size: 0.8em; letter-spacing: var(--label-tracking, 0.01em); color: var(--fg-3);
 }
 .quiz-row { grid-template-columns: 1.1em minmax(0, 1fr) auto auto; }
 .quiz-row .row-title { min-width: 0; overflow-wrap: break-word; }
@@ -448,10 +448,13 @@ kbd {
 .screen-detail .figure-body .heatmap { max-height: none; }
 .screen-detail > .detail-grid:not(.rich) { flex: 1; }
 .page.panes-page > .panes-wrap > .detail { padding: 0; }
-[data-pane="answers"] .row.missed .cell:nth-child(2) { color: var(--missed); }
-[data-pane="answers"] .row.slow .cell:nth-child(2) { color: var(--slow); }
-[data-pane="answers"] .row .cell:first-child { color: var(--fg-3); }
-.detail-head .item-prompt { margin: calc(var(--u) * 0.5) 0; }
+[data-pane="answers"].pane.key .row:is(.row, .missed, .slow) .cell:first-child { color: var(--fg-3); }
+/* The item screen's head: the clue and any data values, each after its label. */
+.detail-head .item-prompt { margin: calc(var(--u) * 0.5) 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: calc(var(--u) * 0.25) calc(var(--u) * 3); }
+.detail-head .item-prompt .labeled { display: inline-flex; align-items: baseline; gap: 1ch; min-width: 0; }
+.detail-head .item-prompt:has(img), .detail-head .item-prompt .labeled:has(img) { align-items: center; }
+.detail-head .item-prompt .prompt-image { margin: 0; }
+.tile-date { font-size: 0.8em; white-space: nowrap; }
 .detail-empty { flex: 1; align-items: center; justify-content: center; gap: var(--u); color: var(--fg-3); border-style: dashed; }
 
 /* ---- settings ---- */
@@ -586,7 +589,6 @@ button.danger { white-space: nowrap; flex: none; }
 .settings .control.color-control label { width: auto; flex: 1; white-space: nowrap; color: var(--fg-2); }
 .settings .control.color-control input[type="color"] { width: 30px; height: 22px; flex: none; }
 .settings .control.color-control .control-reset { padding: 0 4px; }
-.settings .icon-preview { display: block; width: 72px; height: 72px; margin: calc(var(--u) * 0.5) 0 0 -6px; }
 
 /* slider readouts share one width so the sliders line up */
 .settings .control > input[type="range"] + .mono { min-width: 64px; text-align: right; }
@@ -643,8 +645,8 @@ input, textarea,
 /* completion */
 .stamp { display: inline-block; }
 [data-anim-celebrate="on"] .stamp {
-  padding: 0 6px; border: 2px solid currentColor; border-radius: 4px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.06em; font-size: 0.85em;
+  padding: 0 6px; border: 2px solid currentColor; border-radius: 4px; font-weight: 700;
+  letter-spacing: 0.02em; font-size: 0.9em;
   animation: stamp calc(480ms * var(--dur)) var(--ease-out) both; animation-delay: calc(250ms * var(--dur));
 }
 
@@ -706,6 +708,7 @@ input, textarea,
 .chart-svg .col:hover rect:not(.hit) { filter: brightness(1.15); }
 .chart-svg .grid { stroke: var(--line); stroke-width: 1; }
 .chart-svg .marker line, .chart-svg line.marker { stroke: var(--fg-3); stroke-width: 1; stroke-dasharray: none; }
+.chart-svg line.marker-hit { stroke: transparent; stroke-width: 9; }
 .chart-svg .plot { overflow: visible; }
 .chart-svg polyline { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .chart-svg svg.marker circle { stroke: var(--bg-2); stroke-width: 2; }
@@ -804,7 +807,7 @@ input, textarea,
   .screen-detail .detail-grid.rich > .tables.two { grid-template-columns: minmax(0, 1fr); max-height: none; min-height: auto; }
   .screen-detail .detail-grid.rich > .tables.two > .pane { max-height: 50vh; }
 }
-.pane-meta { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--fg-3); }
+.pane-meta { font-weight: 400; letter-spacing: 0; color: var(--fg-3); }
 
 /* A series' chunk × level grid: chunks down, levels across. */
 .series-grid { display: grid; grid-template-columns: var(--cols, 1fr); gap: 4px; font-size: 0.9em; }
@@ -815,7 +818,7 @@ input, textarea,
 }
 .series-grid .head .grid-cell, .series-grid .grid-cell.chunk { background: none; color: var(--fg-3); font-size: 0.85em; }
 .series-grid .grid-cell.chunk { text-align: left; }
-.series-grid .head .grid-cell { letter-spacing: var(--label-tracking, 0.06em); text-transform: uppercase; padding-top: 0; padding-bottom: 2px; }
+.series-grid .head .grid-cell { letter-spacing: var(--label-tracking, 0.01em); padding-top: 0; padding-bottom: 2px; }
 .series-grid .grid-cell.corner { padding: 0; }
 .series-grid .grid-cell.none { background: none; color: var(--fg-3); }
 .series-grid .grid-cell.locked { color: var(--fg-3); background: color-mix(in srgb, var(--bg-2) 50%, transparent); }
@@ -834,3 +837,42 @@ input, textarea,
 .stats-scroll .fig-row.tables-row { grid-template-columns: repeat(auto-fit, minmax(min(100%, 640px), 1fr)); }
 .stats-scroll .fig-row.tables-row > .pane { max-height: 320px; }
 .stats-scroll .fig-row > .pane { min-width: 0; }
+
+/* ---- tooltips (tip.ts) ----
+   One floating label, in the text color with the page color for its text,
+   so it reads on any preset. Fixed to the window and above everything. */
+.tip {
+  position: fixed; z-index: 100; left: 0; top: 0; pointer-events: none;
+  width: max-content; max-width: min(340px, calc(100vw - 16px));
+  padding: 4px 9px; border-radius: 6px;
+  background: var(--fg); color: var(--bg);
+  font-size: 0.78em; line-height: 1.4; white-space: pre-line; overflow-wrap: break-word;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--fg) 25%, transparent);
+  opacity: 0; visibility: hidden;
+}
+.tip.shown { opacity: 1; visibility: visible; }
+[data-motion="on"] .tip.shown { transition: opacity 0.1s; }
+
+/* ---- today with nothing to play, and the locked Watering Hole ---- */
+/* Alone on the page (nothing below it), the state fills the window. */
+.panes.alone { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; }
+.panes.today.done.alone { grid-template-rows: 1fr; }
+.panes.alone > .detail-empty { grid-column: 1 / -1; }
+.detail-empty.rest { border-style: solid; padding: calc(var(--u) * 4) calc(var(--u) * 5); }
+.detail-empty.rest .empty-title { font-size: 1.5em; font-weight: 600; color: var(--fg); }
+.detail-empty.rest .tembo-mark { color: var(--accent); }
+.keys .key.pointer, .key.pointer {
+  margin-top: calc(var(--u) * 0.5); padding: calc(var(--u) * 0.5) calc(var(--u) * 1.25);
+  font-size: 1em; color: var(--fg-2); background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.key.pointer:hover { background: var(--bg-3); color: var(--fg); }
+.key.pointer kbd { margin-right: 0.3em; }
+.tab.locked, .tab.locked:hover { color: color-mix(in srgb, var(--fg-3) 60%, transparent); }
+
+/* A fitted table that gives up columns in a narrow pane (tablePane's
+   `narrow`): the pane is the container, its grid and cells follow. */
+.pane.squeeze { container-type: inline-size; }
+@container (width < 620px) {
+  .pane.squeeze .pane-body.fit { grid-template-columns: var(--cols-narrow); }
+  .pane.squeeze .cell.wide-only { display: none; }
+}

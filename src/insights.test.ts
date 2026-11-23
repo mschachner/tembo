@@ -66,6 +66,8 @@ describe("troubleItems", () => {
     const items = troubleItems([a, b], (q) => log[q.id as "a" | "b"], 5, 10);
     expect(items.map((x) => x.stats.answer)).toEqual(["p", "r", "q"]);
     expect(troubleItems([a, b], (q) => log[q.id as "a" | "b"], 5, 10, 1).map((x) => x.stats.answer)).toEqual(["p"]);
+    // Each entry carries its item, for showing the clue beside the answer.
+    expect(items.every((x) => x.item === x.quiz.items.find((it) => it.canonical === x.stats.answer))).toBe(true);
   });
   it("ranks repeated misses above a miss in an item's only attempt", () => {
     const a = quiz("a", ["once"]);

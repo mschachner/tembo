@@ -91,7 +91,7 @@ function markFound(session: Session, idx: number, typed: string): boolean {
 
 // Marks an answer found for the first time ever.
 function firstMark(): HTMLElement {
-  return h("span", { class: "first-mark", title: "first time" }, "\u2726");
+  return h("span", { class: "first-mark", "data-tip": "first time" }, "\u2726");
 }
 
 type AnswerBox = HTMLInputElement | HTMLTextAreaElement;
@@ -135,7 +135,7 @@ function wrongGuess(session: Session, input: AnswerBox, idx: number): boolean {
 // What replaces a locked item's box: the last wrong guess, struck through,
 // then the correct answer.
 function lockedAnswer(session: Session, idx: number, cls: string): HTMLElement {
-  return h("div", { class: `${cls} locked`, title: "locked" },
+  return h("div", { class: `${cls} locked`, "data-tip": "locked" },
     h("s", { class: "guess" }, session.locked.get(idx) ?? ""), " ",
     h("span", { class: "correct" }, session.quiz.items[idx].canonical));
 }
@@ -203,7 +203,7 @@ function viewToggle(quiz: Quiz, onChange: (v: View) => void): HTMLElement {
       },
     }, v === "list" ? "List" : "Cards"),
   );
-  return h("div", { class: "view-toggle", title: "⌘L" }, ...buttons);
+  return h("div", { class: "view-toggle", "data-tip": "⌘L" }, ...buttons);
 }
 
 // Switch a toggle to its other view, as a click would.
@@ -521,7 +521,7 @@ export function showResults(quiz: Quiz, attempt: Attempt, order: number[]): void
         const bucket = bucketOf(attempt, idx, app.cps);
         const item = quiz.items[idx];
         node.classList.add(bucket);
-        node.title = bucket;
+        node.dataset.tip = bucket;
         node.append(...[nodeLabel(quiz, idx), h("div", { class: "dnode-answer" }, ...guesses(idx), answerNode(item, rich(item.canonical))), nodeData(quiz, idx)]
           .filter((x): x is HTMLElement => x !== null));
       }).el;

@@ -10,8 +10,6 @@
   "instant": "#4e7f2a",
   "slow": "#b8891c",
   "missed": "#b0412a",
-  "iconBg": "#e6ecd6",
-  "iconFg": "#4d7a1e",
   "bannerImage": "banners/clover.jpg",
   "bannerY": 55,
   "edgeSmooth": 40,

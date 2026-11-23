@@ -2,14 +2,14 @@
 // the window, driven from the keyboard like the home screen.
 import { app, attemptsOf, playable, stateOf } from "../app";
 import { formatClock, h } from "../dom";
-import { gradeOf, itemRecord, playOrder } from "../grade";
+import { gradeOf, itemRecord, itemRecordAt, type ItemRecord } from "../grade";
 import type { AnyAttempt } from "../log";
 import { nav } from "../nav";
 import { BACK, mountPanes, tablePane, type KeyAction, type Pane, type Row } from "../panes";
 import type { Item, Quiz } from "../quiz/format";
 import { localDate } from "../schedule";
 import { lastTab, renderScreen } from "../shell";
-import { median } from "../stats";
+import { median, occurrenceKeys } from "../stats";
 import { answerNode, fmtDate, fmtNum, fmtSecs, openWiki, promptNode } from "./common";
 import { detailPanes, keyItem } from "./panes";
 import { rich } from "../rich";
@@ -58,6 +58,23 @@ export function showQuiz(quiz: Quiz): void {
   ]);
 }
 
+// An attempt's items in the order they were shown (older records: found,
+// then missed), each with the quiz's item it answers, for its clue. A quiz
+// can ask for one answer twice: the k-th record with an answer goes with
+// the k-th item with it. The item is missing when it has since left the quiz.
+function attemptRows(quiz: Quiz, attempt: AnyAttempt): { answer: string; item: Item | undefined; r: ItemRecord | null }[] {
+  const keys = occurrenceKeys(quiz.items.map((it) => it.canonical));
+  const itemOf = (key: string): Item | undefined => quiz.items[keys.indexOf(key)];
+  if (attempt.version === 2) {
+    const own = occurrenceKeys(attempt.items.map((r) => r.answer));
+    const order = attempt.order ?? attempt.items.map((_, i) => i);
+    return order.map((i) => ({ answer: attempt.items[i].answer, item: itemOf(own[i]), r: itemRecordAt(attempt, i, app.cps) }));
+  }
+  const answers = [...attempt.found, ...attempt.missed];
+  const own = [...occurrenceKeys(attempt.found), ...occurrenceKeys(attempt.missed)];
+  return answers.map((answer, k) => ({ answer, item: itemOf(own[k]), r: itemRecord(attempt, answer, app.cps) }));
+}
+
 export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): void {
   const facts = [
     fmtDate(attempt.endedAt),
@@ -71,22 +88,48 @@ export function showAttempt(quiz: Quiz, attempt: AnyAttempt, back: () => void): 
     h("div", { class: "detail-title" }, attempt.title),
     h("div", { class: "muted small" }, facts));
 
-  const answers = playOrder(attempt).map((answer) => ({ answer, r: itemRecord(attempt, answer, app.cps) }));
+  // Every item as it was asked: its clue (the prompt, then any data
+  // columns), then the answer and how it went.
+  const rows = attemptRows(quiz, attempt);
+  const withPrompt = rows.some((x) => x.item?.prompt);
+  const data = quiz.columns;
   const items = tablePane({
-    id: "answers", title: "Answers", entries: answers, key: (x) => x.answer,
-    cols: "4ch minmax(12ch, 32ch) 8ch 6ch 6ch 8ch 6ch minmax(6ch, 1fr)",
-    head: ["#", "answer", "result", "at", "time", "latency", "typed", "wrong"],
+    id: "answers", title: "Items", entries: rows, key: (_, i) => String(i), extra: "key", fit: true,
+    cols: [
+      "max-content",
+      ...(withPrompt ? ["fit-content(30%)"] : []),
+      ...data.map(() => "fit-content(22%)"),
+      "minmax(10ch, 1.4fr)",
+      ...Array.from({ length: 5 }, () => "max-content"),
+      "minmax(6ch, 1fr)",
+    ].join(" "),
+    head: [
+      "#",
+      ...(withPrompt ? [quiz.promptLabel.toLowerCase() || "clue"] : []),
+      ...data.map((c) => c.toLowerCase()),
+      quiz.answerLabel.toLowerCase() || "answer",
+      "result", "at", "time", "latency", "typed", "wrong",
+    ],
     rowClass: (x) => x.r?.result ?? "",
-    cells: ({ answer, r }, i) => r
-      ? [String(i + 1), rich(answer), r.result, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000), fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtWrong(r)]
-      : [String(i + 1), rich(answer)],
+    cells: ({ answer, item, r }, i) => [
+      String(i + 1),
+      ...(withPrompt ? [h("span", { class: "key-clue" }, ...(item?.prompt ? promptNode(quiz, item, true) : []))] : []),
+      ...data.map((_, k) => item?.data[k] ?? ""),
+      h("span", { class: "key-answer" }, item ? answerNode(item, rich(answer)) : rich(answer)),
+      ...(r ? [r.result, r.acceptedMs === null ? "" : formatClock(r.acceptedMs / 1000), fmtSecs(r.seconds), fmtSecs(r.latency), fmtNum(r.typedChars), fmtWrong(r)] : []),
+    ],
     activate: ({ answer, r }) => r ? () => nav.item(quiz, answer, () => showAttempt(quiz, attempt, back)) : undefined,
   });
   const grid = h("div", { class: "detail-grid" }, items.el);
-  mountScreen(`attempt:${attempt.endedAt}`, head, grid, [items], () => [
+  mountScreen(`attempt:${attempt.endedAt}`, head, grid, [items], (row) => [
+    ...wikiActions(quiz, rows[Number(row?.id ?? -1)]?.item),
     { keys: ["q"], hint: "q", label: "Quiz", run: () => nav.quiz(quiz) },
     BACK(back),
   ]);
+}
+
+function labeled(label: string, ...value: (Node | string)[]): HTMLElement {
+  return h("span", { class: "labeled" }, h("span", { class: "muted small" }, label), ...value);
 }
 
 export function showItem(quiz: Quiz, answer: string, back: () => void): void {
@@ -112,9 +155,12 @@ export function showItem(quiz: Quiz, answer: string, back: () => void): void {
 
   const head = h("section", { class: "pane detail-head" },
     h("div", { class: "detail-title" }, item ? answerNode(item, rich(answer)) : rich(answer)),
-    h("div", { class: "muted small" }, quiz.title),
+    h("div", { class: "muted small" }, `${(quiz.answerLabel || "answer").toLowerCase()} · ${quiz.title}`),
     item?.aliases.length ? h("div", { class: "muted small" }, `also: ${item.aliases.join(", ")}`) : null,
-    item?.prompt ? h("div", { class: "item-prompt" }, ...promptNode(quiz, item, true)) : null,
+    // What the answer is asked with: the prompt and any data values, labeled.
+    item && (item.prompt || item.data.some((v) => v !== "")) ? h("div", { class: "item-prompt" },
+      item.prompt ? labeled((quiz.promptLabel || "clue").toLowerCase(), ...promptNode(quiz, item, true)) : null,
+      ...quiz.columns.map((c, k) => item.data[k] ? labeled(c.toLowerCase(), item.data[k]) : null)) : null,
     h("div", { class: "muted small" }, facts));
 
   const seen = tablePane({

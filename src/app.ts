@@ -3,7 +3,7 @@ import { folders, listSeries, listThemes, readAsset, readAttempts, readBanner, r
 import type { Attempt } from "./attempt";
 import { appendAttempt } from "./backend";
 import { DEFAULT_CPS, gradeOf, setInstantSeconds, typingSpeed } from "./grade";
-import { belongsTo, parseLog, type AnyAttempt } from "./log";
+import { belongsTo, isCalibration, parseLog, type AnyAttempt } from "./log";
 import { assembleSeries, parseQuiz, parseSeries, previousChunk, previousLevel, type Quiz, type Series } from "./quiz/format";
 import { isDue, localDate, NEW_STATE, replay, type QuizState } from "./schedule";
 import { loadSettings, saveSettings, type Settings } from "./settings";
@@ -11,7 +11,6 @@ import { configureSound } from "./sound";
 import { applyTheme, FALLBACK_THEME, parseTheme, type Theme } from "./theme";
 import { publish, setWindowBackground } from "./bus";
 import { applyMotion } from "./motion";
-import { updateDockIcon } from "./icon";
 
 export interface Entry {
   quiz: Quiz;
@@ -108,9 +107,6 @@ export function applyActiveTheme(): void {
   const theme = activeTheme();
   applyTheme(theme);
   void setWindowBackground(String(theme.bg ?? ""));
-  // The main window owns the Dock icon; the settings window's changes reach
-  // it through adoptSettings.
-  if (location.hash !== "#settings") updateDockIcon(String(theme.iconBg), String(theme.iconFg));
   const root = document.documentElement;
   if (!root.hasAttribute("data-theme-ready")) {
     getComputedStyle(document.body).backgroundColor; // commit the first theme without a transition
@@ -207,6 +203,30 @@ export function lockedQuizzes(): Quiz[] {
 export function entries(): Entry[] {
   return app.quizzes.filter(inLibrary).map((quiz) => ({ quiz, state: stateOf(quiz) }));
 }
+
+// The typing calibration quiz, which everyone has.
+export function calibrationQuiz(): Quiz | undefined {
+  return app.quizzes.find((q) => q.kind === "calibration");
+}
+
+// Has the typing speed been measured yet?
+export function calibrated(): boolean {
+  return app.attempts.some(isCalibration);
+}
+
+// Is anything imported from the Watering Hole?
+export function hasImports(): boolean {
+  return app.series.some((s) => app.library.includes(s.id));
+}
+
+// Someone new calibrates first: with nothing imported and no calibration
+// yet, the Watering Hole stays locked until the typing calibration has been
+// played once (grades compare answers against the player's typing speed).
+export function holeLocked(): boolean {
+  return !calibrated() && !hasImports() && !!calibrationQuiz();
+}
+
+export const HOLE_LOCK_REASON = "unlocks after typing calibration";
 
 // Importing and removing only change library.txt; history is kept by
 // quiz id, so a series removed and imported again picks up where it left off.

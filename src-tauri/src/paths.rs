@@ -15,6 +15,10 @@
 //! Run from a checkout (`tauri dev`, or TEMBO_ROOT set to one), the resources
 //! and the Watering Hole are the checkout's own folders and nothing is
 //! downloaded, so quizzes being written show up as they are on disk.
+//!
+//! TEMBO_HOME stands in for `~/Library/Application Support/<identifier>` as a
+//! whole: pointed at an empty folder, the app starts as it does for someone
+//! opening it for the first time (scripts/fresh.sh).
 
 use std::path::PathBuf;
 use std::sync::OnceLock;
@@ -52,7 +56,10 @@ pub fn init(app: &tauri::App) -> Result<(), String> {
     let checkout = env_dir("TEMBO_ROOT").or_else(|| {
         cfg!(debug_assertions).then(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".."))
     });
-    let support = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    let support = match env_dir("TEMBO_HOME") {
+        Some(dir) => dir,
+        None => app.path().app_data_dir().map_err(|e| e.to_string())?,
+    };
     let resources = match &checkout {
         Some(dir) => dir.clone(),
         None => app.path().resource_dir().map_err(|e| e.to_string())?,

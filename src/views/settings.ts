@@ -6,7 +6,6 @@ import { refreshBanner } from "../shell";
 import { publish } from "../bus";
 import { sounds } from "../sound";
 import { THEME_VARS, type VarSpec } from "../theme";
-import { iconDataUrl } from "../icon";
 
 function rerender(): void {
   nav.home("settings");
@@ -19,14 +18,7 @@ function setOverride(key: string, value: string | number): void {
   applyActiveTheme();
   persistSettings();
   if (BANNER_KEYS.has(key)) refreshBanner();
-  if (key === "iconBg" || key === "iconFg") syncIconPreview();
   syncModified();
-}
-
-function syncIconPreview(): void {
-  const theme = activeTheme();
-  const img = document.querySelector<HTMLImageElement>(".icon-preview");
-  if (img) img.src = iconDataUrl(String(theme.iconBg), String(theme.iconFg));
 }
 
 // Show each control's reset link, the preset's modified marker, and the
@@ -136,7 +128,7 @@ function syncRows(): HTMLElement {
       where.textContent = s.source
         ? s.source.replace(/^(https:\/\/|git@)/, "").replace(/\.git$/, "").replace(":", "/")
         : unsynced;
-      where.title = folder();
+      where.dataset.tip = folder();
       when.textContent = s.last_ok
         ? new Date(s.last_ok * 1000).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
         : "";
@@ -147,7 +139,7 @@ function syncRows(): HTMLElement {
   };
   // Unsynced: a checkout reads its own watering-hole folder; data that is
   // not a git repository stays on this computer.
-  const hole = part("Watering Hole", "this checkout", () => app.folders.hole);
+  const hole = part("Watering hole", "this checkout", () => app.folders.hole);
   const data = part("Data", "this computer only", () => app.folders.data);
   const refresh = async () => {
     const s = await syncStatus();
@@ -199,7 +191,7 @@ export function settingsView(): Node {
 
 function appearanceSections(): Node[] {
   const presetChip = (name: string) => {
-    const del = h("button", { class: "preset-delete", title: `Delete ${name}`, "aria-label": `Delete ${name}` }, "×");
+    const del = h("button", { class: "preset-delete", "data-tip": `Delete ${name}`, "aria-label": `Delete ${name}` }, "×");
     // Two clicks to delete: the first arms the button for three seconds.
     let armed = 0;
     del.addEventListener("click", async (e) => {
@@ -281,9 +273,9 @@ function appearanceSections(): Node[] {
       // then saving the current look as a new preset.
       h("div", { class: "preset-actions" },
         app.customPresets.has(app.settings.preset)
-          ? h("button", { class: "save-current", onclick: saveCurrent, title: "Write these changes into this preset" }, `Save to ${app.settings.preset}`)
+          ? h("button", { class: "save-current", onclick: saveCurrent, "data-tip": "Write these changes into this preset" }, `Save to ${app.settings.preset}`)
           : null,
-        h("button", { class: "reset-all", onclick: resetAll, title: "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
+        h("button", { class: "reset-all", onclick: resetAll, "data-tip": "Discard changes to this preset" }, `Reset to ${app.settings.preset}`)),
       h("div", { class: "save-preset" }, nameInput, saveButton),
       saveStatus,
     ),
@@ -292,9 +284,6 @@ function appearanceSections(): Node[] {
       colorCol("Text", [["fg", "Primary"], ["fg2", "Secondary"], ["fg3", "Muted"], ["labelColor", "Labels"]]),
       colorCol("Accent", [["accent", "Accent"]]),
       colorCol("Results", [["instant", "Instant"], ["slow", "Slow"], ["missed", "Missed"]]),
-      h("div", { class: "color-col" }, h("h3", {}, "App icon"),
-        control(spec("iconBg"), "Background"), control(spec("iconFg"), "Elephant"),
-        h("img", { class: "icon-preview", alt: "", src: iconDataUrl(String(activeTheme().iconBg), String(activeTheme().iconFg)) })),
     )),
     group("Banner", ...groupsOf(["bannerImage", "bannerEdgePos", "edgeSmooth", "edgeDither", "bannerHeight", "bannerY", "bannerPan"])),
     group("Surfaces", ...groupsOf(["tabs", "surfaces", "contrast", "plate", "plateBlur"])),
@@ -303,7 +292,7 @@ function appearanceSections(): Node[] {
       sub("Numbers", [["fontMono", "Font"], ["monoScale", "Size (× body)"]]),
       sub("Title", [["titleFont", "Font"], ["titleSize", "Size"], ["titleWeight", "Weight"], ["titleTracking", "Letter spacing"]]),
       sub("Headings", [["headingFont", "Font"], ["headingSize", "Size"]]),
-      sub("Section labels", [["labelFont", "Font"], ["labelSize", "Size (× body)"], ["labelWeight", "Weight"], ["labelTracking", "Letter spacing"], ["labelCase", "Case"]]),
+      sub("Section labels", [["labelFont", "Font"], ["labelSize", "Size (× body)"], ["labelWeight", "Weight"], ["labelTracking", "Letter spacing"]]),
     ),
     group("Layout", ...groupsOf(["contentWidth", "wideWidth", "lineHeight", "space", "rowPad", "radius", "plateRadius", "cardMin", "slotCols"])),
   ];
@@ -401,9 +390,9 @@ function appSections(): Node[] {
     group("Sync", syncRows()),
     group("Files",
       h("div", { class: "control" }, h("label", {}, "Open folder"),
-        h("button", { class: "quiet tiny", title: app.folders.hole, onclick: () => openFolder("watering-hole") }, "watering hole"),
-        h("button", { class: "quiet tiny", title: app.folders.data, onclick: () => openFolder("data") }, "data"),
-        h("button", { class: "quiet tiny", title: `${app.folders.data}/themes`, onclick: () => openFolder("themes") }, "themes"))),
+        h("button", { class: "quiet tiny", "data-tip": app.folders.hole, onclick: () => openFolder("watering-hole") }, "watering hole"),
+        h("button", { class: "quiet tiny", "data-tip": app.folders.data, onclick: () => openFolder("data") }, "data"),
+        h("button", { class: "quiet tiny", "data-tip": `${app.folders.data}/themes`, onclick: () => openFolder("themes") }, "themes"))),
     group({ name: "Danger zone", class: "danger-zone" },
       h("div", { class: "control" }, h("label", {}, "History"), clearButton, clearStatus),
       h("p", { class: "muted small" }, "Moves attempts.jsonl to a dated backup in the same folder and starts an empty log. Every quiz becomes new.")),

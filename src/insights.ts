@@ -4,7 +4,7 @@
 import type { Attempt } from "./attempt";
 import { bucketOf, gradeOf, INSTANT_SECONDS, itemLatency, type Bucket } from "./grade";
 import { isCalibration, type AnyAttempt } from "./log";
-import { topicOf, type Quiz } from "./quiz/format";
+import { topicOf, type Item, type Quiz } from "./quiz/format";
 import { addDays, daysBetween, localDate, type QuizState } from "./schedule";
 import { itemStats, median, occurrenceKeys, type ItemStats } from "./stats";
 
@@ -178,7 +178,7 @@ export function forecast(entries: { quiz: Quiz; state: QuizState }[], today: str
 // up rather than averages, so an item missed in several attempts ranks above
 // one missed in its only attempt.
 const TROUBLE_WINDOW = 4;
-export interface TroubleItem { quiz: Quiz; stats: ItemStats; score: number; recent: (Bucket | "untimed")[] }
+export interface TroubleItem { quiz: Quiz; item: Item; stats: ItemStats; score: number; recent: (Bucket | "untimed")[] }
 
 // Ties go to the item with more misses and slow answers over its whole history.
 const totalTrouble = (st: ItemStats) => 2 * st.missed + st.slow;
@@ -192,13 +192,13 @@ export function troubleItems(quizzes: Quiz[], attemptsOf: (q: Quiz) => AnyAttemp
     const recentAttempts = own.slice(-TROUBLE_WINDOW);
     const hist = itemHistory(recentAttempts, cps, quiz.items.map((it) => it.canonical));
     const stats = itemStats(quiz, own, cps);
-    quiz.items.forEach((_it, i) => {
+    quiz.items.forEach((item, i) => {
       const recent = hist[i].filter((b): b is Bucket | "untimed" => b !== null);
       if (!recent.length) return;
       // Weights 4, 3, 2, 1 from newest to oldest; a miss costs 2, slow 1.
       let score = 0;
       recent.forEach((b, k) => { score += (TROUBLE_WINDOW - (recent.length - 1 - k)) * (b === "missed" ? 2 : b === "slow" ? 1 : 0); });
-      if (score > 0) out.push({ quiz, stats: stats[i], score, recent });
+      if (score > 0) out.push({ quiz, item, stats: stats[i], score, recent });
     });
   }
   out.sort((a, b) => b.score - a.score || totalTrouble(b.stats) - totalTrouble(a.stats) || a.stats.answer.localeCompare(b.stats.answer));

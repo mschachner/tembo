@@ -100,10 +100,15 @@ export function itemRecord(attempt: AnyAttempt, answer: string, cps: number): It
     return null;
   }
   const idx = attempt.items.findIndex((r) => r.answer === answer);
-  if (idx < 0) return null;
+  return idx < 0 ? null : itemRecordAt(attempt, idx, cps);
+}
+
+// The same, for the item at a position in the attempt (a quiz can ask for
+// one answer twice; each has its own record).
+export function itemRecordAt(attempt: Attempt, idx: number, cps: number): ItemRecord {
   const r = attempt.items[idx];
   return {
-    answer,
+    answer: r.answer,
     result: bucketOf(attempt, idx, cps),
     acceptedMs: r.acceptedMs ?? null,
     seconds: itemSeconds(attempt, idx),

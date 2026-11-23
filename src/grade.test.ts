@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Attempt, ItemResult } from "./attempt";
-import { bucketOf, gradeOf, itemLatency, itemRecord, typingSpeed } from "./grade";
+import { bucketOf, gradeOf, itemLatency, itemRecord, itemRecordAt, typingSpeed } from "./grade";
 
 function promptAttempt(items: ItemResult[], kind: Attempt["kind"] = "normal"): Attempt {
   const found = items.filter((i) => i.found).map((i) => i.answer);
@@ -53,5 +53,22 @@ describe("typingSpeed", () => {
     ], "calibration");
     expect(typingSpeed([c])).toBe(4);
     expect(typingSpeed([promptAttempt([])])).toBeNull();
+  });
+});
+
+describe("itemRecordAt", () => {
+  it("gives each occurrence of a repeated answer its own record", () => {
+    const a: Attempt = {
+      version: 2, quiz: "q", title: "q", mode: "prompt", kind: "normal", startedAt: "2026-10-07T20:00:00Z", endedAt: "2026-10-07T20:01:00Z",
+      durationSeconds: 60, total: 2, score: 1, cleared: false, found: ["Grover Cleveland"], missed: ["Grover Cleveland"], rejected: 1,
+      items: [
+        { answer: "Grover Cleveland", found: true, focusedMs: 0, acceptedMs: 4000, typedChars: 16, wrong: 0 },
+        { answer: "Grover Cleveland", found: false, wrong: 1, guesses: ["Harrison"] },
+      ],
+    };
+    expect(itemRecordAt(a, 0, 5).result).not.toBe("missed");
+    expect(itemRecordAt(a, 1, 5)).toMatchObject({ result: "missed", wrong: 1, guesses: ["Harrison"] });
+    // By answer alone, only the first occurrence can be found.
+    expect(itemRecord(a, "Grover Cleveland", 5)).toEqual(itemRecordAt(a, 0, 5));
   });
 });

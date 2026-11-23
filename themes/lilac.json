@@ -10,8 +10,6 @@
   "instant": "#5a8a3e",
   "slow": "#c08d24",
   "missed": "#b8453a",
-  "iconBg": "#ebe3f6",
-  "iconFg": "#6a4fc4",
   "bannerImage": "banners/lilac.jpg",
   "bannerY": 45,
   "edgeSmooth": 40,

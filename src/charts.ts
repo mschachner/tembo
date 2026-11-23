@@ -1,8 +1,8 @@
 // Small charts in the theme's colors, for the quiz details and the Stats
 // tab. Horizontal positions are percentages of the drawing, so a chart
 // fills whatever width its pane gives it, while heights are in pixels so
-// marks keep their size. Every mark carries a <title> for hovering; the
-// numbers are also in the tables and facts beside each chart.
+// marks keep their size. Every mark carries a tooltip (data-tip, see
+// tip.ts); the numbers are also in the tables and facts beside each chart.
 import { h } from "./dom";
 
 const NS = "http://www.w3.org/2000/svg";
@@ -18,16 +18,12 @@ function s<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, s
   return el;
 }
 
-function title(text: string | undefined): SVGTitleElement | null {
-  return text ? s("title", {}, document.createTextNode(text)) : null;
-}
-
 const pct = (x: number) => `${(Math.round(x * 1000) / 1000).toFixed(3)}%`;
 
 // A column: 4px rounded data-end, square at the baseline.
-function bar(x: string, w: string, top: number, bottom: number, fill: Fill, tip?: string): SVGGElement {
+function bar(x: string, w: string, top: number, bottom: number, fill: Fill): SVGGElement {
   const hgt = Math.max(0, bottom - top);
-  const g = s("g", { class: `c-${fill}` }, title(tip));
+  const g = s("g", { class: `c-${fill}` });
   if (hgt <= 0) return g;
   const r = Math.min(4, hgt / 2);
   g.append(s("rect", { x, width: w, y: top, height: hgt, rx: r }));
@@ -67,8 +63,8 @@ export function columns(cols: Column[], opts: ColumnsOpts = {}): HTMLElement {
     const x = pct(slot * (i + (1 - wFrac) / 2));
     const w = pct(slot * wFrac);
     const tip = c.tip ?? (c.label ? `${c.label}: ${total(c)}` : String(total(c)));
-    // Hit target: the whole slot.
-    const g = s("g", { class: "col" }, s("rect", { class: "hit", x: pct(slot * i), width: pct(slot), y: 0, height: H }, title(tip)));
+    // Hover target: the whole slot, so short and empty columns have one too.
+    const g = s("g", { class: "col", "data-tip": tip }, s("rect", { class: "hit", x: pct(slot * i), width: pct(slot), y: 0, height: H }));
     if (c.stack) {
       let bottom = H - 1;
       const parts = c.stack.filter((p) => p.value > 0);
@@ -87,7 +83,10 @@ export function columns(cols: Column[], opts: ColumnsOpts = {}): HTMLElement {
     svg.append(g);
   });
   if (opts.marker !== undefined) {
-    svg.append(s("line", { class: "marker", x1: pct(opts.marker * 100), x2: pct(opts.marker * 100), y1: 0, y2: H }, title(opts.markerTip)));
+    // The hairline itself is too thin to point at; a wider clear line carries its tooltip.
+    const x = pct(opts.marker * 100);
+    svg.append(s("line", { class: "marker", x1: x, x2: x, y1: 0, y2: H }));
+    if (opts.markerTip) svg.append(s("line", { class: "marker-hit", x1: x, x2: x, y1: 0, y2: H, "data-tip": opts.markerTip }));
   }
   const wrap = h("div", { class: "chart columns" }, svg);
   const mode = opts.labels ?? (n <= 12 ? "all" : "ends");
@@ -146,7 +145,7 @@ export function lines(series: Series[], opts: LineOpts = {}): HTMLElement {
   // Hit targets: one slot per x.
   if (opts.tips) {
     const slot = 100 / n;
-    opts.tips.forEach((t, i) => svg.append(s("rect", { class: "hit", x: pct(slot * i), width: pct(slot), y: 0, height: H }, title(t))));
+    opts.tips.forEach((t, i) => svg.append(s("rect", { class: "hit", x: pct(slot * i), width: pct(slot), y: 0, height: H, "data-tip": t })));
   }
   const wrap = h("div", { class: "chart lines" }, svg);
   if (opts.labels?.length) {
@@ -164,7 +163,7 @@ export function segments(parts: { value: number; fill: Fill; label: string }[], 
   const bar = h("div", { class: "segments" });
   for (const p of parts) {
     if (p.value <= 0) continue;
-    bar.append(h("i", { class: `c-${p.fill}`, style: `flex: ${p.value} ${p.value} 0`, title: `${p.label}: ${p.value}${total ? ` (${Math.round((100 * p.value) / total)}%)` : ""}` }));
+    bar.append(h("i", { class: `c-${p.fill}`, style: `flex: ${p.value} ${p.value} 0`, "data-tip": `${p.label}: ${p.value}${total ? ` (${Math.round((100 * p.value) / total)}%)` : ""}` }));
   }
   if (!total) bar.append(h("i", { class: "c-line", style: "flex: 1" }));
   const wrap = h("div", { class: "chart segments-chart" }, bar);
@@ -184,7 +183,7 @@ export function heatmap(rows: HeatRow[], colTips: string[] = []): HTMLElement {
   for (const r of rows) {
     grid.append(h("span", { class: "heat-label" }, r.label));
     const cells = h("div", { class: "heat-cells" });
-    r.cells.forEach((c, i) => cells.append(h("i", { class: c.fill ? `c-${c.fill}` : "empty", title: c.tip ?? colTips[i] ?? null })));
+    r.cells.forEach((c, i) => cells.append(h("i", { class: c.fill ? `c-${c.fill}` : "empty", "data-tip": c.tip ?? colTips[i] ?? null })));
     grid.append(cells);
   }
   return h("div", { class: "chart" }, grid);
@@ -204,7 +203,7 @@ export function calendar(counts: Map<string, number>, weeks: number, today: stri
     const key = dayKey(d);
     const n = counts.get(key) ?? 0;
     const level = n === 0 ? 0 : Math.min(4, 1 + Math.floor((3 * (n - 1)) / Math.max(1, max - 1)));
-    const cell = h("i", { class: `lvl-${level} ${key === today ? "today" : ""}`, title: `${key}: ${n} attempt${n === 1 ? "" : "s"}` });
+    const cell = h("i", { class: `lvl-${level} ${key === today ? "today" : ""}`, "data-tip": `${key}: ${n} attempt${n === 1 ? "" : "s"}` });
     grid.append(cell);
     if (d.getDay() === 1) {
       if (d.getMonth() !== lastMonth) { months.append(h("span", { style: `grid-column: ${col + 1}` }, d.toLocaleDateString("en-US", { month: "short" }))); lastMonth = d.getMonth(); }

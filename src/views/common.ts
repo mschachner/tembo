@@ -27,6 +27,21 @@ export function promptNode(quiz: Quiz, item: Item, link = false): Node[] {
   return img ? [wikiLink(wiki, img)] : [h("div", { class: "prompt-text" }, wikiLink(wiki, text))];
 }
 
+// What an item is asked with, for the tables shown after a quiz: its prompt
+// (text or picture), or for an item without one, its data values. Nothing
+// for an item that has neither (a plain list quiz) or is no longer in the
+// quiz. `link` as in promptNode.
+export function clueNode(quiz: Quiz, item: Item | undefined, link = false): Node[] {
+  if (!item) return [];
+  if (item.prompt) return promptNode(quiz, item, link);
+  const values = item.data.filter((v) => v !== "");
+  return values.length ? [document.createTextNode(values.join(" · "))] : [];
+}
+
+export function hasClue(item: Item | undefined): boolean {
+  return !!item && (!!item.prompt || item.data.some((v) => v !== ""));
+}
+
 export function openWiki(title: string): void {
   openUrl(wikiUrl(title)).catch((e) => console.error("could not open", title, e));
 }
@@ -38,7 +53,7 @@ export function wikiLink(title: string | undefined, content: Node | string): Nod
   const node = typeof content === "string" ? document.createTextNode(content) : content;
   if (!title) return node;
   return h("a", {
-    class: `wiki ${node instanceof HTMLImageElement ? "image" : ""}`.trim(), role: "link", title: `Wikipedia: ${title}`,
+    class: `wiki ${node instanceof HTMLImageElement ? "image" : ""}`.trim(), role: "link", "data-tip": `Wikipedia: ${title}`,
     onclick: (e: Event) => { e.preventDefault(); e.stopPropagation(); openWiki(title); },
   }, node);
 }

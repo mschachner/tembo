@@ -71,15 +71,40 @@ function paint(): void {
   }
   const pane = focusedPane();
   const row = pane ? cursorRow(pane) : null;
-  const shown = [...ctl.actions(pane, row), ...(ctl.panes.length > 1 ? MOVE_HINTS : MOVE_HINTS.slice(0, 1))].filter((a) => a.label);
+  const shown = [...ctl.actions(pane, row), ...MOVE_HINTS.slice(0, Math.min(2, ctl.panes.length))].filter((a) => a.label);
   ctl.legend.replaceChildren(...shown.map((a) =>
     h("button", { class: "key", tabindex: "-1", onclick: () => a.run() }, h("kbd", {}, a.hint), " ", a.label)));
 }
 
+// Bring a row into view. Inside a pane that scrolls its own rows, the row
+// has to clear the column header, which stays at the top of the pane and
+// which scrollIntoView knows nothing about (it would leave a row moved up
+// to hidden underneath it). The first row takes the pane back to its very
+// top, so the group label above it shows too.
+function revealInPane(pane: Pane, row: Row): void {
+  const body = pane.body;
+  if (body && body.scrollHeight > body.clientHeight) {
+    const head = body.querySelector<HTMLElement>(":scope > .row.head");
+    const b = body.getBoundingClientRect(), r = row.el.getBoundingClientRect();
+    const top = b.top + (head ? head.getBoundingClientRect().height : 0);
+    if (row === pane.rows[0]) body.scrollTop = 0;
+    else if (r.top < top) body.scrollTop -= top - r.top;
+    else if (r.bottom > b.bottom) body.scrollTop += r.bottom - b.bottom;
+  }
+}
+
+// The same, and then the window scrolls if the row is outside it.
+function reveal(pane: Pane, row: Row): void {
+  revealInPane(pane, row);
+  row.el.scrollIntoView({ block: "nearest" });
+}
+
+// The details are redrawn for the new row first: that can change the
+// page's height and move the row, so it is brought into view afterwards.
 function setCursor(pane: Pane, row: Row, scroll = true): void {
   cursors.set(cursorKey(pane), row.id);
-  if (scroll) row.el.scrollIntoView({ block: "nearest" });
   pane.onCursor?.(row);
+  if (scroll) reveal(pane, row);
   paint();
 }
 
@@ -91,6 +116,9 @@ function setFocus(pane: Pane, reveal = false): void {
   if (reveal) {
     const r = pane.el.getBoundingClientRect();
     pane.el.scrollIntoView({ block: r.top < 0 || r.height > window.innerHeight ? "start" : "nearest" });
+    // The pane may have been scrolled with the mouse since its cursor last moved.
+    const cur = cursorRow(pane);
+    if (cur) revealInPane(pane, cur);
   }
   paint();
 }
@@ -115,10 +143,18 @@ export function mountPanes(opts: {
   const remembered = focused.get(opts.scope);
   const start = ctl.panes.find((p) => p.id === remembered) ?? ctl.panes.find((p) => p.rows.length) ?? ctl.panes[0];
   if (start) ctl.focus = start.id;
-  // Only a remembered cursor scrolls into view; a fresh screen opens at the top.
+  // Draw the details of each pane's cursor row, then (the page now has its
+  // final height) bring remembered cursors into view: each inside its own
+  // pane, and the focused pane's in the window too. A fresh screen, with
+  // nothing remembered, opens at the top.
+  for (const pane of [...ctl.panes]) {
+    const cur = cursorRow(pane);
+    if (cur) pane.onCursor?.(cur);
+  }
   for (const pane of ctl.panes) {
     const cur = cursorRow(pane);
-    if (cur) { if (cursors.has(cursorKey(pane))) cur.el.scrollIntoView({ block: "nearest" }); pane.onCursor?.(cur); }
+    if (!cur || !cursors.has(cursorKey(pane))) continue;
+    if (pane.id === ctl.focus) reveal(pane, cur); else revealInPane(pane, cur);
   }
   paint();
   setKeys(onKey);
@@ -199,19 +235,23 @@ function onKey(e: KeyboardEvent): boolean {
 
 // ---------- building blocks ----------
 
-export function paneEl(id: string, title: string, body: HTMLElement, opts: { cols?: string; extra?: string; meta?: string } = {}): HTMLElement {
-  return h("section", { class: `pane ${opts.extra ?? ""}`, "data-pane": id, style: opts.cols ? `--cols: ${opts.cols}` : null },
+export function paneEl(id: string, title: string, body: HTMLElement, opts: { cols?: string; narrowCols?: string; extra?: string; meta?: string } = {}): HTMLElement {
+  const style = [opts.cols ? `--cols: ${opts.cols}` : null, opts.narrowCols ? `--cols-narrow: ${opts.narrowCols}` : null].filter(Boolean).join("; ");
+  return h("section", { class: `pane ${opts.narrowCols ? "squeeze" : ""} ${opts.extra ?? ""}`, "data-pane": id, style: style || null },
     h("header", { class: "pane-title" }, h("span", {}, title), opts.meta ? h("span", { class: "pane-meta" }, opts.meta) : null),
     body);
 }
 
-export function cells(...xs: (string | Node | null)[]): HTMLElement[] {
-  return xs.map((x) => h("span", { class: "cell" }, x ?? ""));
+// `wideOnly`: indices of the cells left out when the pane is narrow.
+export function cells(xs: (string | Node | null)[], wideOnly: number[] = []): HTMLElement[] {
+  return xs.map((x, i) => h("span", { class: wideOnly.includes(i) ? "cell wide-only" : "cell" }, x ?? ""));
 }
 
 // A pane of table rows: a sticky header row, then one row per entry. With
 // `fit`, the rows share one grid, so `cols` may size a column to its widest
 // cell (max-content, fit-content) and leave the rest to the text columns.
+// A fitted table can give up columns when its pane is narrow: `narrow`
+// names the ones to drop (by index) and the grid for those that stay.
 export function tablePane<T>(opts: {
   id: string;
   title: string;
@@ -225,14 +265,16 @@ export function tablePane<T>(opts: {
   extra?: string;
   meta?: string;
   fit?: boolean;
+  narrow?: { drop: number[]; cols: string };
 }): Pane {
-  const body = h("div", { class: `pane-body ${opts.fit ? "fit" : ""}` }, h("div", { class: "row head" }, ...cells(...opts.head)));
+  const drop = opts.narrow?.drop ?? [];
+  const body = h("div", { class: `pane-body ${opts.fit ? "fit" : ""}` }, h("div", { class: "row head" }, ...cells(opts.head, drop)));
   const rows: Row[] = opts.entries.map((t, i) => {
-    const el = h("div", { class: `row ${opts.rowClass?.(t) ?? ""}` }, ...cells(...opts.cells(t, i)));
+    const el = h("div", { class: `row ${opts.rowClass?.(t) ?? ""}` }, ...cells(opts.cells(t, i), drop));
     body.append(el);
     return { id: opts.key(t, i), el, activate: opts.activate?.(t) };
   });
-  return { id: opts.id, el: paneEl(opts.id, opts.title, body, { cols: opts.cols, extra: opts.extra, meta: opts.meta }), rows, body };
+  return { id: opts.id, el: paneEl(opts.id, opts.title, body, { cols: opts.cols, narrowCols: opts.narrow?.cols, extra: opts.extra, meta: opts.meta }), rows, body };
 }
 
 export const BACK = (run: () => void, label = "Back"): KeyAction => ({ keys: ["Escape", "Backspace"], hint: "esc", label, run });

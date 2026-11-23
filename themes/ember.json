@@ -10,8 +10,6 @@
   "instant": "#a3b86a",
   "slow": "#e3a940",
   "missed": "#de6648",
-  "iconBg": "#2e1b0e",
-  "iconFg": "#ec8f33",
   "bannerImage": "banners/ember.jpg",
   "bannerY": 45,
   "radius": 8,

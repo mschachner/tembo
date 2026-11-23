@@ -396,31 +396,6 @@ fn parse_hex(hex: &str) -> Option<(u8, u8, u8)> {
     Some((byte(0)?, byte(2)?, byte(4)?))
 }
 
-/// Show `png` (base64) as the running app's Dock icon. The page draws it from
-/// the theme's icon colors; the bundle's icon returns when the app quits.
-#[tauri::command]
-fn set_dock_icon(app: tauri::AppHandle, png: String) -> Result<(), String> {
-    use base64::Engine;
-    let bytes = base64::engine::general_purpose::STANDARD
-        .decode(png)
-        .map_err(|e| e.to_string())?;
-    #[cfg(target_os = "macos")]
-    app.run_on_main_thread(move || {
-        use objc2::{AllocAnyThread, MainThreadMarker};
-        use objc2_app_kit::{NSApplication, NSImage};
-        use objc2_foundation::NSData;
-        let Some(mtm) = MainThreadMarker::new() else { return };
-        let data = NSData::with_bytes(&bytes);
-        if let Some(image) = NSImage::initWithData(NSImage::alloc(), &data) {
-            unsafe { NSApplication::sharedApplication(mtm).setApplicationIconImage(Some(&image)) };
-        }
-    })
-    .map_err(|e| e.to_string())?;
-    #[cfg(not(target_os = "macos"))]
-    let _ = (app, bytes);
-    Ok(())
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -428,7 +403,7 @@ pub fn run() {
             list_series, read_asset, read_banner, read_attempts, append_attempt,
             folders, list_themes, write_theme, delete_theme, read_settings, write_settings,
             read_library, write_library, open_folder, open_url, clear_attempts,
-            sync_now, sync_status, set_dock_icon
+            sync_now, sync_status
         ])
         .setup(|app| {
             paths::init(app)?;

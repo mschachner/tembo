@@ -4,8 +4,8 @@
 // from the keyboard (see panes.ts). The quiz details are also the body of
 // the quiz screen (detail.ts).
 import {
-  app, attemptsOf, entries, importSeries, inLibrary, locked, lockedQuizzes, lockReason, persistSettings, playable,
-  removeSeries, seriesDue, seriesInLibrary, seriesStatus, stateOf, type SeriesStatus,
+  app, attemptsOf, calibrationQuiz, entries, hasImports, HOLE_LOCK_REASON, holeLocked, importSeries, inLibrary, locked, lockedQuizzes,
+  lockReason, persistSettings, playable, removeSeries, seriesDue, seriesInLibrary, seriesStatus, stateOf, type SeriesStatus,
 } from "../app";
 import { tembo } from "../banner";
 import { formatClock, h } from "../dom";
@@ -17,7 +17,7 @@ import { topicOf, type Item, type Quiz, type Series } from "../quiz/format";
 import { localDate, type QuizState } from "../schedule";
 import { openSettingsWindow } from "../bus";
 import { itemStats, median, trouble, type ItemStats } from "../stats";
-import { answerNode, dueLabel, fmtDate, promptNode } from "./common";
+import { answerNode, clueNode, dueLabel, fmtDate, hasClue, promptNode } from "./common";
 import { diagramDisplay, nodeData, nodeLabel } from "./diagram";
 import { alertLine, groups } from "./home";
 import { rich } from "../rich";
@@ -71,7 +71,7 @@ function soonest(s: Series): QuizState {
   return stateOf(q);
 }
 
-function listPane(listGroups: ListGroup[], onCursor: (id: string) => void, activate: (id: string) => void, opts: { meta?: string } = {}): Pane {
+function listPane(title: string, listGroups: ListGroup[], onCursor: (id: string) => void, activate: (id: string) => void, opts: { meta?: string } = {}): Pane {
   const body = h("div", { class: "pane-body" });
   const rows: Row[] = [];
   for (const g of listGroups) {
@@ -81,14 +81,14 @@ function listPane(listGroups: ListGroup[], onCursor: (id: string) => void, activ
       const el = h("div", { class: `row quiz-row ${r.playable ? "playable" : ""} ${r.locked ? "locked" : ""}` },
         h("span", { class: "marker" }),
         h("span", { class: "row-title" }, r.title),
-        r.proficient ? h("span", { class: "stamp", title: "proficient" }, tembo(16)) : null,
+        r.proficient ? h("span", { class: "stamp", "data-tip": "proficient" }, tembo(16)) : null,
         h("span", { class: "row-meta" }, r.meta));
       body.append(el);
       rows.push({ id: r.id, el, activate: () => activate(r.id) });
     }
   }
   if (!rows.length) body.append(h("div", { class: "pane-empty" }, tembo(64)));
-  const el = paneEl("list", "Quizzes", body, { extra: "list-pane", meta: opts.meta });
+  const el = paneEl("list", title, body, { extra: "list-pane", meta: opts.meta });
   return { id: "list", el, rows, body, onCursor: (row) => onCursor(row.id) };
 }
 
@@ -140,7 +140,9 @@ function seriesGrid(s: Series, today: string): HTMLElement {
     labels ? h("span", { class: "grid-cell chunk" }, c) : null,
     ...s.levels.map((l) => {
       const q = s.quizzes.find((x) => x.chunk === c && x.level === l);
-      return h("span", { class: `grid-cell ${cellFill(q)}`, title: q?.title ?? "" }, cellText(q));
+      // A locked cell says what unlocks it; the others, which quiz they are.
+      const tip = !q ? null : locked(q) ? `${q.title}\n${lockReason(q)}` : q.title;
+      return h("span", { class: `grid-cell ${cellFill(q)}`, "data-tip": tip }, cellText(q));
     })));
   return figure("Grid", h("div", { class: "series-grid", style: `--cols: ${labels ? "minmax(0, 1.2fr) " : ""}repeat(${s.levels.length}, minmax(0, 1fr))` }, header, ...rows),
     `${s.chunks.length} chunk${s.chunks.length === 1 ? "" : "s"} × ${s.levels.length} level${s.levels.length === 1 ? "" : "s"}`);
@@ -179,10 +181,17 @@ export function seriesPanes(s: Series, back: () => void, today: string): { head:
   const quizzes = s.quizzes.slice().sort((a, b) => s.chunks.indexOf(a.chunk) - s.chunks.indexOf(b.chunk) || s.levels.indexOf(a.level) - s.levels.indexOf(b.level));
   const table = tablePane<Quiz>({
     id: "quizzes", title: "Quizzes", entries: quizzes, key: (q) => q.id,
-    cols: [chunkCol ? "minmax(0, 1fr)" : null, levelCol ? "minmax(0, 1fr)" : null, "11ch", "6ch", "8ch"].filter(Boolean).join(" "),
-    head: [chunkCol ? "chunk" : null, levelCol ? "level" : null, "status", "items", "attempts"].filter((x): x is string => x !== null),
+    cols: [chunkCol ? "minmax(0, 1fr)" : null, levelCol ? "minmax(0, 1fr)" : null, "8ch", "11ch", "6ch", "8ch"].filter(Boolean).join(" "),
+    head: [chunkCol ? "chunk" : null, levelCol ? "level" : null, "type", "status", "items", "attempts"].filter((x): x is string => x !== null),
     rowClass: (q) => locked(q) ? "locked" : inLibrary(q) && stateOf(q).status === "proficient" ? "instant" : "",
-    cells: (q) => [...(chunkCol ? [q.chunk] : []), ...(levelCol ? [q.level] : []), mine ? statusWord(q, today) : q.diagram ? "diagram" : q.mode, String(q.items.length), String(attemptsOf(q).length)],
+    // Status: where the quiz stands in your library; in a series not
+    // imported, whether it would be open from the start.
+    cells: (q) => [
+      ...(chunkCol ? [q.chunk] : []), ...(levelCol ? [q.level] : []),
+      q.diagram ? "diagram" : q.mode,
+      locked(q) ? h("span", { "data-tip": lockReason(q) }, "locked") : mine ? statusWord(q, today) : "available",
+      String(q.items.length), String(attemptsOf(q).length),
+    ],
     activate: (q) => () => nav.quiz(q),
   });
   const grid = h("div", { class: "detail-grid rich" }, h("div", { class: "figures one" }, seriesGrid(s, today)), h("div", { class: "tables" }, table.el));
@@ -213,7 +222,7 @@ function quizFigures(q: Quiz, own: AnyAttempt[], today: string, full: boolean): 
     tile("Known", `${sm.known}/${n}`, `${sm.shaky} shaky · ${sm.unknown} unknown`),
     tile("Median latency", sm.medianLatency === null ? "–" : unit(sm.medianLatency.toFixed(1), "s"), full && sm.meanTime !== null ? `${formatClock(sm.meanTime)} mean time` : null),
     full ? tile("Interval", st.intervalDays ? unit(st.intervalDays.toFixed(st.intervalDays < 10 ? 1 : 0), "d") : "–", st.dueDate ? dueLabel(st, today) : null) : null,
-    full ? tile("First played", sm.firstPlayed ?? "–", sm.lastPlayed && sm.lastPlayed !== sm.firstPlayed ? `last ${sm.lastPlayed}` : null) : null,
+    full ? tile("First played", sm.firstPlayed ? h("span", { class: "tile-date" }, sm.firstPlayed) : "–", sm.lastPlayed && sm.lastPlayed !== sm.firstPlayed ? `last ${sm.lastPlayed}` : null) : null,
   );
 
   const dates = own.map((a) => dayOf(a));
@@ -227,7 +236,7 @@ function quizFigures(q: Quiz, own: AnyAttempt[], today: string, full: boolean): 
   const hist = histogram(sm.latencies, width, bins);
   const latency = figure("Recall latency", columns(
     hist.map((v, i) => ({ value: v, label: i === bins - 1 ? `${i * width}s+` : `${i * width}`, tip: `${i * width}–${i === bins - 1 ? "…" : `${(i + 1) * width}s`}: ${v} answer${v === 1 ? "" : "s"}` })),
-    { height: full ? 88 : 64, labels: "ends", marker: instantBin(width) / bins, markerTip: `instant below ${sm.medianLatency === null ? "" : ""}${(instantBin(width) * width).toFixed(1)}s` }),
+    { height: full ? 88 : 64, labels: "ends", marker: instantBin(width) / bins, markerTip: `instant below ${(instantBin(width) * width).toFixed(1)}s` }),
     sm.medianLatency === null ? undefined : `median ${sm.medianLatency.toFixed(1)}s`);
 
   const results = figure("Results", segments([
@@ -269,7 +278,7 @@ function keyPane(q: Quiz, own: AnyAttempt[], back: () => void, opts: { full: boo
 
   const med = (s: ItemStats) => { const m = median(s.latencies); return m === null ? "" : `${m.toFixed(1)}s`; };
   const strip = (i: number) => h("span", { class: "key-history" }, ...hist[i].map((b, k) =>
-    h("i", { class: bucketFill(b) ? `c-${bucketFill(b)}` : "empty", title: `${fmtDate(shown[k].endedAt)}: ${b ?? "not in quiz"}` })));
+    h("i", { class: bucketFill(b) ? `c-${bucketFill(b)}` : "empty", "data-tip": `${fmtDate(shown[k].endedAt)}: ${b ?? "not in quiz"}` })));
   const head = [
     ...(withClue ? [q.promptLabel.toLowerCase() || "clue"] : []),
     ...data.map((c) => c.toLowerCase()),
@@ -306,7 +315,7 @@ function keyDiagram(q: Quiz, own: AnyAttempt[]): HTMLElement {
   const stats = itemStats(q, own, app.cps);
   return figure("Diagram", diagramDisplay(q, (idx, node) => {
     const last = stats[idx].last;
-    if (last) { node.classList.add(last === "untimed" ? "slow" : last); node.title = last; }
+    if (last) { node.classList.add(last === "untimed" ? "slow" : last); node.dataset.tip = last; }
     node.append(...[nodeLabel(q, idx), h("div", { class: "dnode-answer" }, answerNode(q.items[idx], rich(q.items[idx].canonical))), nodeData(q, idx)]
       .filter((x): x is HTMLElement => x !== null));
   }).el, "by last result");
@@ -372,11 +381,19 @@ export function detailPanes(q: Quiz, back: () => void, today: string, full = fal
 // ---------- today ----------
 
 // Due per day for the coming week, today first.
+// A forecast column's tooltip: the day, how many quizzes, and which (the
+// first few of a long list).
+function dueTip(f: { date: string; due: number; quizzes: string[] }, today: string, max = 8): string {
+  const day = f.date === today ? "today" : new Date(f.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const more = f.quizzes.length - max;
+  return [`${day}: ${f.due} quiz${f.due === 1 ? "" : "zes"}`, ...f.quizzes.slice(0, max), ...(more > 0 ? [`and ${more} more`] : [])].join("\n");
+}
+
 function forecastFigure(today: string, days = 7): HTMLElement {
   const fc = forecast(entries(), today, days);
   const dayName = (d: string, i: number) => i === 0 ? "today" : new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "short" }).toLowerCase();
   return figure("Coming up", columns(
-    fc.map((f, i) => ({ value: f.due, label: dayName(f.date, i), tip: `${f.date}: ${f.due} due${f.quizzes.length ? ` — ${f.quizzes.join(", ")}` : ""}` })),
+    fc.map((f, i) => ({ value: f.due, label: dayName(f.date, i), tip: dueTip(f, today) })),
     { height: 44, labels: "all" }),
     `${fc.reduce((a, f) => a + f.due, 0)} this week`);
 }
@@ -393,12 +410,24 @@ function needsWorkPane(today: string, limit = 12, perQuiz = 3): Pane | null {
   const quizzes = entries().filter((e) => e.quiz.kind === "normal" && !e.quiz.retired && !awaitingToday(e, today)).map((e) => e.quiz);
   const items = troubleItems(quizzes, attemptsOf, app.cps, limit, perQuiz);
   if (!items.length) return null;
-  const dots = (recent: string[]) => h("span", { class: "dots" }, ...recent.map((b) => h("i", { class: `c-${bucketFill(b) ?? "muted"}`, title: b })));
+  const dots = (recent: string[]) => h("span", { class: "dots" }, ...recent.map((b) => h("i", { class: `c-${bucketFill(b) ?? "muted"}`, "data-tip": b })));
+  // Each item as its clue and its answer; the clue column is left out when
+  // no item here has one (plain list quizzes).
+  const withClue = items.some((x) => hasClue(x.item));
   return tablePane({
-    id: "needs-work", title: "Needs work", entries: items, key: (x) => `${x.quiz.id}:${x.stats.answer}`, extra: "bottom",
-    fit: true, cols: "fit-content(45%) minmax(0, 1fr) max-content max-content max-content", head: ["item", "quiz", "recent", "missed", "slow"],
+    id: "needs-work", title: "Needs work", entries: items, key: (x) => `${x.quiz.id}:${x.stats.answer}`, extra: "bottom key",
+    fit: true,
+    cols: [...(withClue ? ["fit-content(28%)"] : []), "fit-content(28%)", "minmax(0, 1fr)", "max-content", "max-content", "max-content"].join(" "),
+    // Beside Today's results in the windowed size there is no room for the
+    // counts: the dots say how the last few attempts went.
+    narrow: { drop: withClue ? [4, 5] : [3, 4], cols: [...(withClue ? ["fit-content(28%)"] : []), "fit-content(28%)", "minmax(0, 1fr)", "max-content"].join(" ") },
+    head: [...(withClue ? ["clue"] : []), "answer", "quiz", "recent", "missed", "slow"],
     rowClass: (x) => x.stats.last ?? "",
-    cells: (x) => [rich(x.stats.answer), x.quiz.title, dots(x.recent), String(x.stats.missed), String(x.stats.slow)],
+    cells: (x) => [
+      ...(withClue ? [h("span", { class: "key-clue" }, ...clueNode(x.quiz, x.item, true))] : []),
+      h("span", { class: "key-answer" }, answerNode(x.item, rich(x.stats.answer))),
+      x.quiz.title, dots(x.recent), String(x.stats.missed), String(x.stats.slow),
+    ],
     activate: (x) => () => nav.item(x.quiz, x.stats.answer, () => nav.home("today")),
     meta: "last few attempts, newest right",
   });
@@ -413,8 +442,43 @@ function todaysResultsPane(todays: AnyAttempt[], tab: Tab): Pane {
   });
 }
 
-// Nothing left to play: the elephant, the day's tally, and the week ahead.
-function donePane(todays: AnyAttempt[], today: string): HTMLElement {
+// ---------- today, with nothing to play ----------
+
+// Why Today's list is empty:
+//   done   quizzes were due today and all of them have been played
+//   idle   there are quizzes in the library, none of them due today
+//   empty  nothing has been imported yet
+//   start  nothing imported and no typing calibration yet, which comes first
+type Rest = "done" | "idle" | "empty" | "start";
+
+function restOf(todays: AnyAttempt[]): Rest {
+  if (todays.length) return "done";
+  if (hasImports()) return "idle";
+  return holeLocked() ? "start" : "empty";
+}
+
+// A key from the legend as a button under an empty state's title: where to
+// go from here.
+function pointer(hint: string, label: string, run: () => void): HTMLElement {
+  return h("button", { class: "key pointer", tabindex: "-1", onclick: run }, h("kbd", {}, hint), " ", label);
+}
+const toHole = () => pointer("3", "Watering hole", () => nav.home("watering-hole"));
+const toCalibration = () => { const q = calibrationQuiz(); return q ? pointer("enter", "Calibrate", () => nav.play(q)) : null; };
+
+// The elephant, what the state is, and where to go next.
+function restMark(title: string, ...more: (Node | null)[]): HTMLElement {
+  return h("div", { class: "done-mark" },
+    tembo(96),
+    h("div", { class: "empty-title" }, title),
+    h("div", { class: "empty-slot" } /* copy slot: Mark's own words for this state */),
+    ...more);
+}
+
+// Nothing to play: the elephant and, once there are quizzes, the day's
+// tally and the week ahead.
+function restPane(rest: Rest, todays: AnyAttempt[], today: string): HTMLElement {
+  if (rest === "start") return h("section", { class: "pane detail-empty rest" }, restMark(calibrationQuiz()?.title ?? "", toCalibration()));
+  if (rest === "empty") return h("section", { class: "pane detail-empty rest" }, restMark("No quizzes yet", toHole()));
   const cleared = todays.filter((a) => a.cleared).length;
   const b = emptyBuckets();
   for (const a of todays) bucketsOf(a, app.cps, b);
@@ -423,10 +487,7 @@ function donePane(todays: AnyAttempt[], today: string): HTMLElement {
   const days = new Set(app.attempts.filter((a) => !isCalibration(a)).map(dayOf));
   const run = streak(days, today);
   return h("section", { class: "pane detail-empty done" },
-    h("div", { class: "done-mark" },
-      tembo(96),
-      h("div", { class: "empty-title" }, "Done for today"),
-      h("div", { class: "empty-slot" } /* copy slot: Mark's own words for the done state */)),
+    rest === "done" ? restMark("Done for today") : restMark("Nothing due today", toHole()),
     h("div", { class: "done-facts" },
     todays.length
       ? tiles(
@@ -489,7 +550,7 @@ function statsContent(root: HTMLElement): Pane[] {
   }), { height: 72, labels: "ends" }), `${last30.reduce((s, d) => s + (byDay.get(d)?.attempts ?? 0), 0)} attempts`);
   const gradeTrend = figure("Grade by day", lines(
     [{ points: last30.map((d) => { const r = byDay.get(d); return r ? r.grades.reduce((a, b) => a + b, 0) / r.grades.length : null; }), fill: "accent" }],
-    { max: 1, height: 72, labels: [last30[0].slice(5), last30.at(-1)!.slice(5)], tips: last30.map((d) => { const r = byDay.get(d); return r ? `${d}: mean grade ${(r.grades.reduce((a, b) => a + b, 0) / r.grades.length).toFixed(2)} over ${r.attempts}` : `${d}: no attempts`; }) }),
+    { max: 1, height: 72, labels: [last30[0].slice(5), last30.at(-1)!.slice(5)], tips: last30.map((d) => { const r = byDay.get(d); return r ? `${d}: mean grade ${(r.grades.reduce((a, b) => a + b, 0) / r.grades.length).toFixed(2)} over ${r.attempts} attempt${r.attempts === 1 ? "" : "s"}` : `${d}: no attempts`; }) }),
     "mean grade of the day's attempts");
 
   // Results by week (last 12 weeks, Monday-based)
@@ -505,10 +566,10 @@ function statsContent(root: HTMLElement): Pane[] {
   const width = 0.5, bins = 12;
   const hist = histogram(latencies, width, bins);
   const latency = figure("Recall latency", columns(
-    hist.map((v, i) => ({ value: v, label: i === bins - 1 ? `${i * width}s+` : `${i * width}`, tip: `${i * width}–${i === bins - 1 ? "…" : `${(i + 1) * width}s`}: ${v}` })),
-    { height: 72, labels: "ends", marker: instantBin(width) / bins, markerTip: "instant threshold" }), med === null ? undefined : `median ${med.toFixed(1)}s`);
+    hist.map((v, i) => ({ value: v, label: i === bins - 1 ? `${i * width}s+` : `${i * width}`, tip: `${i * width}–${i === bins - 1 ? "…" : `${(i + 1) * width}s`}: ${v} answer${v === 1 ? "" : "s"}` })),
+    { height: 72, labels: "ends", marker: instantBin(width) / bins, markerTip: `instant below ${(instantBin(width) * width).toFixed(1)}s` }), med === null ? undefined : `median ${med.toFixed(1)}s`);
   const fc = forecast(entries(), today, 14);
-  const ahead = figure("Next two weeks", columns(fc.map((f, i) => ({ value: f.due, label: i === 0 ? "today" : f.date.slice(5), tip: `${f.date}: ${f.due} due${f.quizzes.length ? ` — ${f.quizzes.join(", ")}` : ""}` })), { height: 72, labels: "ends" }),
+  const ahead = figure("Next two weeks", columns(fc.map((f, i) => ({ value: f.due, label: i === 0 ? "today" : f.date.slice(5), tip: dueTip(f, today) })), { height: 72, labels: "ends" }),
     `${fc.reduce((a, f) => a + f.due, 0)} due`);
 
   // Tables
@@ -557,6 +618,16 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
   const root = h("div", { class: "panes" });
   let selectedQuiz: Quiz | null = null;
   let selectedSeries: Series | null = null;
+
+  if (tab === "watering-hole" && holeLocked()) {
+    // Nothing to browse until the typing calibration has been played.
+    const q = calibrationQuiz()!;
+    root.classList.add("alone");
+    root.append(h("section", { class: "pane detail-empty rest" },
+      restMark("Locked", h("div", { class: "muted small" }, HOLE_LOCK_REASON), toCalibration())));
+    const actions = (): KeyAction[] => [{ keys: ["Enter"], hint: "enter", label: "Calibrate", run: () => nav.play(q) }, ...globalActions(tab)];
+    return { el: h("div", { class: "panes-wrap" }, legend, root), mount: () => mountPanes({ scope: tab, root, legend, panes: [], actions }) };
+  }
 
   if (tab === "stats") {
     const panes = statsContent(root);
@@ -615,13 +686,14 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
     const next = tab === "watering-hole" ? undefined : playableIn(s);
     if (next) nav.play(next); else focusPane("quizzes");
   };
-  const list = listPane(listGroups, showDetail, activate, { meta: tab === "today" ? undefined : byTopicMode ? "by topic" : "by status" });
+  const list = listPane(tab === "today" ? "Quizzes" : "Series", listGroups, showDetail, activate, { meta: tab === "today" ? undefined : byTopicMode ? "by topic" : "by status" });
   const todays = app.attempts.filter((a) => localDate(new Date(a.endedAt)) === today && !isCalibration(a)).slice().reverse();
   const fixed: Pane[] = [];
 
-  if (tab === "today" && !list.rows.length) {
-    // Nothing left: the done state takes the top row.
-    root.append(donePane(todays, today));
+  // Today with nothing to play says why (see Rest) in place of the list.
+  const rest = tab === "today" && !list.rows.length ? restOf(todays) : null;
+  if (rest) {
+    root.append(restPane(rest, todays, today));
     root.classList.add("today", "done");
   } else {
     if (!list.rows.length) {
@@ -641,11 +713,15 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
       root.classList.add("with-bottom");
       if (needs) fixed.push(needs);
       if (results) fixed.push(results);
+    } else if (rest) {
+      root.classList.add("alone");   // nothing below: the state fills the window
     }
   }
 
   const actions = (p: Pane | null, row: Row | null): KeyAction[] => {
     const out: KeyAction[] = [];
+    const calib = rest === "start" ? calibrationQuiz() : undefined;
+    if (calib) out.push({ keys: ["Enter"], hint: "enter", label: "Calibrate", run: () => nav.play(calib) });
     if (p?.id === "list" && tab === "today" && selectedQuiz) {
       const q = selectedQuiz;
       const canPlay = playable(q, stateOf(q), today);
@@ -665,7 +741,7 @@ export function panesView(tab: Tab): { el: HTMLElement; mount: () => void } {
         if (next) out.push({ keys: ["p"], hint: "p", label: "Play", run: () => nav.play(next) });
         out.push({ keys: ["o"], hint: "o", label: next ? (only ? "Open" : "Quizzes") : "", run: () => { if (only) nav.quiz(only); else focusPane("quizzes"); } });
         // Back to the Watering Hole, out of rotation; history is kept.
-        if (app.library.includes(s.id)) out.push({ keys: ["x"], hint: "x", label: "To Watering Hole", run: () => act(() => removeSeries(s)) });
+        if (app.library.includes(s.id)) out.push({ keys: ["x"], hint: "x", label: "To watering hole", run: () => act(() => removeSeries(s)) });
       }
     } else if (p?.id === "quizzes" && row) {
       const q = quizById(row.id);

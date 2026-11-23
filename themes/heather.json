@@ -10,8 +10,6 @@
   "instant": "#9fc27a",
   "slow": "#e2b35b",
   "missed": "#e9706a",
-  "iconBg": "#2b2047",
-  "iconFg": "#f19a8f",
   "bannerImage": "banners/heather.jpg",
   "bannerY": 60,
   "edgeSmooth": 30,

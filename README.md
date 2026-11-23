@@ -4,6 +4,7 @@
     npm run tauri dev     # desktop app, from the terminal
     npm run app           # build Tembo.app and install it in /Applications
     npm run release       # build Tembo.app for any Mac and zip it for a GitHub Release
+    npm run fresh         # open the installed app as a first-time user sees it
     npm test              # unit tests
     npm run check         # validate every quiz file
 
@@ -53,7 +54,10 @@ Where the installed app keeps things (`src-tauri/src/paths.rs`):
 presets and banners straight from the checkout and downloads nothing; the
 data folder is the same one the installed app uses unless `TEMBO_DATA` says
 otherwise. `npm run check` reads `library.txt` from the data folder too.
+`TEMBO_HOME` replaces the whole `Application Support` folder above (data and
+downloaded Watering Hole); `npm run fresh` points it at a new empty folder.
 
-App icon: masters are in `art/icons/` (cream is installed). To switch,
-run `npm run tauri icon art/icons/<name>.png -- -o src-tauri/icons` and
-delete the `android/` and `ios/` folders it writes.
+App icon: one icon, the same under every preset. Its masters are in
+`art/icons/` (cream is installed). To switch, run
+`npm run tauri icon art/icons/<name>.png -- -o src-tauri/icons` and delete
+the `android/` and `ios/` folders it writes.

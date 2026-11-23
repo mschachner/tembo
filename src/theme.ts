@@ -27,9 +27,6 @@ export const THEME_VARS: VarSpec[] = [
   { key: "instant", css: "--instant", kind: "color", label: "Results: Instant" },
   { key: "slow", css: "--slow", kind: "color", label: "Results: Slow" },
   { key: "missed", css: "--missed", kind: "color", label: "Results: Missed" },
-  // The Dock icon (read by icon.ts).
-  { key: "iconBg", css: "", kind: "color", label: "App icon: background" },
-  { key: "iconFg", css: "", kind: "color", label: "App icon: elephant" },
   { key: "tabs", css: "", kind: "choice", label: "Tab bar", options: ["pill", "pills", "card", "bar"] },
   { key: "surfaces", css: "", kind: "choice", label: "Surfaces over art", options: ["plates", "none"] },
   { key: "contrast", css: "", kind: "choice", label: "Text over art", options: ["fixed", "auto"] },
@@ -46,13 +43,12 @@ export const THEME_VARS: VarSpec[] = [
   { key: "titleTracking", css: "--title-tracking", kind: "em", label: "Title letter spacing", min: -0.08, max: 0.2, step: 0.005 },
   { key: "headingFont", css: "--heading-font", kind: "text", label: "Heading font" },
   { key: "headingSize", css: "--heading-size", kind: "px", label: "Heading size", min: 14, max: 48, step: 1 },
-  // Section labels: the small all-caps headings ("Today's results", table
-  // column headers, settings group titles).
+  // Section labels: the small headings ("Today's results", table column
+  // headers, settings group titles).
   { key: "labelFont", css: "--label-font", kind: "text", label: "Font" },
   { key: "labelSize", css: "--label-size", kind: "scale", label: "Size (× body)", min: 0.6, max: 1.4, step: 0.05 },
   { key: "labelWeight", css: "--label-weight", kind: "scale", label: "Weight", min: 100, max: 900, step: 100 },
   { key: "labelTracking", css: "--label-tracking", kind: "em", label: "Letter spacing", min: -0.04, max: 0.3, step: 0.005 },
-  { key: "labelCase", css: "", kind: "choice", label: "Case", options: ["upper", "small caps", "as written"] },
   { key: "labelColor", css: "--label-color", kind: "color", label: "Color" },
   // Layout.
   { key: "contentWidth", css: "--content-width", kind: "px", label: "Main column width", min: 560, max: 1400, step: 10 },
@@ -78,10 +74,10 @@ export type Theme = Record<string, string | number>;
 
 export const FALLBACK_THEME: Theme = {
   bg: "#f6efe4", bg2: "#fdf9f2", bg3: "#ede3d3", fg: "#2d2218", fg2: "#5d4a3a", fg3: "#9a8672",
-  accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a", iconBg: "#f4ead8", iconFg: "#a8482a",
+  accent: "#b5522a", line: "#dfd2bf", instant: "#5e7c3a", slow: "#c98a1b", missed: "#b23a2a",
   radius: 8, space: 1, fontSize: 16, font: "Atkinson Hyperlegible Next", fontMono: "Atkinson Hyperlegible Mono",
   monoScale: 1, titleFont: "Carter One", titleSize: 52, titleWeight: 400, titleTracking: -0.01, headingFont: "", headingSize: 24,
-  labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.06, labelCase: "upper", labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
+  labelSize: 0.8, labelFont: "", labelWeight: 600, labelTracking: 0.01, labelColor: "", contentWidth: 820, wideWidth: 1100, lineHeight: 1.45, rowPad: 1, plateRadius: 8, cardMin: 180, slotCols: 3,
   bannerImage: "", bannerHeight: 240, bannerY: 50, bannerEdgePos: 100, edgeSmooth: 35, edgeDither: 0, plate: 85, plateBlur: 10, tabs: "pill", surfaces: "none", contrast: "auto", bannerPan: 360,
 };
 
@@ -118,7 +114,6 @@ export function applyTheme(theme: Theme): void {
     if ((spec.kind === "text" || spec.kind === "color") && String(v ?? "").trim() === "") root.removeProperty(spec.css);
     else root.setProperty(spec.css, cssValue(spec, v));
   }
-  document.documentElement.dataset.labelCase = String(theme.labelCase ?? FALLBACK_THEME.labelCase);
 }
 
 export function parseTheme(json: string): Theme {

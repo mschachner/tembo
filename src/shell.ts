@@ -1,6 +1,6 @@
 // Page skeleton: title-bar drag strip, banner (home only), tabs, content,
 // status line.
-import { activeTheme, app, banner, dueCount } from "./app";
+import { activeTheme, app, banner, dueCount, HOLE_LOCK_REASON, holeLocked } from "./app";
 import { bannerImage, defaultBanner, tembo } from "./banner";
 import { clear, h } from "./dom";
 import { applyEdge } from "./edge";
@@ -14,7 +14,7 @@ import { setKeys } from "./keys";
 const TABS: { id: Tab; label: string }[] = [
   { id: "today", label: "Today" },
   { id: "library", label: "Library" },
-  { id: "watering-hole", label: "Watering Hole" },
+  { id: "watering-hole", label: "Watering hole" },
   { id: "stats", label: "Stats" },
 ];
 
@@ -28,7 +28,7 @@ function gearButton(): HTMLElement {
   svg.setAttribute("height", "18");
   svg.innerHTML = `<path d="${GEAR_PATH}" fill="currentColor" fill-rule="evenodd" />`;
   return h("button", {
-    class: "settings-gear", title: "Settings", "aria-label": "Settings",
+    class: "settings-gear", "data-tip": "Settings", "aria-label": "Settings",
     onclick: (e: Event) => {
       (e.currentTarget as HTMLButtonElement).blur();
       void openSettingsWindow(() => nav.home("settings"));
@@ -122,7 +122,8 @@ function tabsNode(tab: Tab): HTMLElement {
     { class: "tabs" },
     ...TABS.map((t, i) =>
       h("button", {
-        class: `tab ${t.id === tab ? "active" : ""}`, "data-key": String(i + 1), tabindex: "-1",
+        class: `tab ${t.id === tab ? "active" : ""} ${t.id === "watering-hole" && holeLocked() ? "locked" : ""}`, "data-key": String(i + 1), tabindex: "-1",
+        "data-tip": t.id === "watering-hole" && holeLocked() ? HOLE_LOCK_REASON : null,
         onclick: (e: Event) => {
           (e.currentTarget as HTMLButtonElement).blur();
           nav.home(t.id);
