@@ -624,7 +624,11 @@ input, textarea,
 @keyframes drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.09) translate(-1.5%, -1%); } }
 
 /* pages and tabs */
-[data-anim-pages="on"] .page > div { animation: rise-in calc(320ms * var(--dur)) var(--ease-out) both; }
+[data-anim-pages="on"] .page:not(.panes-page) > div { animation: rise-in calc(320ms * var(--dur)) var(--ease-out) both; }
+/* Panes rise in one by one rather than as a block: an ancestor fading in
+   would cut every pane's frosted glass off from the art behind it (a
+   backdrop-filter can't see past a translucent ancestor) until it ended. */
+[data-anim-pages="on"] .panes-page :is(.keys, .pane:not(.pane .pane)) { animation: rise-in calc(320ms * var(--dur)) var(--ease-out) both; }
 [data-anim-pages="on"] details.group[open] > :not(summary) { animation: fade-in calc(220ms * var(--dur)) ease-out both; }
 [data-anim-pages="on"] button, [data-anim-pages="on"] .tab {
   transition: background-color calc(140ms * var(--dur)), color calc(140ms * var(--dur)), border-color calc(140ms * var(--dur)), transform calc(120ms * var(--dur));

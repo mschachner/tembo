@@ -4,6 +4,7 @@
 // the other keys run whatever actions the legend shows for the current row.
 import { h } from "./dom";
 import { plainKey, setKeys, typing } from "./keys";
+import { scheduleContrast } from "./contrast";
 
 export interface Row {
   id: string;
@@ -174,6 +175,8 @@ export function setPanes(removeIds: string[], add: Pane[]): void {
   add.forEach(wire);
   if (!ctl.panes.some((p) => p.id === ctl!.focus)) ctl.focus = ctl.panes[0]?.id ?? "";
   paint();
+  // New detail panes may sit over art: their text colors follow it.
+  scheduleContrast();
 }
 
 function move(delta: number): void {

@@ -10,6 +10,7 @@ const SAMPLE_W = 96;
 const SELECTOR = [
   ".banner-title", ".banner-sub", ".tab", ".settings-gear", ".page h1", ".page h2", ".page p",
   ".control", ".actions", ".keys", ".page .small", ".card", ".slots li", ".presets",
+  ".panes-page .pane:not(.pane .pane)",
 ].join(", ");
 // Target contrast ratio. Below it, the theme colors give way to stronger
 // versions pushed toward black or white; light text that still falls short
@@ -123,12 +124,19 @@ export function updateContrast(): void {
   const ditherPx = (bannerH * Number(theme.edgeDither)) / 100;
   const appTop = app.getBoundingClientRect().top;
 
+  // The date line takes the title's tone (light or dark), so the two never
+  // disagree; the title comes first in the page.
+  let titleTone: { color: string; light: boolean } | null = null;
   for (const el of app.querySelectorAll<HTMLElement>(SELECTOR)) {
     const r = el.getBoundingClientRect();
     const top = r.top - appTop, bottom = r.bottom - appTop;
     if (top >= artH || r.width === 0) continue; // entirely below the art
-    // The title and the date line have no plate (see style.css).
+    // The title and the date line have no plate (see style.css). Panes keep
+    // every sample too, like the title, for the worst spots behind them.
     const isTitle = el.classList.contains("banner-title") || el.classList.contains("banner-sub");
+    const isPane = el.classList.contains("pane");
+    // Inside a pane, the pane's colors (paneColors) apply.
+    if (!isPane && el.closest(".pane")) continue;
     const platePart = isTitle ? 0 : plate;
     // Average luminance behind the element, blending art with page color
     // by the edge's opacity at each row, then with the plate on top. The
@@ -146,16 +154,26 @@ export function updateContrast(): void {
         sum += v;
         n++;
         if (isTitle) all.push(v);
+        else if (isPane) all.push(platePart * bgL + (1 - platePart) * v);
       }
     }
     // Rows of the element below the art see page color.
     const belowRows = Math.max(0, Math.ceil(bottom * scale) - (h - 1)) * Math.max(1, x1 - x0 + 1);
+    if (isPane) for (let k = 0; k < belowRows; k++) all.push(bgL);
     sum += belowRows * bgL; n += belowRows;
     if (!n) continue;
     const behind = platePart * bgL + (1 - platePart) * (sum / n);
     const choice = pickColor(behind, String(theme.fg), String(theme.bg));
     if (isTitle) {
-      titleColor(el, choice, all, el.classList.contains("banner-title") ? 3 : 4.5);
+      const main = el.classList.contains("banner-title");
+      const tone = main || !titleTone ? choice : titleTone;
+      if (main) titleTone = choice;
+      titleColor(el, tone, all, main ? 3 : 4.5);
+      adapted.push(el);
+      continue;
+    }
+    if (isPane) {
+      paneColors(el, choice, all, theme);
       adapted.push(el);
       continue;
     }
@@ -198,6 +216,35 @@ function titleColor(el: HTMLElement, choice: { color: string; light: boolean }, 
     el.style.setProperty("--halo", shadow);
     el.style.textShadow = `0 1px 2px ${shadow}`;
   }
+}
+
+// A pane over art: its three text levels (primary, secondary, muted) each
+// stand out from the worst tenth of what shows through the pane (art seen
+// through the plate), pushed toward black or white only as far as needed:
+// 4.5:1 for the first two, 3:1 for the muted level (labels, meta, hints).
+// The tone is the one that suits the art on average; in the theme's own
+// tone the levels start from the theme's colors, so a pane over plain page
+// color keeps them unchanged.
+function paneColors(el: HTMLElement, choice: { color: string; light: boolean }, samples: number[], theme: Record<string, string | number>): void {
+  samples.sort((a, b) => a - b);
+  const worst = samples.length ? samples[Math.floor((choice.light ? 0.9 : 0.1) * (samples.length - 1))] : 0;
+  const extreme: [number, number, number] = choice.light ? [255, 255, 255] : [0, 0, 0];
+  const fg = String(theme.fg), bg = String(theme.bg);
+  const own = choice.color === fg;
+  const starts = own ? [fg, String(theme.fg2), String(theme.fg3)] : [bg, mix(bg, parseHex(fg), 0.15), mix(bg, parseHex(fg), 0.3)];
+  const [c1, c2, c3] = starts.map((start, k) => {
+    const target = k === 2 ? 3 : 4.5;
+    let c = start;
+    for (const t of [0, 0.15, 0.3, 0.45, 0.6, 0.8, 1]) {
+      c = mix(start, extreme, t);
+      if (contrast(lum(...parseHex(c)), worst) >= target) break;
+    }
+    return c;
+  });
+  el.style.setProperty("--fg", c1);
+  el.style.setProperty("--fg-2", c2);
+  el.style.setProperty("--fg-3", c3);
+  el.style.color = c1;
 }
 
 let scheduled = false;
