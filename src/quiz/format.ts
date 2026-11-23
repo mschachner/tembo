@@ -29,6 +29,7 @@
 //   mode: list            # "list" (type any answer) or "prompt" (each item has a prompt)
 //   pass: 100             # percent required to count as a clear
 //   kind: calibration     # optional; attempts measure typing speed instead of knowledge
+//   note: …               # optional; a line shown under the title while playing
 //   retired: true         # optional; drop this quiz from the schedule
 //   image-height: 72      # px, for image prompts (default 72)
 //   columns: Years, Party # optional; names of per-item data columns
@@ -139,6 +140,7 @@ export interface Quiz {
   chunk: string;       // the series' chunk this quiz covers ("" for a series of one chunk)
   level: string;       // the series' level this quiz is at
   title: string;
+  note: string;          // shown under the title while playing ("" for none)
   mode: Mode;
   kind: Kind;
   retired: boolean;
@@ -346,6 +348,7 @@ export function parseQuiz(source: string, path = "", dir = "", series?: SeriesMe
     chunk: header.chunk ?? "",
     level,
     title: header.title ?? (series ? "" : path),
+    note: header.note ?? "",
     mode,
     kind,
     retired: (header.retired ?? "false").toLowerCase() === "true" || (series?.retired ?? false),

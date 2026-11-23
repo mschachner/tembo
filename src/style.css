@@ -141,6 +141,7 @@ section:first-child h2 { margin-top: 0; }
 header { margin-bottom: calc(var(--u) * 2); }
 .status { display: flex; gap: calc(var(--u) * 2); align-items: baseline; flex-wrap: wrap; }
 .clock { font-size: 1.1em; }
+.play-note { margin: calc(var(--u) * -0.5) 0 calc(var(--u) * 1); }
 
 /* ---- controls ---- */
 button {

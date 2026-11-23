@@ -1,5 +1,6 @@
 mode: prompt
 kind: calibration
+note:
 ---
 Peru :: Peru
 Chad :: Chad

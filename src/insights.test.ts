@@ -5,7 +5,7 @@ import type { Quiz } from "./quiz/format";
 import { NEW_STATE } from "./schedule";
 
 const quiz = (id: string, answers: string[]): Quiz => ({
-  path: `${id}/quiz.txt`, dir: id, id, title: id, mode: "list", kind: "normal", retired: false, tags: ["t"], series: "", chunk: "", level: "standard",
+  path: `${id}/quiz.txt`, dir: id, id, title: id, note: "", mode: "list", kind: "normal", retired: false, tags: ["t"], series: "", chunk: "", level: "standard",
   passPercent: 100, imageHeight: 72, columns: [], promptLabel: "", answerLabel: "",
   items: answers.map((a) => ({ canonical: a, aliases: [], data: [] })),
 });

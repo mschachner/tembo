@@ -140,17 +140,25 @@ function lockedAnswer(session: Session, idx: number, cls: string): HTMLElement {
     h("span", { class: "correct" }, session.quiz.items[idx].canonical));
 }
 
+// The calibration quiz can't be given up: a partial attempt would measure
+// nothing, and the Watering Hole unlocks once it has been played.
+function canGiveUp(quiz: Quiz): boolean {
+  return quiz.kind !== "calibration";
+}
+
 function playHeader(session: Session, toggle: Node | null = null): HTMLElement {
   return h(
     "header",
     { class: "play-header" },
     h("h1", {}, session.quiz.title),
-    h("div", { class: "status" }, session.clock, session.score, toggle, session.giveUp),
+    session.quiz.note ? h("p", { class: "play-note muted" }, session.quiz.note) : null,
+    h("div", { class: "status" }, session.clock, session.score, toggle, canGiveUp(session.quiz) ? session.giveUp : null),
   );
 }
 
 // Keys during play. The answer boxes handle typing, Enter and Escape (which
-// clears a box); here: Escape in an empty box, pressed twice, gives up;
+// clears a box); here: Escape in an empty box, pressed twice, gives up
+// (except on the calibration quiz);
 // ⌘L switches between list and cards; and typing while no box has focus
 // goes to the first open box.
 function playKeys(session: Session, focusFirst: () => void, toggleView?: () => void): void {
@@ -162,7 +170,7 @@ function playKeys(session: Session, focusFirst: () => void, toggleView?: () => v
   };
   setKeys((e) => {
     if (session.finished) return false;
-    if (e.key === "Escape" && plainKey(e)) {
+    if (e.key === "Escape" && plainKey(e) && canGiveUp(session.quiz)) {
       const box = (e.target as HTMLElement).closest?.("input, textarea") as AnswerBox | null;
       if (box && box.value !== "") { disarm(); return false; }
       if (armed) { disarm(); session.finish(true); return true; }

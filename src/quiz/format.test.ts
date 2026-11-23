@@ -121,6 +121,12 @@ Capital of France :: Paris
     expect(parseQuiz(`retired: true\n---\nX\n`).retired).toBe(true);
   });
 
+  it("reads an optional note, empty by default", () => {
+    expect(parseQuiz(`note: Type it as shown\n---\nX\n`).note).toBe("Type it as shown");
+    expect(parseQuiz(`note:\n---\nX\n`).note).toBe("");
+    expect(parseQuiz(`---\nX\n`).note).toBe("");
+  });
+
   it("rejects prompt-mode lines without ::", () => {
     expect(() => parseQuiz(`mode: prompt\n---\nno separator\n`)).toThrow(QuizFormatError);
   });
