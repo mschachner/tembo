@@ -8,7 +8,7 @@ import { edgeOpacity } from "./edge";
 
 const SAMPLE_W = 96;
 const SELECTOR = [
-  ".banner-text", ".tab", ".settings-gear", ".page h1", ".page h2", ".page p",
+  ".banner-title", ".banner-sub", ".tab", ".settings-gear", ".page h1", ".page h2", ".page p",
   ".control", ".actions", ".keys", ".page .small", ".card", ".slots li", ".presets",
 ].join(", ");
 // Target contrast ratio. Below it, the theme colors give way to stronger
@@ -33,7 +33,7 @@ function contrast(a: number, b: number): number {
 
 function reset(): void {
   for (const el of adapted) {
-    for (const prop of ["color", "--fg", "--fg-2", "--fg-3", "text-shadow", "--halo", "--title-halo"]) el.style.removeProperty(prop);
+    for (const prop of ["color", "--fg", "--fg-2", "--fg-3", "text-shadow", "--halo"]) el.style.removeProperty(prop);
   }
   adapted = [];
 }
@@ -127,8 +127,8 @@ export function updateContrast(): void {
     const r = el.getBoundingClientRect();
     const top = r.top - appTop, bottom = r.bottom - appTop;
     if (top >= artH || r.width === 0) continue; // entirely below the art
-    // The title block has no plate (see style.css).
-    const isTitle = el.classList.contains("banner-text");
+    // The title and the date line have no plate (see style.css).
+    const isTitle = el.classList.contains("banner-title") || el.classList.contains("banner-sub");
     const platePart = isTitle ? 0 : plate;
     // Average luminance behind the element, blending art with page color
     // by the edge's opacity at each row, then with the plate on top. The
@@ -155,7 +155,7 @@ export function updateContrast(): void {
     const behind = platePart * bgL + (1 - platePart) * (sum / n);
     const choice = pickColor(behind, String(theme.fg), String(theme.bg));
     if (isTitle) {
-      titleHalo(el, choice, all, String(theme.fg), String(theme.bg));
+      titleColor(el, choice, all, el.classList.contains("banner-title") ? 3 : 4.5);
       adapted.push(el);
       continue;
     }
@@ -173,28 +173,31 @@ export function updateContrast(): void {
   }
 }
 
-// The title's halo: in the opposite tone to its text (dark around light
-// text, light around dark), as strong as the worst tenth of the art behind
-// it needs. Over plain art with plenty of contrast it is a faint glow; over
-// busy or mid-tone art it is nearly opaque close to the letters.
-function titleHalo(el: HTMLElement, choice: { color: string; light: boolean }, samples: number[], fg: string, bg: string): void {
-  el.style.color = choice.color;
-  el.style.setProperty("--fg", choice.color);
-  el.style.setProperty("--fg-2", choice.color);
-  const textL = lum(...parseHex(choice.color));
+// The title and the date line, which have no plate. Their tone (light or
+// dark) is the one that suits the art behind them on average; then the
+// color is pushed toward black or white until it also stands out from the
+// worst tenth of that art (the brightest spots behind light text, the
+// darkest behind dark), to `target` (3:1 for the large title, 4.5:1 for the
+// date line). Only where even black or white can't get there, as over very
+// busy art, does the text get a small shadow in the opposite tone.
+function titleColor(el: HTMLElement, choice: { color: string; light: boolean }, samples: number[], target: number): void {
   samples.sort((a, b) => a - b);
-  // Light text is hurt by the brightest spots, dark text by the darkest.
-  const worst = samples.length ? samples[Math.floor((choice.light ? 0.9 : 0.1) * (samples.length - 1))] : textL;
-  const ratio = contrast(textL, worst);
-  // 7:1 or better at the worst spots: a faint glow; 1.5:1 or worse: nearly solid.
-  const t = Math.max(0, Math.min(1, (7 - ratio) / 5.5));
-  const alpha = Math.round(30 + 70 * t);
-  // The halo's color: the darker theme color pushed toward black, or the
-  // lighter one toward white.
-  const darker = lum(...parseHex(fg)) < lum(...parseHex(bg)) ? fg : bg;
-  const lighter = darker === fg ? bg : fg;
-  const halo = choice.light ? mix(darker, [0, 0, 0], 0.6) : mix(lighter, [255, 255, 255], 0.5);
-  el.style.setProperty("--title-halo", `color-mix(in srgb, ${halo} ${alpha}%, transparent)`);
+  const worst = samples.length ? samples[Math.floor((choice.light ? 0.9 : 0.1) * (samples.length - 1))] : 0;
+  const extreme: [number, number, number] = choice.light ? [255, 255, 255] : [0, 0, 0];
+  let color = choice.color, ratio = contrast(lum(...parseHex(color)), worst);
+  for (const t of [0.25, 0.5, 0.75, 1]) {
+    if (ratio >= target) break;
+    color = mix(choice.color, extreme, t);
+    ratio = contrast(lum(...parseHex(color)), worst);
+  }
+  el.style.color = color;
+  el.style.setProperty("--fg", color);
+  el.style.setProperty("--fg-2", color);
+  if (ratio < target) {
+    const shadow = choice.light ? "rgba(0, 0, 0, 0.55)" : "rgba(255, 255, 255, 0.6)";
+    el.style.setProperty("--halo", shadow);
+    el.style.textShadow = `0 1px 2px ${shadow}`;
+  }
 }
 
 let scheduled = false;

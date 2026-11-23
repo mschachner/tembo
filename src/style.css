@@ -57,19 +57,8 @@ body {
   padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5); margin-left: calc(var(--u) * -1.5);
   border-radius: var(--plate-radius);
 }
-/* The title block never sits on a plate. It keeps legible over any art with
-   a halo: a soft glow in the opposite tone to its text, close around the
-   letters and the elephant. --title-halo is its color; contrast.ts sets it
-   from the art behind (stronger over busy or mid-tone art). */
-.banner-text { --title-halo: color-mix(in srgb, var(--bg) 70%, transparent); }
-.banner-title, .banner-sub {
-  text-shadow: 0 0 1px var(--title-halo), 0 0 2px var(--title-halo), 0 0 4px var(--title-halo), 0 0 9px var(--title-halo), 0 0 18px var(--title-halo);
-}
-/* The date line's strokes are thin: its halo is denser close in. */
-.banner-sub { text-shadow: 0 0 1px var(--title-halo), 0 0 1px var(--title-halo), 0 0 2px var(--title-halo), 0 0 3px var(--title-halo), 0 0 6px var(--title-halo), 0 0 12px var(--title-halo); }
-.banner-text .tembo-mark svg {
-  filter: drop-shadow(0 0 1px var(--title-halo)) drop-shadow(0 0 3px var(--title-halo)) drop-shadow(0 0 9px var(--title-halo));
-}
+/* The title block never sits on a plate: contrast.ts picks its text color
+   from the art behind it (see titleColor there). */
 .banner-title {
   font-family: var(--title-font, var(--font)); font-size: var(--title-size);
   font-weight: var(--title-weight); letter-spacing: var(--title-tracking); line-height: 1;
