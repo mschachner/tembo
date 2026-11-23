@@ -57,6 +57,19 @@ body {
   padding: calc(var(--u) * 0.75) calc(var(--u) * 1.5); margin-left: calc(var(--u) * -1.5);
   border-radius: var(--plate-radius);
 }
+/* The title block never sits on a plate. It keeps legible over any art with
+   a halo: a soft glow in the opposite tone to its text, close around the
+   letters and the elephant. --title-halo is its color; contrast.ts sets it
+   from the art behind (stronger over busy or mid-tone art). */
+.banner-text { --title-halo: color-mix(in srgb, var(--bg) 70%, transparent); }
+.banner-title, .banner-sub {
+  text-shadow: 0 0 1px var(--title-halo), 0 0 2px var(--title-halo), 0 0 4px var(--title-halo), 0 0 9px var(--title-halo), 0 0 18px var(--title-halo);
+}
+/* The date line's strokes are thin: its halo is denser close in. */
+.banner-sub { text-shadow: 0 0 1px var(--title-halo), 0 0 1px var(--title-halo), 0 0 2px var(--title-halo), 0 0 3px var(--title-halo), 0 0 6px var(--title-halo), 0 0 12px var(--title-halo); }
+.banner-text .tembo-mark svg {
+  filter: drop-shadow(0 0 1px var(--title-halo)) drop-shadow(0 0 3px var(--title-halo)) drop-shadow(0 0 9px var(--title-halo));
+}
 .banner-title {
   font-family: var(--title-font, var(--font)); font-size: var(--title-size);
   font-weight: var(--title-weight); letter-spacing: var(--title-tracking); line-height: 1;
@@ -86,7 +99,7 @@ body {
 [data-tabs="pills"] .tab { border-radius: var(--radius); }
 /* card: tabs inside the title plate */
 [data-tabs="card"] .tabs-wrap { padding: 0; }
-[data-tabs="card"] .banner-text .tabs { margin-top: calc(var(--u) * 1.25); margin-left: calc(var(--u) * -0.75); }
+[data-tabs="card"] .banner-text .tabs { margin-top: calc(var(--u) * 1.25); margin-left: calc(var(--u) * -0.75); padding: 2px; border-radius: var(--plate-radius); text-shadow: none; }
 [data-tabs="card"] .banner-text { pointer-events: auto; }
 /* bar: full-width band with an underline, the original */
 [data-tabs="bar"] .tabs-wrap { max-width: none; padding: 0 calc(var(--u) * 5); border-bottom: 1px solid var(--line); }
@@ -101,7 +114,7 @@ body {
 /* Surfaces: page-colored plates behind each block of content. Over solid
    background they are invisible; over banner art they keep text legible. */
 [data-surfaces="none"] { --plate: 0%; --plate-blur: 0px; }
-.banner-text, [data-tabs="pill"] .tabs, [data-tabs="pills"] .tab, [data-tabs="bar"] .tabs-wrap, .page > div > * {
+[data-tabs="pill"] .tabs, [data-tabs="pills"] .tab, [data-tabs="bar"] .tabs-wrap, [data-tabs="card"] .banner-text .tabs, .page > div > * {
   background: color-mix(in srgb, var(--bg) var(--plate), transparent);
   backdrop-filter: blur(var(--plate-blur)); -webkit-backdrop-filter: blur(var(--plate-blur));
 }

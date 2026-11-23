@@ -33,7 +33,7 @@ function contrast(a: number, b: number): number {
 
 function reset(): void {
   for (const el of adapted) {
-    for (const prop of ["color", "--fg", "--fg-2", "--fg-3", "text-shadow", "--halo"]) el.style.removeProperty(prop);
+    for (const prop of ["color", "--fg", "--fg-2", "--fg-3", "text-shadow", "--halo", "--title-halo"]) el.style.removeProperty(prop);
   }
   adapted = [];
 }
@@ -127,9 +127,14 @@ export function updateContrast(): void {
     const r = el.getBoundingClientRect();
     const top = r.top - appTop, bottom = r.bottom - appTop;
     if (top >= artH || r.width === 0) continue; // entirely below the art
+    // The title block has no plate (see style.css).
+    const isTitle = el.classList.contains("banner-text");
+    const platePart = isTitle ? 0 : plate;
     // Average luminance behind the element, blending art with page color
-    // by the edge's opacity at each row, then with the plate on top.
+    // by the edge's opacity at each row, then with the plate on top. The
+    // title also keeps every sample, for the worst spots behind it.
     let sum = 0, n = 0;
+    const all: number[] = [];
     const y0 = Math.max(0, Math.floor(top * scale)), y1 = Math.min(h - 1, Math.ceil(bottom * scale));
     const x0 = Math.max(0, Math.floor((r.left) * scale)), x1 = Math.min(w - 1, Math.ceil(r.right * scale));
     for (let y = y0; y <= y1; y++) {
@@ -137,16 +142,23 @@ export function updateContrast(): void {
       for (let x = x0; x <= x1; x++) {
         const i = (y * w + x) * 4;
         const L = lum(px[i], px[i + 1], px[i + 2]);
-        sum += a * L + (1 - a) * bgL;
+        const v = a * L + (1 - a) * bgL;
+        sum += v;
         n++;
+        if (isTitle) all.push(v);
       }
     }
     // Rows of the element below the art see page color.
     const belowRows = Math.max(0, Math.ceil(bottom * scale) - (h - 1)) * Math.max(1, x1 - x0 + 1);
     sum += belowRows * bgL; n += belowRows;
     if (!n) continue;
-    const behind = plate * bgL + (1 - plate) * (sum / n);
+    const behind = platePart * bgL + (1 - platePart) * (sum / n);
     const choice = pickColor(behind, String(theme.fg), String(theme.bg));
+    if (isTitle) {
+      titleHalo(el, choice, all, String(theme.fg), String(theme.bg));
+      adapted.push(el);
+      continue;
+    }
     // Over art, every element gets its text set explicitly: the chosen
     // color, with the muted levels only slightly softened.
     el.style.color = choice.color;
@@ -159,6 +171,30 @@ export function updateContrast(): void {
     }
     adapted.push(el);
   }
+}
+
+// The title's halo: in the opposite tone to its text (dark around light
+// text, light around dark), as strong as the worst tenth of the art behind
+// it needs. Over plain art with plenty of contrast it is a faint glow; over
+// busy or mid-tone art it is nearly opaque close to the letters.
+function titleHalo(el: HTMLElement, choice: { color: string; light: boolean }, samples: number[], fg: string, bg: string): void {
+  el.style.color = choice.color;
+  el.style.setProperty("--fg", choice.color);
+  el.style.setProperty("--fg-2", choice.color);
+  const textL = lum(...parseHex(choice.color));
+  samples.sort((a, b) => a - b);
+  // Light text is hurt by the brightest spots, dark text by the darkest.
+  const worst = samples.length ? samples[Math.floor((choice.light ? 0.9 : 0.1) * (samples.length - 1))] : textL;
+  const ratio = contrast(textL, worst);
+  // 7:1 or better at the worst spots: a faint glow; 1.5:1 or worse: nearly solid.
+  const t = Math.max(0, Math.min(1, (7 - ratio) / 5.5));
+  const alpha = Math.round(30 + 70 * t);
+  // The halo's color: the darker theme color pushed toward black, or the
+  // lighter one toward white.
+  const darker = lum(...parseHex(fg)) < lum(...parseHex(bg)) ? fg : bg;
+  const lighter = darker === fg ? bg : fg;
+  const halo = choice.light ? mix(darker, [0, 0, 0], 0.6) : mix(lighter, [255, 255, 255], 0.5);
+  el.style.setProperty("--title-halo", `color-mix(in srgb, ${halo} ${alpha}%, transparent)`);
 }
 
 let scheduled = false;

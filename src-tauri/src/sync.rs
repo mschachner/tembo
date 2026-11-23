@@ -133,6 +133,24 @@ pub fn push(app: AppHandle, root: PathBuf, message: String) {
     });
 }
 
+/// Wait, up to `limit`, for a git operation in progress to finish, then hold
+/// the lock so none starts: the app can quit without leaving a half-made
+/// commit (and a stale lock file) in the data folder. Returns the guard to
+/// hold until the process exits.
+pub fn quiesce(limit: std::time::Duration) -> Option<std::sync::MutexGuard<'static, ()>> {
+    let until = std::time::Instant::now() + limit;
+    loop {
+        match GIT.try_lock() {
+            Ok(guard) => return Some(guard),
+            Err(std::sync::TryLockError::Poisoned(p)) => return Some(p.into_inner()),
+            Err(std::sync::TryLockError::WouldBlock) if std::time::Instant::now() < until => {
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+            Err(_) => return None,
+        }
+    }
+}
+
 pub fn status(root: &PathBuf) -> Status {
     let mut s = STATUS.lock().unwrap().clone();
     s.source = remote(root);

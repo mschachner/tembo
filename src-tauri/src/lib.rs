@@ -396,6 +396,18 @@ fn parse_hex(hex: &str) -> Option<(u8, u8, u8)> {
     Some((byte(0)?, byte(2)?, byte(4)?))
 }
 
+/// Hide every window at once, let a sync that is writing to the data
+/// folder finish (a few seconds at most), then exit.
+fn quit(app: tauri::AppHandle) {
+    for w in app.webview_windows().values() {
+        let _ = w.hide();
+    }
+    std::thread::spawn(move || {
+        let _held = sync::quiesce(std::time::Duration::from_secs(8));
+        app.exit(0);
+    });
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -405,6 +417,15 @@ pub fn run() {
             read_library, write_library, open_folder, open_url, clear_attempts,
             sync_now, sync_status
         ])
+        // Closing the main window quits the app, settings window included.
+        .on_window_event(|window, event| {
+            if window.label() == "main" {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    quit(window.app_handle().clone());
+                }
+            }
+        })
         .setup(|app| {
             paths::init(app)?;
             // Bring in anything new: quizzes for the Watering Hole, and the
