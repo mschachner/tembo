@@ -1,0 +1,15 @@
+title: Architect of the building
+tags: art, architecture
+levels: standard, no clues
+chunks: set 1
+---
+Dome of Florence Cathedral => Florence Cathedral
+Banqueting House (Whitehall) => Banqueting House
+St Paul's Cathedral (London) => St Paul's Cathedral
+Crystal Palace (1851) => The Crystal Palace
+Glasgow School of Art (Mackintosh Building) => Glasgow School of Art
+Bauhaus Building (Dessau) => Bauhaus Dessau
+Glass House (New Canaan) => Glass House (New Canaan, Connecticut)
+30 St Mary Axe (the Gherkin) => The Gherkin
+John Nash => John Nash (architect)
+Charles Garnier => Charles Garnier (architect)

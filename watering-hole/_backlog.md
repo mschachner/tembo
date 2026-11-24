@@ -120,7 +120,7 @@ chat.
 - [x] Composer of the opera (prompt) — added 2026-11-21 as composer-of-the-opera
 - [x] Olympic host cities, Summer (prompt: year → city) — added 2026-11-22 as summer-olympics-host-cities
 - [x] Element symbols, 41–60 (prompt) — new chunk of element-symbols — added 2026-11-23 as element-symbols/41-60
-- [ ] Nepuvgrpg bs gur ohvyqvat (cebzcg)
+- [x] Architect of the building (prompt) — added 2026-11-24 as architect-of-the-building
 - [ ] Funxrfcrner punenpgref → cynl (cebzcg) — vgf bja frevrf, abg n puhax bs funxrfcrner-cynlf
 - [ ] Ybatrfg eviref (yvfg)
 - [ ] Cbrg bs gur cbrz (cebzcg)

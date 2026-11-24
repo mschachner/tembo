@@ -1,0 +1,39 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Building
+answer-label: Architect
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+Dome of Florence Cathedral :: Filippo Brunelleschi | Brunelleschi
+Villa La Rotonda :: Andrea Palladio | Palladio
+Banqueting House (Whitehall) :: Inigo Jones | Jones
+St Paul's Cathedral (London) :: Christopher Wren | Wren | Sir Christopher Wren
+Monticello :: Thomas Jefferson | Jefferson
+Royal Pavilion :: John Nash | Nash
+Crystal Palace (1851) :: Joseph Paxton | Paxton | Sir Joseph Paxton
+Palais Garnier :: Charles Garnier | Garnier
+Sagrada Família :: Antoni Gaudí | Gaudí | Antonio Gaudí
+Wainwright Building :: Louis Sullivan | Sullivan | Louis H. Sullivan | Adler & Sullivan | Adler and Sullivan
+Flatiron Building :: Daniel Burnham | Burnham | Daniel H. Burnham
+Glasgow School of Art (Mackintosh Building) :: Charles Rennie Mackintosh | Mackintosh
+Bauhaus Building (Dessau) :: Walter Gropius | Gropius
+Chrysler Building :: William Van Alen | Van Alen
+Villa Savoye :: Le Corbusier | Corbusier | Charles-Édouard Jeanneret
+Fallingwater :: Frank Lloyd Wright | Wright
+Glass House (New Canaan) :: Philip Johnson | Johnson
+Farnsworth House :: Ludwig Mies van der Rohe | Mies van der Rohe | Mies
+TWA Flight Center :: Eero Saarinen | Saarinen
+Salk Institute for Biological Studies :: Louis Kahn | Kahn | Louis I. Kahn
+Cathedral of Brasília :: Oscar Niemeyer | Niemeyer
+Sydney Opera House :: Jørn Utzon | Utzon | Jorn Utzon | Joern Utzon
+Lloyd's building :: Richard Rogers | Rogers
+Louvre Pyramid :: I. M. Pei | Pei | Ieoh Ming Pei
+Guggenheim Museum Bilbao :: Frank Gehry | Gehry
+Petronas Towers :: César Pelli | Pelli
+Jewish Museum Berlin :: Daniel Libeskind | Libeskind
+30 St Mary Axe (the Gherkin) :: Norman Foster | Foster | Lord Foster
+Heydar Aliyev Center :: Zaha Hadid | Hadid
+The Shard :: Renzo Piano | Piano

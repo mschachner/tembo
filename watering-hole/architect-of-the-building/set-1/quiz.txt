@@ -1,0 +1,39 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Location, Built
+prompt-label: Building
+answer-label: Architect
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+Dome of Florence Cathedral :: Filippo Brunelleschi | Brunelleschi ;; Florence ;; 1420–1436
+Villa La Rotonda :: Andrea Palladio | Palladio ;; Vicenza ;; 1567–1605
+Banqueting House (Whitehall) :: Inigo Jones | Jones ;; London ;; 1619–1622
+St Paul's Cathedral (London) :: Christopher Wren | Wren | Sir Christopher Wren ;; London ;; 1675–1710
+Monticello :: Thomas Jefferson | Jefferson ;; near Charlottesville, Virginia ;; 1768–1809
+Royal Pavilion :: John Nash | Nash ;; Brighton ;; 1815–1823
+Crystal Palace (1851) :: Joseph Paxton | Paxton | Sir Joseph Paxton ;; London ;; 1851
+Palais Garnier :: Charles Garnier | Garnier ;; Paris ;; 1861–1875
+Sagrada Família :: Antoni Gaudí | Gaudí | Antonio Gaudí ;; Barcelona ;; begun 1882
+Wainwright Building :: Louis Sullivan | Sullivan | Louis H. Sullivan | Adler & Sullivan | Adler and Sullivan ;; St. Louis ;; 1890–1892
+Flatiron Building :: Daniel Burnham | Burnham | Daniel H. Burnham ;; New York City ;; 1902
+Glasgow School of Art (Mackintosh Building) :: Charles Rennie Mackintosh | Mackintosh ;; Glasgow ;; 1897–1909
+Bauhaus Building (Dessau) :: Walter Gropius | Gropius ;; Dessau ;; 1925–1926
+Chrysler Building :: William Van Alen | Van Alen ;; New York City ;; 1928–1930
+Villa Savoye :: Le Corbusier | Corbusier | Charles-Édouard Jeanneret ;; Poissy ;; 1928–1931
+Fallingwater :: Frank Lloyd Wright | Wright ;; Stewart Township, Pennsylvania ;; 1936–1939
+Glass House (New Canaan) :: Philip Johnson | Johnson ;; New Canaan, Connecticut ;; 1949
+Farnsworth House :: Ludwig Mies van der Rohe | Mies van der Rohe | Mies ;; Plano, Illinois ;; 1945–1951
+TWA Flight Center :: Eero Saarinen | Saarinen ;; New York City ;; 1962
+Salk Institute for Biological Studies :: Louis Kahn | Kahn | Louis I. Kahn ;; La Jolla, California ;; 1965
+Cathedral of Brasília :: Oscar Niemeyer | Niemeyer ;; Brasília ;; 1970
+Sydney Opera House :: Jørn Utzon | Utzon | Jorn Utzon | Joern Utzon ;; Sydney ;; 1959–1973
+Lloyd's building :: Richard Rogers | Rogers ;; London ;; 1978–1986
+Louvre Pyramid :: I. M. Pei | Pei | Ieoh Ming Pei ;; Paris ;; 1989
+Guggenheim Museum Bilbao :: Frank Gehry | Gehry ;; Bilbao ;; 1997
+Petronas Towers :: César Pelli | Pelli ;; Kuala Lumpur ;; 1993–1996
+Jewish Museum Berlin :: Daniel Libeskind | Libeskind ;; Berlin ;; 1999
+30 St Mary Axe (the Gherkin) :: Norman Foster | Foster | Lord Foster ;; London ;; 2003
+Heydar Aliyev Center :: Zaha Hadid | Hadid ;; Baku ;; 2012
+The Shard :: Renzo Piano | Piano ;; London ;; 2012
