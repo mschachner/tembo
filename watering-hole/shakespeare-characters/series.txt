@@ -1,0 +1,18 @@
+title: Play of the Shakespeare character
+tags: literature, shakespeare
+levels: standard, no clues
+chunks: set 1
+---
+Bottom => Nick Bottom
+Beatrice => Beatrice (Much Ado About Nothing)
+Benedick =>
+Cassius => Gaius Cassius Longinus
+Cordelia => Cordelia (King Lear)
+Enobarbus => Gnaeus Domitius Ahenobarbus (consul 32 BC)
+Jaques => Jaques (As You Like It)
+Miranda => Miranda (The Tempest)
+Perdita => Perdita (The Winter's Tale)
+Puck => Puck (A Midsummer Night's Dream)
+Rosalind => Rosalind (As You Like It)
+Viola => Viola (Twelfth Night)
+Julius Caesar => Julius Caesar (play)

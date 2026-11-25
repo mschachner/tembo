@@ -1,0 +1,39 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Character
+answer-label: Play
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+Banquo :: Macbeth | The Tragedy of Macbeth
+Bassanio :: The Merchant of Venice | Merchant of Venice
+Beatrice :: Much Ado About Nothing
+Benedick :: Much Ado About Nothing
+Bottom :: A Midsummer Night's Dream | Midsummer Night's Dream
+Caliban :: The Tempest | Tempest
+Cassius :: Julius Caesar | The Tragedy of Julius Caesar
+Christopher Sly :: The Taming of the Shrew | Taming of the Shrew
+Cordelia :: King Lear | The Tragedy of King Lear | Lear
+Desdemona :: Othello | Othello, the Moor of Venice | The Tragedy of Othello, the Moor of Venice
+Dogberry :: Much Ado About Nothing
+Enobarbus :: Antony and Cleopatra | Antony & Cleopatra
+Goneril :: King Lear | The Tragedy of King Lear | Lear
+Iago :: Othello | Othello, the Moor of Venice | The Tragedy of Othello, the Moor of Venice
+Jaques :: As You Like It
+Lady Macbeth :: Macbeth | The Tragedy of Macbeth
+Leontes :: The Winter's Tale | Winter's Tale
+Malvolio :: Twelfth Night | Twelfth Night, or What You Will
+Mercutio :: Romeo and Juliet | Romeo & Juliet | The Tragedy of Romeo and Juliet
+Miranda :: The Tempest | Tempest
+Ophelia :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark
+Perdita :: The Winter's Tale | Winter's Tale
+Polonius :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark
+Prospero :: The Tempest | Tempest
+Puck :: A Midsummer Night's Dream | Midsummer Night's Dream
+Rosalind :: As You Like It
+Shylock :: The Merchant of Venice | Merchant of Venice
+Tybalt :: Romeo and Juliet | Romeo & Juliet | The Tragedy of Romeo and Juliet
+Viola :: Twelfth Night | Twelfth Night, or What You Will
+Yorick :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark

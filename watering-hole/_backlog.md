@@ -121,7 +121,7 @@ chat.
 - [x] Olympic host cities, Summer (prompt: year → city) — added 2026-11-22 as summer-olympics-host-cities
 - [x] Element symbols, 41–60 (prompt) — new chunk of element-symbols — added 2026-11-23 as element-symbols/41-60
 - [x] Architect of the building (prompt) — added 2026-11-24 as architect-of-the-building
-- [ ] Funxrfcrner punenpgref → cynl (cebzcg) — vgf bja frevrf, abg n puhax bs funxrfcrner-cynlf
+- [x] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays — added 2026-11-25 as shakespeare-characters
 - [ ] Ybatrfg eviref (yvfg)
 - [ ] Cbrg bs gur cbrz (cebzcg)
 - [ ] Puvarfr mbqvnp va beqre (cebzcg)

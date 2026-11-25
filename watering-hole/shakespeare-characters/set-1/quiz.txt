@@ -1,0 +1,39 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Role
+prompt-label: Character
+answer-label: Play
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+Banquo :: Macbeth | The Tragedy of Macbeth ;; Scottish general whose ghost appears at a feast
+Bassanio :: The Merchant of Venice | Merchant of Venice ;; Suitor of Portia
+Beatrice :: Much Ado About Nothing ;; Sharp-tongued niece of Leonato
+Benedick :: Much Ado About Nothing ;; Young lord of Padua and sworn bachelor
+Bottom :: A Midsummer Night's Dream | Midsummer Night's Dream ;; Weaver given an ass's head
+Caliban :: The Tempest | Tempest ;; Son of the witch Sycorax
+Cassius :: Julius Caesar | The Tragedy of Julius Caesar ;; Conspirator with "a lean and hungry look"
+Christopher Sly :: The Taming of the Shrew | Taming of the Shrew ;; Drunken tinker of the Induction
+Cordelia :: King Lear | The Tragedy of King Lear | Lear ;; Youngest of three royal sisters
+Desdemona :: Othello | Othello, the Moor of Venice | The Tragedy of Othello, the Moor of Venice ;; Wife of a Moorish general
+Dogberry :: Much Ado About Nothing ;; Bumbling constable
+Enobarbus :: Antony and Cleopatra | Antony & Cleopatra ;; Roman officer who deserts his general
+Goneril :: King Lear | The Tragedy of King Lear | Lear ;; Eldest of three royal sisters
+Iago :: Othello | Othello, the Moor of Venice | The Tragedy of Othello, the Moor of Venice ;; Scheming ensign
+Jaques :: As You Like It ;; Melancholy lord: "All the world's a stage"
+Lady Macbeth :: Macbeth | The Tragedy of Macbeth ;; Thane's wife who sleepwalks
+Leontes :: The Winter's Tale | Winter's Tale ;; Jealous King of Sicilia
+Malvolio :: Twelfth Night | Twelfth Night, or What You Will ;; Steward in cross-gartered yellow stockings
+Mercutio :: Romeo and Juliet | Romeo & Juliet | The Tragedy of Romeo and Juliet ;; Kinsman of the Prince, of the "Queen Mab" speech
+Miranda :: The Tempest | Tempest ;; Daughter of an exiled duke, raised on an island
+Ophelia :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark ;; Daughter of the Lord Chamberlain, drowned
+Perdita :: The Winter's Tale | Winter's Tale ;; Lost princess raised by a shepherd
+Polonius :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark ;; Lord Chamberlain stabbed behind an arras
+Prospero :: The Tempest | Tempest ;; Exiled Duke of Milan and magician
+Puck :: A Midsummer Night's Dream | Midsummer Night's Dream ;; Mischievous sprite serving the fairy king
+Rosalind :: As You Like It ;; Duke's daughter disguised as Ganymede
+Shylock :: The Merchant of Venice | Merchant of Venice ;; Moneylender who demands a pound of flesh
+Tybalt :: Romeo and Juliet | Romeo & Juliet | The Tragedy of Romeo and Juliet ;; "Prince of Cats", killed in a street fight
+Viola :: Twelfth Night | Twelfth Night, or What You Will ;; Shipwrecked twin disguised as Cesario
+Yorick :: Hamlet | Hamlet, Prince of Denmark | The Tragedy of Hamlet, Prince of Denmark ;; Dead jester whose skull is dug up
