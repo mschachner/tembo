@@ -1,0 +1,9 @@
+title: Ten longest rivers in the world
+tags: geography, rivers
+levels: standard, in order
+---
+Amazon => Amazon River
+Mississippi–Missouri => Mississippi River
+Ob => Ob (river)
+Paraná => Paraná River
+Congo => Congo River

@@ -1,0 +1,17 @@
+level: in order
+mode: prompt
+pass: 100
+prompt-label: Rank
+answer-label: River
+wiki-answer: {answer}
+---
+1st :: Nile | Nile River | River Nile
+2nd :: Amazon | Amazon River | Amazonas
+3rd :: Yangtze | Yangtze River | Yangzi | Chang Jiang | Changjiang
+4th :: Mississippi–Missouri | Mississippi | Missouri | Mississippi River | Missouri–Mississippi
+5th :: Yenisey | Yenisei | Yenisey River | Yenisei River | Yenisei–Angara | Yenisey–Angara
+6th :: Yellow River | Yellow | Huang He | Huanghe | Hwang Ho
+7th :: Ob | Ob River | Ob–Irtysh | Obi
+8th :: Paraná | Parana River | Paraná–Río de la Plata | Río de la Plata–Paraná
+9th :: Congo | Congo River | Zaire | Zaire River
+10th :: Amur | Amur River | Heilong Jiang | Heilongjiang | Amur–Argun

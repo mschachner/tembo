@@ -122,7 +122,7 @@ chat.
 - [x] Element symbols, 41–60 (prompt) — new chunk of element-symbols — added 2026-11-23 as element-symbols/41-60
 - [x] Architect of the building (prompt) — added 2026-11-24 as architect-of-the-building
 - [x] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays — added 2026-11-25 as shakespeare-characters
-- [ ] Ybatrfg eviref (yvfg)
+- [x] Longest rivers (list) — added 2026-11-26 as longest-rivers
 - [ ] Cbrg bs gur cbrz (cebzcg)
 - [ ] Puvarfr mbqvnp va beqre (cebzcg)
 - [ ] Ebzna rzcrebef, Whyvb-Pynhqvna gb Frirena (yvfg)
