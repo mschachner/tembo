@@ -1,0 +1,36 @@
+chunk: set 1
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Poem
+answer-label: Poet
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+The Divine Comedy :: Dante Alighieri | Dante
+The Canterbury Tales :: Geoffrey Chaucer | Chaucer
+The Faerie Queene :: Edmund Spenser | Spenser
+Paradise Lost :: John Milton | Milton
+The Rape of the Lock :: Alexander Pope | Pope
+Elegy Written in a Country Churchyard :: Thomas Gray | Gray
+The Tyger :: William Blake | Blake
+The Rime of the Ancient Mariner :: Samuel Taylor Coleridge | Coleridge | S. T. Coleridge
+I Wandered Lonely as a Cloud :: William Wordsworth | Wordsworth
+She Walks in Beauty :: Lord Byron | Byron | George Gordon Byron | George Gordon, Lord Byron
+Ozymandias :: Percy Bysshe Shelley | Shelley | Percy Shelley
+Ode to a Nightingale :: John Keats | Keats
+The Raven :: Edgar Allan Poe | Poe | Edgar Poe
+The Charge of the Light Brigade :: Alfred, Lord Tennyson | Tennyson | Alfred Tennyson | Lord Tennyson
+O Captain! My Captain! :: Walt Whitman | Whitman
+Dover Beach :: Matthew Arnold | Arnold
+Jabberwocky :: Lewis Carroll | Carroll | Charles Dodgson | Charles Lutwidge Dodgson
+Because I could not stop for Death :: Emily Dickinson | Dickinson
+If— :: Rudyard Kipling | Kipling
+The Road Not Taken :: Robert Frost | Frost
+Dulce et Decorum est :: Wilfred Owen | Owen
+The Second Coming :: W. B. Yeats | Yeats | William Butler Yeats
+The Waste Land :: T. S. Eliot | Eliot | Thomas Stearns Eliot
+Do not go gentle into that good night :: Dylan Thomas | Thomas
+Howl :: Allen Ginsberg | Ginsberg
+Daddy :: Sylvia Plath | Plath
+Still I Rise :: Maya Angelou | Angelou

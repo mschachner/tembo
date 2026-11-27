@@ -1,0 +1,11 @@
+title: Poet of the poem
+tags: literature, poetry
+levels: standard, no clues
+chunks: set 1
+---
+The Divine Comedy => Divine Comedy
+The Charge of the Light Brigade => The Charge of the Light Brigade (poem)
+The Second Coming => The Second Coming (poem)
+Howl => Howl (poem)
+Daddy => Daddy (poem)
+Still I Rise => And Still I Rise

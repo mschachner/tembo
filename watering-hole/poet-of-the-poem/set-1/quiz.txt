@@ -1,0 +1,36 @@
+chunk: set 1
+mode: prompt
+pass: 100
+columns: Published
+prompt-label: Poem
+answer-label: Poet
+wiki-prompt: {prompt}
+wiki-answer: {answer}
+---
+The Divine Comedy :: Dante Alighieri | Dante ;; c. 1321
+The Canterbury Tales :: Geoffrey Chaucer | Chaucer ;; c. 1400
+The Faerie Queene :: Edmund Spenser | Spenser ;; 1590–96
+Paradise Lost :: John Milton | Milton ;; 1667
+The Rape of the Lock :: Alexander Pope | Pope ;; 1712
+Elegy Written in a Country Churchyard :: Thomas Gray | Gray ;; 1751
+The Tyger :: William Blake | Blake ;; 1794
+The Rime of the Ancient Mariner :: Samuel Taylor Coleridge | Coleridge | S. T. Coleridge ;; 1798
+I Wandered Lonely as a Cloud :: William Wordsworth | Wordsworth ;; 1807
+She Walks in Beauty :: Lord Byron | Byron | George Gordon Byron | George Gordon, Lord Byron ;; 1815
+Ozymandias :: Percy Bysshe Shelley | Shelley | Percy Shelley ;; 1818
+Ode to a Nightingale :: John Keats | Keats ;; 1819
+The Raven :: Edgar Allan Poe | Poe | Edgar Poe ;; 1845
+The Charge of the Light Brigade :: Alfred, Lord Tennyson | Tennyson | Alfred Tennyson | Lord Tennyson ;; 1854
+O Captain! My Captain! :: Walt Whitman | Whitman ;; 1865
+Dover Beach :: Matthew Arnold | Arnold ;; 1867
+Jabberwocky :: Lewis Carroll | Carroll | Charles Dodgson | Charles Lutwidge Dodgson ;; 1871
+Because I could not stop for Death :: Emily Dickinson | Dickinson ;; 1890
+If— :: Rudyard Kipling | Kipling ;; 1910
+The Road Not Taken :: Robert Frost | Frost ;; 1915
+Dulce et Decorum est :: Wilfred Owen | Owen ;; 1920
+The Second Coming :: W. B. Yeats | Yeats | William Butler Yeats ;; 1920
+The Waste Land :: T. S. Eliot | Eliot | Thomas Stearns Eliot ;; 1922
+Do not go gentle into that good night :: Dylan Thomas | Thomas ;; 1951
+Howl :: Allen Ginsberg | Ginsberg ;; 1956
+Daddy :: Sylvia Plath | Plath ;; 1965
+Still I Rise :: Maya Angelou | Angelou ;; 1978
