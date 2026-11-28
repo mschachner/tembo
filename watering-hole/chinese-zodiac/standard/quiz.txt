@@ -1,0 +1,19 @@
+mode: prompt
+pass: 100
+columns: Year
+prompt-label: Order
+answer-label: Animal
+wiki-answer: {answer} (zodiac)
+---
+1st :: Rat | Mouse ;; 2020
+2nd :: Ox | Cow | Bull | Buffalo ;; 2021
+3rd :: Tiger ;; 2022
+4th :: Rabbit | Hare ;; 2023
+5th :: Dragon ;; 2024
+6th :: Snake | Serpent ;; 2025
+7th :: Horse ;; 2026
+8th :: Goat | Sheep | Ram ;; 2027
+9th :: Monkey ;; 2028
+10th :: Rooster | Chicken | Cock ;; 2029
+11th :: Dog ;; 2030
+12th :: Pig | Boar | Hog ;; 2031

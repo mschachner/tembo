@@ -124,7 +124,7 @@ chat.
 - [x] Shakespeare characters → play (prompt) — its own series, not a chunk of shakespeare-plays — added 2026-11-25 as shakespeare-characters
 - [x] Longest rivers (list) — added 2026-11-26 as longest-rivers
 - [x] Poet of the poem (prompt) — added 2026-11-27 as poet-of-the-poem
-- [ ] Puvarfr mbqvnp va beqre (cebzcg)
+- [x] Chinese zodiac in order (prompt) — added 2026-11-28 as chinese-zodiac
 - [ ] Ebzna rzcrebef, Whyvb-Pynhqvna gb Frirena (yvfg)
 - [ ] Pbzcbfref bs snzbhf jbexf, frg 2 (cebzcg) — arj puhax bs pbzcbfref-bs-snzbhf-jbexf
 - [ ] Syntf bs Rhebcr (cebzcg, vzntrf)

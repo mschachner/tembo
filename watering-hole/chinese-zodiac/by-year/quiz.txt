@@ -1,0 +1,19 @@
+level: by year
+mode: prompt
+pass: 100
+prompt-label: Year
+answer-label: Animal
+wiki-answer: {answer} (zodiac)
+---
+1984 :: Rat | Mouse
+1985 :: Ox | Cow | Bull | Buffalo
+1986 :: Tiger
+1987 :: Rabbit | Hare
+1988 :: Dragon
+1989 :: Snake | Serpent
+1990 :: Horse
+1991 :: Goat | Sheep | Ram
+1992 :: Monkey
+1993 :: Rooster | Chicken | Cock
+1994 :: Dog
+1995 :: Pig | Boar | Hog

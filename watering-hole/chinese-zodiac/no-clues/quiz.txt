@@ -1,0 +1,19 @@
+level: no clues
+mode: prompt
+pass: 100
+prompt-label: Order
+answer-label: Animal
+wiki-answer: {answer} (zodiac)
+---
+1st :: Rat | Mouse
+2nd :: Ox | Cow | Bull | Buffalo
+3rd :: Tiger
+4th :: Rabbit | Hare
+5th :: Dragon
+6th :: Snake | Serpent
+7th :: Horse
+8th :: Goat | Sheep | Ram
+9th :: Monkey
+10th :: Rooster | Chicken | Cock
+11th :: Dog
+12th :: Pig | Boar | Hog

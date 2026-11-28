@@ -1,0 +1,3 @@
+title: Chinese zodiac in order
+tags: culture, chinese zodiac
+levels: standard, no clues, by year
